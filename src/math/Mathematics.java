@@ -58,4 +58,19 @@ public class Mathematics {
     public static float Tan(float radians) {
         return (float) StrictMath.tan(radians);
     }
+
+    // Encodes a floating value into a integer value in order to work with integer
+    // comparisons in the Sweep-And-Prune algorithm, for performance.
+    // The main issue when encoding a floating number into an integer is keeping
+    // the sorting order. This is a problem for negative float numbers.
+    // This article describes how to solve this issue: http://www.stereopsis.com/radix.html
+    public static long encodeFloatIntoInteger(float number) {
+        long intNumber = (long) Float.floatToIntBits(number) & 0xFFFFFFFFl;
+        if ((intNumber & 0x80000000l) == 0x80000000l) {
+            intNumber = ~intNumber & 0xFFFFFFFFl;
+        } else {
+            intNumber |= 0x80000000l;
+        }
+        return intNumber;
+    }
 }

@@ -1,17 +1,31 @@
 package collision.broadphase;
 
 public class EndPoint {
-    // ID of the AABB box corresponding to this end-point
-    public int boxID;
+    private int boxID;
+    private boolean isMin;
+    private long value;
 
-    // True if the end-point is a minimum end-point of a box
-    public boolean isMin;
+    private int getBoxID() {
+        return boxID;
+    }
 
-    // Value (one dimension coordinate) of the end-point
-    public long value;
+    private void setBoxID(int boxID) {
+        this.boxID = boxID;
+    }
 
-    // Set the values of the endpoint
-    public void setValues(int boxID, boolean isMin, long value) {
+    private boolean isMin() {
+        return isMin;
+    }
+
+    private long getValue() {
+        return value;
+    }
+
+    private void setValue(long value) {
+        this.value = value;
+    }
+
+    private void setValues(int boxID, boolean isMin, long value) {
         this.boxID = boxID;
         this.isMin = isMin;
         this.value = value;

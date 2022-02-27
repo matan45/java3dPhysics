@@ -3,12 +3,47 @@ package collision.broadphase;
 import body.CollisionBody;
 
 public class BoxAABB {
-    // Index of the 3 minimum end-points of the AABB over the x,y,z axis
-    public final int[] min = new int[3];
+    private final int[] min = new int[3];
+    private final int[] max = new int[3];
+    private CollisionBody body;
 
-    // Index of the 3 maximum end-points of the AABB over the x,y,z axis
-    public final int[] max = new int[3];
+    private int[] getMin() {
+        return min;
+    }
 
-    // Body that corresponds to the owner of the AABB
-    public CollisionBody body;
+    private void setMin(int i, int v) {
+        min[i] = v;
+    }
+
+    private int[] getMax() {
+        return max;
+    }
+
+    private void setMax(int i, int v) {
+        max[i] = v;
+    }
+
+    private CollisionBody getBody() {
+        return body;
+    }
+
+    private void setBody(CollisionBody body) {
+        this.body = body;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof final BoxAABB boxAABB)) {
+            return false;
+        }
+        return !(body != null ? !body.equals(boxAABB.getBody()) : boxAABB.getBody() != null);
+    }
+
+    @Override
+    public int hashCode() {
+        return body != null ? body.hashCode() : 0;
+    }
 }
