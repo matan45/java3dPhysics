@@ -53,8 +53,8 @@ public class Sphere {
 
         // Spheres do not overlap, calculate the closest points on their surfaces
         float halfDistance = distance * 0.5f;
-        float scaleFactor1 = (halfDistance + radius1) / distance; // Scale factor for vector from center1 to closest point on surface1
-        float scaleFactor2 = (halfDistance + radius2) / distance; // Scale factor for vector from center2 to closest point on surface2
+        float scaleFactor1 = (halfDistance + radius1) / distance; // Scale factor for vector from center1 to the closest point on surface1
+        float scaleFactor2 = (halfDistance + radius2) / distance; // Scale factor for vector from center2 to the closest point on surface2
 
         Vector3f closestPoint1 = center1.add(vecBetweenCenters.mul(scaleFactor1));
         Vector3f closestPoint2 = center2.sub(vecBetweenCenters.mul(scaleFactor2));
