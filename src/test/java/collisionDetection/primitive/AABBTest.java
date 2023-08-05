@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class AABBTest {
 
     @Test
-    void testAABBClosestPointPair() {
+    void testIsAABBCollidingWithAABB() {
         Vector3f min1 = new Vector3f(0, 0, 0);
         Vector3f max1 = new Vector3f(2, 2, 2);
         AABB aabb1 = new AABB(min1, max1);
@@ -25,7 +25,7 @@ class AABBTest {
     }
 
     @Test
-    void testAABBClosestPointPairNotCollide() {
+    void testIsAABBNoCollidingWithAABB() {
         Vector3f min1 = new Vector3f(0, 0, 0);
         Vector3f max1 = new Vector3f(2, 2, 2);
         AABB aabb1 = new AABB(min1, max1);

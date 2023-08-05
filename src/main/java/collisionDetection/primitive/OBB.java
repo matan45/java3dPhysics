@@ -9,18 +9,10 @@ public class OBB {
     private Vector3f[] axes; // Array of three unit vectors representing the axes
     private float[] halfLengths; // Array of three half-lengths along each axis
 
-    public OBB(Vector3f center, float[] halfLengths) {
+    public OBB(Vector3f center, Vector3f[] axes, float[] halfLengths) {
         this.center = center;
         this.halfLengths = halfLengths;
-        this.axes = new Vector3f[]{new Vector3f(1, 0, 0), new Vector3f(0, 1, 0), new Vector3f(0, 0, 1)};
-    }
-
-    public Vector3f getCenter() {
-        return center;
-    }
-
-    public void setCenter(Vector3f center) {
-        this.center = center;
+        this.axes = axes;
     }
 
     public Vector3f[] getAxes() {
@@ -29,6 +21,14 @@ public class OBB {
 
     public void setAxes(Vector3f[] axes) {
         this.axes = axes;
+    }
+
+    public Vector3f getCenter() {
+        return center;
+    }
+
+    public void setCenter(Vector3f center) {
+        this.center = center;
     }
 
     public float[] getHalfLengths() {
@@ -41,19 +41,19 @@ public class OBB {
 
     public Vector3f[] getCorners() {
         Vector3f[] corners = new Vector3f[8];
-        Vector3f[] axisDirections = {axes[0].mul(halfLengths[0]), axes[1].mul(halfLengths[1]), axes[2].mul(halfLengths[2])};
+        float[] halfLengths = getHalfLengths();
 
-        corners[0] = center.add(axisDirections[0]).add(axisDirections[1]).add(axisDirections[2]);
-        corners[1] = center.add(axisDirections[0]).add(axisDirections[1]).sub(axisDirections[2]);
-        corners[2] = center.add(axisDirections[0]).sub(axisDirections[1]).add(axisDirections[2]);
-        corners[3] = center.add(axisDirections[0]).sub(axisDirections[1]).sub(axisDirections[2]);
-        corners[4] = center.sub(axisDirections[0]).add(axisDirections[1]).add(axisDirections[2]);
-        corners[5] = center.sub(axisDirections[0]).add(axisDirections[1]).sub(axisDirections[2]);
-        corners[6] = center.sub(axisDirections[0]).sub(axisDirections[1]).add(axisDirections[2]);
-        corners[7] = center.sub(axisDirections[0]).sub(axisDirections[1]).sub(axisDirections[2]);
+        // Generate corners by combining each axis's extreme points (min and max)
+        for (int i = 0; i < 8; i++) {
+            float x = center.x + axes[0].x * ((i & 1) == 0 ? halfLengths[0] : -halfLengths[0]);
+            float y = center.y + axes[1].y * ((i & 2) == 0 ? halfLengths[1] : -halfLengths[1]);
+            float z = center.z + axes[2].z * ((i & 4) == 0 ? halfLengths[2] : -halfLengths[2]);
+            corners[i] = new Vector3f(x, y, z);
+        }
 
         return corners;
     }
+
 
     public static CollisionResult isOBBCollidingWithOBB(OBB obb1, OBB obb2) {
         Vector3f[] obb1Corners = obb1.getCorners();
@@ -70,7 +70,7 @@ public class OBB {
                 isColliding = false;
                 break;
             }
-            if (!overlapOnAxis(obb1Corners, obb2Corners, obb2.getAxes()[i])) {
+            if (!overlapOnAxis(obb2Corners, obb1Corners, obb2.getAxes()[i])) {
                 isColliding = false;
                 break;
             }
@@ -92,7 +92,6 @@ public class OBB {
             // Find the closest points between the two OBBs using their axes
             Vector3f[] axes = {obb1.getAxes()[0], obb1.getAxes()[1], obb1.getAxes()[2],
                     obb2.getAxes()[0], obb2.getAxes()[1], obb2.getAxes()[2]};
-
             for (Vector3f axis : axes) {
                 Vector3f point1 = findSupportPoint(obb1Corners, axis);
                 Vector3f point2 = findSupportPoint(obb2Corners, axis.negate());
@@ -110,6 +109,10 @@ public class OBB {
     }
 
     private static boolean overlapOnAxis(Vector3f[] corners1, Vector3f[] corners2, Vector3f axis) {
+        if (corners1 == null || corners2 == null || corners1.length == 0 || corners2.length == 0) {
+            return false;
+        }
+
         float min1 = Float.MAX_VALUE;
         float max1 = Float.MIN_VALUE;
         float min2 = Float.MAX_VALUE;
@@ -129,6 +132,7 @@ public class OBB {
 
         float distance = Math.max(0, Math.max(max1 - min2, max2 - min1));
         float axisLength = axis.length();
+
         return distance < axisLength;
     }
 
@@ -140,8 +144,13 @@ public class OBB {
             float projection = corner.dot(axis);
             if (projection > maxProjection) {
                 maxProjection = projection;
-                supportPoint = corner;
+                supportPoint = new Vector3f(corner); // Create a new Vector3f to avoid modifying the original corners
             }
+        }
+
+        if (supportPoint == null) {
+            // If the support point is still null, use the center of the OBB as a fallback
+            supportPoint = new Vector3f();
         }
 
         return supportPoint;

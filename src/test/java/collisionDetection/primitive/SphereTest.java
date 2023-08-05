@@ -4,12 +4,12 @@ import org.joml.Vector3f;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class SphereTest {
 
+
     @Test
-    void testSphereClosestPointPair() {
+    void testIsSphereCollidingWithSphere() {
         Sphere sphere1 = new Sphere(new Vector3f(0, 0, 0), 1.0f);
         Sphere sphere2 = new Sphere(new Vector3f(1, 1, 1), 1.0f);
 
@@ -20,7 +20,7 @@ class SphereTest {
     }
 
     @Test
-    void testSphereClosestPointPairNotCollide() {
+    void testIsSphereNoCollidingWithSphere() {
         Sphere sphere1 = new Sphere(new Vector3f(0, 0, 0), 1.0f);
         Sphere sphere2 = new Sphere(new Vector3f(3, 3, 3), 1.0f);
 
