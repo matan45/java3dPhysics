@@ -9,10 +9,10 @@ public class OBB {
     private Vector3f[] axes; // Array of three unit vectors representing the axes
     private float[] halfLengths; // Array of three half-lengths along each axis
 
-    public OBB(Vector3f center, Vector3f[] axes, float[] halfLengths) {
+    public OBB(Vector3f center, float[] halfLengths) {
         this.center = center;
         this.halfLengths = halfLengths;
-        this.axes = axes;
+        this.axes = new Vector3f[]{new Vector3f(1, 0, 0), new Vector3f(0, 1, 0), new Vector3f(0, 0, 1)};
     }
 
     public Vector3f[] getAxes() {
