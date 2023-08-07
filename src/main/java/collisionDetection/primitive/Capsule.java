@@ -69,26 +69,27 @@ public class Capsule {
         float cross4Squared = cross4.dot(cross4);
 
         float len1Squared = dir1.dot(dir1);
+        float len2Squared = dir2.dot(dir2);
 
         // Check if any endpoint is inside the other capsule
         if (dist1Squared < sumRadiiSquared || dist2Squared < sumRadiiSquared ||
                 dist3Squared < sumRadiiSquared || dist4Squared < sumRadiiSquared) {
             return collisionResultDetails(dist1Squared, dist2Squared, dist3Squared, dist4Squared,
                     d1, d2, dir1, dir2,
-                    capsule1, capsule2, len1Squared, true);
+                    capsule1, capsule2, len1Squared, len2Squared, true);
         }
 
         if (cross1Squared < sumRadiiSquared && cross2Squared < sumRadiiSquared &&
                 cross3Squared < sumRadiiSquared && cross4Squared < sumRadiiSquared) {
             return collisionResultDetails(dist1Squared, dist2Squared, dist3Squared, dist4Squared,
                     d1, d2, dir1, dir2,
-                    capsule1, capsule2, len1Squared, true);
+                    capsule1, capsule2, len1Squared, len2Squared, true);
 
         }
 
         return collisionResultDetails(dist1Squared, dist2Squared, dist3Squared, dist4Squared,
                 d1, d2, dir1, dir2,
-                capsule1, capsule2, len1Squared, false);
+                capsule1, capsule2, len1Squared, len2Squared, false);
 
     }
 
@@ -97,7 +98,8 @@ public class Capsule {
                                                           Vector3f d1, Vector3f d2,
                                                           Vector3f dir1, Vector3f dir2,
                                                           Capsule capsule1, Capsule capsule2,
-                                                          float len1Squared, boolean isCollide) {
+                                                          float len1Squared, float len2Squared, boolean isCollide) {
+
         float minDistSquared = Math.min(Math.min(Math.min(dist1Squared, dist2Squared), dist3Squared), dist4Squared);
         float penetrationDepth = (float) (Math.sqrt(minDistSquared) - capsule1.radius - capsule2.radius);
 
@@ -106,8 +108,8 @@ public class Capsule {
                 (minDistSquared == dist2Squared) ? capsule1.end :
                         (minDistSquared == dist3Squared) ? capsule2.start : capsule2.end;
 
-        Vector3f collisionPointB = minDistPoint.add(d1.mul(dir1.dot(minDistPoint.sub(capsule1.start)) / len1Squared));
-        Vector3f collisionPointA = minDistPoint.add(d2.mul(dir2.dot(minDistPoint.sub(capsule2.start)) / len1Squared));
+        Vector3f collisionPointB = minDistPoint.add(d1.mul(dir1.dot(minDistPoint.sub(capsule1.start)) / len1Squared == 0 ? 1 : len1Squared));
+        Vector3f collisionPointA = minDistPoint.add(d2.mul(dir2.dot(minDistPoint.sub(capsule2.start)) / len2Squared == 0 ? 1 : len2Squared));
 
         return new CollisionResult(isCollide, penetrationDepth, collisionPointA, collisionPointB);
     }
