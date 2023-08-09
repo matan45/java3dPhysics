@@ -12,9 +12,9 @@ public class OBB {
     private Vector3f[] axis;
     private Vector3f halfExtents;
 
-    public OBB(Vector3f center, Vector3f[] axis, Vector3f halfExtents) {
+    public OBB(Vector3f center, Vector3f halfExtents) {
         this.center = center;
-        this.axis = axis;
+        this.axis = new Vector3f[]{new Vector3f(1.0f, 0.0f, 0.0f), new Vector3f(0.0f, 1.0f, 0.0f), new Vector3f(0.0f, 0.0f, 1.0f)};
         this.halfExtents = halfExtents;
     }
 
