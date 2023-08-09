@@ -36,29 +36,10 @@ public class Sphere {
     }
 
     // Method to find the closest point pair between two spheres
-    public static CollisionResult isSphereColliding(Sphere sphere1, Sphere sphere2) {
-        Vector3f center1 = sphere1.getCenter();
-        Vector3f center2 = sphere2.getCenter();
-        float radius1 = sphere1.getRadius();
-        float radius2 = sphere2.getRadius();
+    public static boolean isSphereColliding(Sphere sphere1, Sphere sphere2) {
+        float distanceSquared = sphere1.getCenter().distanceSquared(sphere2.getCenter());
+        float radiusSum = sphere1.getRadius() + sphere2.getRadius();
 
-        Vector3f vecBetweenCenters = center2.sub(center1); // Vector from center1 to center2
-        float distance = vecBetweenCenters.length(); // Distance between the centers
-
-        // Check if the spheres overlap or are tangent
-        if (distance <= radius1 + radius2) {
-            // Spheres overlap or are tangent, return the centers as the closest points
-            return new CollisionResult(true, distance, center1, center2);
-        }
-
-        // Spheres do not overlap, calculate the closest points on their surfaces
-        float halfDistance = distance * 0.5f;
-        float scaleFactor1 = (halfDistance + radius1) / distance; // Scale factor for vector from center1 to the closest point on surface1
-        float scaleFactor2 = (halfDistance + radius2) / distance; // Scale factor for vector from center2 to the closest point on surface2
-
-        Vector3f closestPoint1 = center1.add(vecBetweenCenters.mul(scaleFactor1));
-        Vector3f closestPoint2 = center2.sub(vecBetweenCenters.mul(scaleFactor2));
-
-        return new CollisionResult(false, distance - (radius1 + radius2), closestPoint1, closestPoint2);
+        return distanceSquared <= (radiusSum * radiusSum);
     }
 }

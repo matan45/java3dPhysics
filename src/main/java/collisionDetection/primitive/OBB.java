@@ -2,25 +2,20 @@ package collisionDetection.primitive;
 
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class OBB {
-    private Vector3f center; // Center position of the OBB
-    private Vector3f[] axes; // Array of three unit vectors representing the axes
-    private float[] halfLengths; // Array of three half-lengths along each axis
 
-    public OBB(Vector3f center, float[] halfLengths) {
+    private Vector3f center;
+    private Vector3f[] axis;
+    private Vector3f halfExtents;
+
+    public OBB(Vector3f center, Vector3f[] axis, Vector3f halfExtents) {
         this.center = center;
-        this.halfLengths = halfLengths;
-        this.axes = new Vector3f[]{new Vector3f(1, 0, 0), new Vector3f(0, 1, 0), new Vector3f(0, 0, 1)};
-    }
-
-    public Vector3f[] getAxes() {
-        return axes;
-    }
-
-    public void setAxes(Vector3f[] axes) {
-        this.axes = axes;
+        this.axis = axis;
+        this.halfExtents = halfExtents;
     }
 
     public Vector3f getCenter() {
@@ -31,138 +26,57 @@ public class OBB {
         this.center = center;
     }
 
-    public float[] getHalfLengths() {
-        return halfLengths;
+    public Vector3f[] getAxis() {
+        return axis;
     }
 
-    public void setHalfLengths(float[] halfLengths) {
-        this.halfLengths = halfLengths;
+    public void setAxis(Vector3f[] axis) {
+        this.axis = axis;
     }
 
-    public Vector3f[] getCorners() {
-        Vector3f[] corners = new Vector3f[8];
-        float[] halfLengths = getHalfLengths();
-
-        // Generate corners by combining each axis's extreme points (min and max)
-        for (int i = 0; i < 8; i++) {
-            float x = center.x + axes[0].x * ((i & 1) == 0 ? halfLengths[0] : -halfLengths[0]);
-            float y = center.y + axes[1].y * ((i & 2) == 0 ? halfLengths[1] : -halfLengths[1]);
-            float z = center.z + axes[2].z * ((i & 4) == 0 ? halfLengths[2] : -halfLengths[2]);
-            corners[i] = new Vector3f(x, y, z);
-        }
-
-        return corners;
+    public Vector3f getHalfExtents() {
+        return halfExtents;
     }
 
+    public void setHalfExtents(Vector3f halfExtents) {
+        this.halfExtents = halfExtents;
+    }
 
-    public static CollisionResult isOBBCollidingWithOBB(OBB obb1, OBB obb2) {
-        Vector3f[] obb1Corners = obb1.getCorners();
-        Vector3f[] obb2Corners = obb2.getCorners();
+    public static boolean isOBBColliding(OBB obb1, OBB obb2) {
+        // Combine axes from both OBBs
+        List<Vector3f> axes = new ArrayList<>();
+        axes.addAll(Arrays.asList(obb1.getAxis()));
+        axes.addAll(Arrays.asList(obb2.getAxis()));
 
-        // Check for overlap on each axis
-        float minDistance = Float.MAX_VALUE;
-        Vector3f closestPoint1 = null;
-        Vector3f closestPoint2 = null;
-        boolean isColliding = true;
-
-        for (int i = 0; i < 3; i++) {
-            if (!overlapOnAxis(obb1Corners, obb2Corners, obb1.getAxes()[i])) {
-                isColliding = false;
-                break;
-            }
-            if (!overlapOnAxis(obb2Corners, obb1Corners, obb2.getAxes()[i])) {
-                isColliding = false;
-                break;
+        // Check for separation along each axis
+        for (Vector3f axis : axes) {
+            if (isAxisSeparating(axis, obb1, obb2)) {
+                return false; // No collision along this axis
             }
         }
 
-        if (isColliding) {
-            // If there is overlap on all axes, calculate the closest points
-            for (Vector3f corner1 : obb1Corners) {
-                for (Vector3f corner2 : obb2Corners) {
-                    float distanceSquared = corner1.distanceSquared(corner2);
-                    if (distanceSquared < minDistance) {
-                        minDistance = distanceSquared;
-                        closestPoint1 = corner1;
-                        closestPoint2 = corner2;
-                    }
-                }
-            }
-        } else {
-            // Find the closest points between the two OBBs using their axes
-            Vector3f[] axes = {obb1.getAxes()[0], obb1.getAxes()[1], obb1.getAxes()[2],
-                    obb2.getAxes()[0], obb2.getAxes()[1], obb2.getAxes()[2]};
-            for (Vector3f axis : axes) {
-                Vector3f point1 = findSupportPoint(obb1Corners, axis);
-                Vector3f point2 = findSupportPoint(obb2Corners, axis.negate());
-
-                float distanceSquared = point1.distanceSquared(point2);
-                if (distanceSquared < minDistance) {
-                    minDistance = distanceSquared;
-                    closestPoint1 = point1;
-                    closestPoint2 = point2;
-                }
-            }
-        }
-
-        return new CollisionResult(isColliding, Math.sqrt(minDistance), closestPoint1, closestPoint2);
+        return true; // No separation along any axis, collision detected
     }
 
-    private static boolean overlapOnAxis(Vector3f[] corners1, Vector3f[] corners2, Vector3f axis) {
-        if (corners1 == null || corners2 == null || corners1.length == 0 || corners2.length == 0) {
-            return false;
-        }
+    private static boolean isAxisSeparating(Vector3f axis, OBB obb1, OBB obb2) {
+        // Project the OBBs onto the axis
+        float projection1 = projectOntoAxis(axis, obb1);
+        float projection2 = projectOntoAxis(axis, obb2);
 
-        float min1 = Float.MAX_VALUE;
-        float max1 = Float.MIN_VALUE;
-        float min2 = Float.MAX_VALUE;
-        float max2 = Float.MIN_VALUE;
+        // Calculate the distance between the projections
+        float distance = Math.abs(projection1 - projection2);
 
-        for (Vector3f corner : corners1) {
-            float projection = corner.dot(axis);
-            min1 = Math.min(min1, projection);
-            max1 = Math.max(max1, projection);
-        }
+        // Calculate the total length of projections
+        float totalLength = (obb1.getHalfExtents().x + obb2.getHalfExtents().x) * Math.abs(axis.x)
+                + (obb1.getHalfExtents().y + obb2.getHalfExtents().y) * Math.abs(axis.y)
+                + (obb1.getHalfExtents().z + obb2.getHalfExtents().z) * Math.abs(axis.z);
 
-        for (Vector3f corner : corners2) {
-            float projection = corner.dot(axis);
-            min2 = Math.min(min2, projection);
-            max2 = Math.max(max2, projection);
-        }
-
-        float distance = Math.max(0, Math.max(max1 - min2, max2 - min1));
-        float axisLength = axis.length();
-
-        return distance < axisLength;
+        // Check for separation
+        return distance > totalLength;
     }
 
-    private static Vector3f findSupportPoint(Vector3f[] corners, Vector3f axis) {
-        float maxProjection = Float.MIN_VALUE;
-        Vector3f supportPoint = null;
-
-        for (Vector3f corner : corners) {
-            float projection = corner.dot(axis);
-            if (projection > maxProjection) {
-                maxProjection = projection;
-                supportPoint = new Vector3f(corner); // Create a new Vector3f to avoid modifying the original corners
-            }
-        }
-
-        if (supportPoint == null) {
-            // If the support point is still null, use the center of the OBB as a fallback
-            supportPoint = new Vector3f();
-        }
-
-        return supportPoint;
-    }
-
-
-    @Override
-    public String toString() {
-        return "OBB{" +
-                "center=" + center +
-                ", axes=" + Arrays.toString(axes) +
-                ", halfLengths=" + Arrays.toString(halfLengths) +
-                '}';
+    public static float projectOntoAxis(Vector3f axis, OBB obb) {
+        // Project the center of the OBB onto the axis
+        return axis.x * obb.getCenter().x + axis.y * obb.getCenter().y + axis.z * obb.getCenter().z;
     }
 }
