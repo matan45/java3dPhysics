@@ -4,10 +4,6 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public class OBB {
 
     private Vector3f center;
@@ -53,7 +49,7 @@ public class OBB {
         // Calculate the closest point on the OBB's surface to the transformed point
         Vector3f closestLocal = new Vector3f();
         for (int i = 0; i < 3; i++) {
-            float dist = pointLocal.dot(new Vector4f(axis[i],0));
+            float dist = pointLocal.dot(new Vector4f(axis[i], 0));
             dist = Math.min(halfExtents.get(i), Math.max(-halfExtents.get(i), dist));
             closestLocal = closestLocal.add(axis[i].mul(dist));
         }
@@ -77,42 +73,68 @@ public class OBB {
         return translationMatrix.mul(rotationMatrix).mul(scaleMatrix);
     }
 
-
     public static boolean isOBBColliding(OBB obb1, OBB obb2) {
-        // Combine axes from both OBBs
-        List<Vector3f> axes = new ArrayList<>();
-        axes.addAll(Arrays.asList(obb1.getAxis()));
-        axes.addAll(Arrays.asList(obb2.getAxis()));
 
-        // Check for separation along each axis
-        for (Vector3f axis : axes) {
-            if (isAxisSeparating(axis, obb1, obb2)) {
-                return false; // No collision along this axis
-            }
+        Vector3f[] test = new Vector3f[15];
+
+        test[0] = obb1.getAxis()[0];
+        test[1] = obb1.getAxis()[1];
+        test[2] = obb1.getAxis()[2];
+        test[3] = obb2.getAxis()[0];
+        test[4] = obb2.getAxis()[1];
+        test[5] = obb2.getAxis()[2];
+
+        for (int i = 0; i < 3; ++i) {
+            test[6 + i * 3] = new Vector3f(test[i]).cross(test[0]);
+            test[6 + i * 3 + 1] = new Vector3f(test[i]).cross(test[1]);
+            test[6 + i * 3 + 2] = new Vector3f(test[i]).cross(test[2]);
         }
 
-        return true; // No separation along any axis, collision detected
+        for (Vector3f vector3f : test) {
+            if (!overlapOnAxis(obb1, obb2, new Vector3f(0,1,0))) {
+                System.out.println("hit");
+                System.out.println(vector3f.toString());
+                return false; // Seperating axis found
+            }
+        }
+        return true; // Seperating axis not found
     }
 
-    private static boolean isAxisSeparating(Vector3f axis, OBB obb1, OBB obb2) {
-        // Project the OBBs onto the axis
-        float projection1 = projectOntoAxis(axis, obb1);
-        float projection2 = projectOntoAxis(axis, obb2);
-
-        // Calculate the distance between the projections
-        float distance = Math.abs(projection1 - projection2);
-
-        // Calculate the total length of projections
-        float totalLength = (obb1.getHalfExtents().x + obb2.getHalfExtents().x) * Math.abs(axis.x)
-                + (obb1.getHalfExtents().y + obb2.getHalfExtents().y) * Math.abs(axis.y)
-                + (obb1.getHalfExtents().z + obb2.getHalfExtents().z) * Math.abs(axis.z);
-
-        // Check for separation
-        return distance > totalLength;
+    private static boolean overlapOnAxis(OBB obb1, OBB obb2, Vector3f axis) {
+        Interval a = getInterval(obb1, axis);
+        Interval b = getInterval(obb2, axis);
+        return b.getMin() <= a.getMax() && a.getMin() <= b.getMax();
     }
 
-    public static float projectOntoAxis(Vector3f axis, OBB obb) {
-        // Project the center of the OBB onto the axis
-        return axis.x * obb.getCenter().x + axis.y * obb.getCenter().y + axis.z * obb.getCenter().z;
+    private static Interval getInterval(OBB obb, Vector3f axis) {
+        Vector3f[] vertex = new Vector3f[8];
+
+        Vector3f C = obb.getCenter(); // OBB Center
+        Vector3f E = obb.getHalfExtents(); // OBB Extents
+
+        Vector3f[] A = obb.getAxis();
+
+        vertex[0] = C.add(A[0].mul(E.x)).add(A[1].mul(E.y)).add(A[2].mul(E.z));
+        vertex[1] = C.sub(A[0].mul(E.x)).add(A[1].mul(E.y)).add(A[2].mul(E.z));
+        vertex[2] = C.add(A[0].mul(E.x)).sub(A[1].mul(E.y)).add(A[2].mul(E.z));
+        vertex[3] = C.add(A[0].mul(E.x)).add(A[1].mul(E.y)).sub(A[2].mul(E.z));
+        vertex[4] = C.sub(A[0].mul(E.x)).sub(A[1].mul(E.y)).sub(A[2].mul(E.z));
+        vertex[5] = C.add(A[0].mul(E.x)).sub(A[1].mul(E.y)).sub(A[2].mul(E.z));
+        vertex[6] = C.sub(A[0].mul(E.x)).add(A[1].mul(E.y)).sub(A[2].mul(E.z));
+        vertex[7] = C.sub(A[0].mul(E.x)).sub(A[1].mul(E.y)).add(A[2].mul(E.z));
+
+
+        Interval result = new Interval();
+        result.setMin(axis.dot(vertex[0]));
+        result.setMax(axis.dot(vertex[0]));
+
+        for (int i = 1; i < 8; ++i) {
+            float projection = axis.dot(vertex[i]);
+            result.setMin(Math.min(projection, result.getMin()));
+            result.setMax(Math.max(projection, result.getMax()));
+        }
+
+        return result;
     }
+
 }
