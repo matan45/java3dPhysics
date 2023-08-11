@@ -8,20 +8,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OBBTest {
     @Test
-    public void testCollidingOBBs() {
+    public void testIntersects() {
         OBB obb1 = new OBB(
-                new Vector3f(0.0f, 2.0f, 0.0f),
-                new Vector3f(1.0f, 1.0f, 1.0f)
+                new Vector3f(0.0f, 3.0f, 0.0f),
+                new Vector3f(2.0f, 2.0f, 2.0f)
         );
 
         OBB obb2 = new OBB(
-                new Vector3f(0.0f, 3.0f, 0.0f),
-                new Vector3f(1.0f, 1.0f, 1.0f)
+                new Vector3f(0.0f, 4.0f, 0.0f),
+                new Vector3f(2.0f, 2.0f, 2.0f)
         );
 
-        boolean collision = OBB.isOBBColliding(obb1, obb2);
-
-        assertTrue(collision);
+        assertTrue(OBB.isOBBColliding(obb1, obb2),"OBBs should be colliding");
     }
 
     @Test

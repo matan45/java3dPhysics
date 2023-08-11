@@ -74,7 +74,7 @@ public class OBB {
     }
 
     public static boolean isOBBColliding(OBB obb1, OBB obb2) {
-
+        // Combine axes from both OBBs
         Vector3f[] test = new Vector3f[15];
 
         test[0] = obb1.getAxis()[0];
@@ -89,52 +89,40 @@ public class OBB {
             test[6 + i * 3 + 1] = new Vector3f(test[i]).cross(test[1]);
             test[6 + i * 3 + 2] = new Vector3f(test[i]).cross(test[2]);
         }
-
-        for (Vector3f vector3f : test) {
-            if (!overlapOnAxis(obb1, obb2, new Vector3f(0,1,0))) {
-                System.out.println("hit");
-                System.out.println(vector3f.toString());
-                return false; // Seperating axis found
+        // Check for separation along each axis
+        for (Vector3f axis : test) {
+            if (isAxisSeparating(axis, obb1, obb2)) {
+                return false; // No collision along this axis
             }
         }
-        return true; // Seperating axis not found
+
+        return true; // No separation along any axis, collision detected
     }
 
-    private static boolean overlapOnAxis(OBB obb1, OBB obb2, Vector3f axis) {
-        Interval a = getInterval(obb1, axis);
-        Interval b = getInterval(obb2, axis);
-        return b.getMin() <= a.getMax() && a.getMin() <= b.getMax();
+    private static boolean isAxisSeparating(Vector3f axis, OBB obb1, OBB obb2) {
+        // Project the OBBs onto the axis
+        Interval projection1 = projectOntoAxis(axis, obb1);
+        Interval projection2 = projectOntoAxis(axis, obb2);
+
+        // Check for separation between the intervals
+        return projection1.getMax() < projection2.getMin() || projection2.getMax() < projection1.getMin();
     }
 
-    private static Interval getInterval(OBB obb, Vector3f axis) {
-        Vector3f[] vertex = new Vector3f[8];
+    private static Interval projectOntoAxis(Vector3f axis, OBB obb) {
+        float centerProjection = axis.x * obb.getCenter().x + axis.y * obb.getCenter().y + axis.z * obb.getCenter().z;
 
-        Vector3f C = obb.getCenter(); // OBB Center
-        Vector3f E = obb.getHalfExtents(); // OBB Extents
+        // Calculate the half-length of the projection
+        float halfLength =
+                obb.getHalfExtents().x * Math.abs(axis.x) +
+                        obb.getHalfExtents().y * Math.abs(axis.y) +
+                        obb.getHalfExtents().z * Math.abs(axis.z);
 
-        Vector3f[] A = obb.getAxis();
+        // Calculate the interval
+        float min = centerProjection - halfLength;
+        float max = centerProjection + halfLength;
 
-        vertex[0] = C.add(A[0].mul(E.x)).add(A[1].mul(E.y)).add(A[2].mul(E.z));
-        vertex[1] = C.sub(A[0].mul(E.x)).add(A[1].mul(E.y)).add(A[2].mul(E.z));
-        vertex[2] = C.add(A[0].mul(E.x)).sub(A[1].mul(E.y)).add(A[2].mul(E.z));
-        vertex[3] = C.add(A[0].mul(E.x)).add(A[1].mul(E.y)).sub(A[2].mul(E.z));
-        vertex[4] = C.sub(A[0].mul(E.x)).sub(A[1].mul(E.y)).sub(A[2].mul(E.z));
-        vertex[5] = C.add(A[0].mul(E.x)).sub(A[1].mul(E.y)).sub(A[2].mul(E.z));
-        vertex[6] = C.sub(A[0].mul(E.x)).add(A[1].mul(E.y)).sub(A[2].mul(E.z));
-        vertex[7] = C.sub(A[0].mul(E.x)).sub(A[1].mul(E.y)).add(A[2].mul(E.z));
-
-
-        Interval result = new Interval();
-        result.setMin(axis.dot(vertex[0]));
-        result.setMax(axis.dot(vertex[0]));
-
-        for (int i = 1; i < 8; ++i) {
-            float projection = axis.dot(vertex[i]);
-            result.setMin(Math.min(projection, result.getMin()));
-            result.setMax(Math.max(projection, result.getMax()));
-        }
-
-        return result;
+        return new Interval(min, max);
     }
+
 
 }
