@@ -8,7 +8,7 @@ public class Triangle {
     private Vector3f[] vertices; // Vertices of the triangle
 
     public Triangle(Vector3f vertex1, Vector3f vertex2, Vector3f vertex3) {
-        vertices = new Vector3f[] { vertex1, vertex2, vertex3 };
+        vertices = new Vector3f[]{vertex1, vertex2, vertex3};
     }
 
     public void setVertices(Vector3f[] vertices) {
@@ -19,53 +19,107 @@ public class Triangle {
         return vertices;
     }
 
-    public static boolean isTriangleColliding(Triangle triangle1, Triangle triangle2) {
-        Vector3f[] vertices1 = triangle1.getVertices();
-        Vector3f[] vertices2 = triangle2.getVertices();
+    private Plane FromTriangle() {
+        Plane result = new Plane(new Vector3f(), 0);
+        result.setNormal(vertices[1].sub(vertices[0]).cross(vertices[2].sub(vertices[0])));
+        result.setDistance(result.getNormal().dot(vertices[0]));
+        return result;
+    }
 
-        // Check for overlap along all three axes of triangles
-        for (int i = 0; i < 3; i++) {
-            Vector3f axis1 = vertices1[(i + 1) % 3].sub(vertices1[i]).cross(vertices1[(i + 2) % 3].sub(vertices1[i]));
-            if (isSeparatingAxis(axis1, vertices1, vertices2)) {
-                return false;
-            }
+    private boolean pointInTriangleNormals(Vector3f point) {
+        Vector3f a = vertices[0].sub(point);
+        Vector3f b = vertices[1].sub(point);
+        Vector3f c = vertices[2].sub(point);
 
-            Vector3f axis2 = vertices2[(i + 1) % 3].sub(vertices2[i]).cross(vertices2[(i + 2) % 3].sub(vertices2[i]));
-            if (isSeparatingAxis(axis2, vertices1, vertices2)) {
-                return false;
-            }
-        }
+        Vector3f normPBC = b.cross(c); // Normal of PBC (u)
+        Vector3f normPCA = c.cross(a); // Normal of PCA (v)
+        Vector3f normPAB = a.cross(b); // Normal of PAB (w)
 
-        // Check for overlap along the normal of triangle1
-        Vector3f normal1 = vertices1[1].sub(vertices1[0]).cross(vertices1[2].sub(vertices1[0]));
-        if (isSeparatingAxis(normal1, vertices1, vertices2)) {
+        if (normPBC.dot(normPCA) < 0.0f) {
+            return false;
+        } else if (normPBC.dot(normPAB) < 0.0f) {
             return false;
         }
 
-        // Check for overlap along the normal of triangle2
-        Vector3f normal2 = vertices2[1].sub(vertices2[0]).cross(vertices2[2].sub(vertices2[0]));
-        return !isSeparatingAxis(normal2, vertices1, vertices2);
+        return true;
     }
 
-    public static boolean isSeparatingAxis(Vector3f axis, Vector3f[] vertices1, Vector3f[] vertices2) {
-        float min1 = Float.MAX_VALUE;
-        float max1 = Float.MIN_VALUE;
-        float min2 = Float.MAX_VALUE;
-        float max2 = Float.MIN_VALUE;
+    public Vector3f closestPoint(Vector3f point) {
+        Plane plane = FromTriangle();
+        Vector3f closest = plane.closestPoint(point);
 
-        for (Vector3f vertex : vertices1) {
-            float projection = vertex.dot(axis);
-            min1 = Math.min(min1, projection);
-            max1 = Math.max(max1, projection);
+        if (pointInTriangleNormals(closest)) {
+            return closest;
         }
 
-        for (Vector3f vertex : vertices2) {
-            float projection = vertex.dot(axis);
-            min2 = Math.min(min2, projection);
-            max2 = Math.max(max2, projection);
+        Vector3f c1 = ClosestPoint(vertices[0], vertices[1], point); // Line AB
+        Vector3f c2 = ClosestPoint(vertices[1], vertices[2], point); // Line AB
+        Vector3f c3 = ClosestPoint(vertices[2], vertices[0], point); // Line AB
+
+        Vector3f subsq1=point.sub(c1);
+        Vector3f subsq2=point.sub(c2);
+        Vector3f subsq3=point.sub(c3);
+
+        float magSq1 = subsq1.dot(subsq1);
+        float magSq2 = subsq2.dot(subsq2);
+        float magSq3 = subsq3.dot(subsq3);
+
+        if (magSq1 < magSq2 && magSq1 < magSq3) {
+            return c1;
+        } else if (magSq2 < magSq1 && magSq2 < magSq3) {
+            return c2;
+        }
+        return c3;
+    }
+
+    private Vector3f ClosestPoint(Vector3f start, Vector3f end, Vector3f point) {
+        Vector3f lVec = end.sub(start); // Line Vector
+        float t = point.sub(start).dot(lVec) / lVec.dot(lVec);
+        t = Math.max(t, 0.0f); // Clamp to 0
+        t = Math.min(t, 1.0f); // Clamp to 1
+        return start.add(lVec.mul(t));
+    }
+
+
+    public static boolean isTriangleColliding(Triangle triangle1, Triangle triangle2) {
+        for (int i = 0; i < 3; i++) {
+            Vector3f edge1Start = triangle1.getVertices()[i];
+            Vector3f edge1End = triangle1.getVertices()[(i + 1) % 3];
+
+            for (int j = 0; j < 3; j++) {
+                Vector3f edge2Start = triangle2.getVertices()[j];
+                Vector3f edge2End = triangle2.getVertices()[(j + 1) % 3];
+
+                Vector3f axis = edge1End.sub(edge1Start).cross(edge2End.sub(edge2Start));
+
+                if (!isSeparatingAxis(axis, triangle1, triangle2)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public static boolean isSeparatingAxis(Vector3f axis, Triangle triangle1, Triangle triangle2) {
+        // Project triangles onto the axis and check for separation
+        float projection1 = projectOntoAxis(axis, triangle1);
+        float projection2 = projectOntoAxis(axis, triangle2);
+
+        // Check for separation
+        return projection1 > projection2 || projection2 > projection1;
+    }
+
+    public static float projectOntoAxis(Vector3f axis, Triangle triangle) {
+        float min = Float.POSITIVE_INFINITY;
+        float max = Float.NEGATIVE_INFINITY;
+
+        for (int i = 0; i < 3; i++) {
+            float projection = axis.dot(triangle.getVertices()[i]);
+            min = Math.min(min, projection);
+            max = Math.max(max, projection);
         }
 
-        return (max1 < min2) || (max2 < min1);
+        return min;
     }
 
 

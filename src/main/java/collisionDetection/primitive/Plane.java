@@ -27,6 +27,12 @@ public class Plane {
         this.distance = distance;
     }
 
+    public Vector3f closestPoint(Vector3f point) {
+        float dot = point.dot(normal);
+        float dis = dot - distance;
+        return point.sub(normal.mul(dis));
+    }
+
     public static boolean isPlaneColliding(Plane plane1, Plane plane2) {
         Vector3f normal1 = plane1.getNormal();
         Vector3f normal2 = plane2.getNormal();

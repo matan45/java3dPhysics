@@ -42,4 +42,21 @@ class TriangleTest {
         assertFalse(Triangle.isTriangleColliding(triangle1, triangle2),"Triangles should not be colliding");
     }
 
+    @Test
+    public void test() {
+        Triangle triangle1 = new Triangle(
+                new Vector3f(-2,-1,0),
+                new Vector3f(-3, 0, 0),
+                new Vector3f(-1.0f, 0,0)
+        );
+
+        Triangle triangle2 = new Triangle(
+                new Vector3f(2, 1, 0),
+                new Vector3f(3, 0, 0),
+                new Vector3f(1, 0, 0)
+        );
+
+        assertFalse(Triangle.isTriangleColliding(triangle1, triangle2),"Triangles not be colliding");
+    }
+
 }

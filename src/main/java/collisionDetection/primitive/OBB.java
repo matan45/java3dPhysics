@@ -1,6 +1,8 @@
 package collisionDetection.primitive;
 
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +43,40 @@ public class OBB {
     public void setHalfExtents(Vector3f halfExtents) {
         this.halfExtents = halfExtents;
     }
+
+    public Vector3f closestPoint(Vector3f point) {
+        // Transform the point into the local coordinate system of the OBB
+        Matrix4f invTransform = getTransform().invert();
+        Vector4f pointLocal = new Vector4f(point, 1.0f);
+        pointLocal = invTransform.transform(pointLocal);
+
+        // Calculate the closest point on the OBB's surface to the transformed point
+        Vector3f closestLocal = new Vector3f();
+        for (int i = 0; i < 3; i++) {
+            float dist = pointLocal.dot(new Vector4f(axis[i],0));
+            dist = Math.min(halfExtents.get(i), Math.max(-halfExtents.get(i), dist));
+            closestLocal = closestLocal.add(axis[i].mul(dist));
+        }
+
+        // Transform the closest local point back into the global coordinate system
+        Vector4f closestGlobal = getTransform().transform(new Vector4f(closestLocal, 1.0f));
+
+        return new Vector3f(closestGlobal.x, closestGlobal.y, closestGlobal.z);
+    }
+
+    public Matrix4f getTransform() {
+        Matrix4f translationMatrix = new Matrix4f().translation(center);
+
+        Matrix4f rotationMatrix = new Matrix4f()
+                .rotateX(axis[0].x).rotateY(axis[0].y).rotateZ(axis[0].z)
+                .rotateX(axis[1].x).rotateY(axis[1].y).rotateZ(axis[1].z)
+                .rotateX(axis[2].x).rotateY(axis[2].y).rotateZ(axis[2].z);
+
+        Matrix4f scaleMatrix = new Matrix4f().scaling(halfExtents);
+
+        return translationMatrix.mul(rotationMatrix).mul(scaleMatrix);
+    }
+
 
     public static boolean isOBBColliding(OBB obb1, OBB obb2) {
         // Combine axes from both OBBs

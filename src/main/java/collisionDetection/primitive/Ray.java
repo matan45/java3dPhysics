@@ -28,6 +28,12 @@ public class Ray {
         this.direction = direction;
     }
 
+    public Vector3f closestPoint(Vector3f point) {
+        float t = point.sub(origin).dot(direction);
+        t = Math.max(t, 0.0f);
+        return origin.add(direction.mul(t));
+    }
+
     @Override
     public String toString() {
         return "Ray{" +
