@@ -4,6 +4,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import java.util.Arrays;
+
 public class OBB {
 
     private Vector3f center;
@@ -40,42 +42,21 @@ public class OBB {
         this.halfExtents = halfExtents;
     }
 
-    public Vector3f closestPoint(Vector3f point) {
-        // Transform the point into the local coordinate system of the OBB
-        Matrix4f invTransform = getTransform().invert();
-        Vector4f pointLocal = new Vector4f(point, 1.0f);
-        pointLocal = invTransform.transform(pointLocal);
+    private Vector3f getEdge(int edgeIndex) {
+        // Calculate the endpoints of the edge
+        Vector3f startPoint = new Vector3f(center);
+        startPoint.add(new Vector3f(axis[edgeIndex]));
 
-        // Calculate the closest point on the OBB's surface to the transformed point
-        Vector3f closestLocal = new Vector3f();
-        for (int i = 0; i < 3; i++) {
-            float dist = pointLocal.dot(new Vector4f(axis[i], 0));
-            dist = Math.min(halfExtents.get(i), Math.max(-halfExtents.get(i), dist));
-            closestLocal = closestLocal.add(axis[i].mul(dist));
-        }
+        Vector3f endPoint = new Vector3f(center);
+        endPoint.add(new Vector3f(axis[edgeIndex]).mul(halfExtents.get(edgeIndex)));
 
-        // Transform the closest local point back into the global coordinate system
-        Vector4f closestGlobal = getTransform().transform(new Vector4f(closestLocal, 1.0f));
-
-        return new Vector3f(closestGlobal.x, closestGlobal.y, closestGlobal.z);
-    }
-
-    public Matrix4f getTransform() {
-        Matrix4f translationMatrix = new Matrix4f().translation(center);
-
-        Matrix4f rotationMatrix = new Matrix4f()
-                .rotateX(axis[0].x).rotateY(axis[0].y).rotateZ(axis[0].z)
-                .rotateX(axis[1].x).rotateY(axis[1].y).rotateZ(axis[1].z)
-                .rotateX(axis[2].x).rotateY(axis[2].y).rotateZ(axis[2].z);
-
-        Matrix4f scaleMatrix = new Matrix4f().scaling(halfExtents);
-
-        return translationMatrix.mul(rotationMatrix).mul(scaleMatrix);
+        // Calculate the edge vector
+        return new Vector3f(endPoint).sub(startPoint);
     }
 
     public static boolean isOBBColliding(OBB obb1, OBB obb2) {
         // Combine axes from both OBBs
-        Vector3f[] test = new Vector3f[15];
+        Vector3f[] test = new Vector3f[18];
 
         test[0] = obb1.getAxis()[0];
         test[1] = obb1.getAxis()[1];
@@ -85,10 +66,17 @@ public class OBB {
         test[5] = obb2.getAxis()[2];
 
         for (int i = 0; i < 3; ++i) {
-            test[6 + i * 3] = new Vector3f(test[i]).cross(test[0]);
-            test[6 + i * 3 + 1] = new Vector3f(test[i]).cross(test[1]);
-            test[6 + i * 3 + 2] = new Vector3f(test[i]).cross(test[2]);
+            test[6 + i * 3] = new Vector3f(test[i]).cross(test[3]);
+            test[6 + i * 3 + 1] = new Vector3f(test[i]).cross(test[4]);
+            test[6 + i * 3 + 2] = new Vector3f(test[i]).cross(test[5]);
         }
+
+        // Include edge normals of both OBBs
+        for (int i = 0; i < 3; ++i) {
+            test[12 + i] = obb1.getEdge(i).normalize();
+            test[15 + i] = obb2.getEdge(i).normalize();
+        }
+
         // Check for separation along each axis
         for (Vector3f axis : test) {
             if (isAxisSeparating(axis, obb1, obb2)) {
@@ -124,5 +112,45 @@ public class OBB {
         return new Interval(min, max);
     }
 
+    public Vector3f closestPoint(Vector3f point) {
+        // Transform the point into the local coordinate system of the OBB
+        Matrix4f invTransform = getTransform().invert();
+        Vector4f pointLocal = new Vector4f(point, 1.0f);
+        pointLocal = invTransform.transform(pointLocal);
 
+        // Calculate the closest point on the OBB's surface to the transformed point
+        Vector3f closestLocal = new Vector3f();
+        for (int i = 0; i < 3; i++) {
+            float dist = pointLocal.dot(new Vector4f(axis[i], 0));
+            dist = Math.min(halfExtents.get(i), Math.max(-halfExtents.get(i), dist));
+            closestLocal = closestLocal.add(axis[i].mul(dist));
+        }
+
+        // Transform the closest local point back into the global coordinate system
+        Vector4f closestGlobal = getTransform().transform(new Vector4f(closestLocal, 1.0f));
+
+        return new Vector3f(closestGlobal.x, closestGlobal.y, closestGlobal.z);
+    }
+
+    public Matrix4f getTransform() {
+        Matrix4f translationMatrix = new Matrix4f().translation(center);
+
+        Matrix4f rotationMatrix = new Matrix4f()
+                .rotateX(axis[0].x).rotateY(axis[0].y).rotateZ(axis[0].z)
+                .rotateX(axis[1].x).rotateY(axis[1].y).rotateZ(axis[1].z)
+                .rotateX(axis[2].x).rotateY(axis[2].y).rotateZ(axis[2].z);
+
+        Matrix4f scaleMatrix = new Matrix4f().scaling(halfExtents);
+
+        return translationMatrix.mul(rotationMatrix).mul(scaleMatrix);
+    }
+
+    @Override
+    public String toString() {
+        return "OBB{" +
+                "center=" + center +
+                ", axis=" + Arrays.toString(axis) +
+                ", halfExtents=" + halfExtents +
+                '}';
+    }
 }

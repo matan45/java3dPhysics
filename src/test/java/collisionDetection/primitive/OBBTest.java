@@ -36,4 +36,13 @@ class OBBTest {
 
         assertFalse(collision);
     }
+
+    @Test
+    public void testNonParallelEdges() {
+        // Create two non-parallel OBBs
+        OBB obb1 = new OBB(new Vector3f(0, 0, 0),new Vector3f(1, 1, 1));
+        OBB obb2 = new OBB(new Vector3f(4, 4, 4),new Vector3f(1, 1, 1));
+
+        assertFalse(OBB.isOBBColliding(obb1, obb2), "Non-parallel OBBs should not be colliding");
+    }
 }

@@ -14,9 +14,9 @@ public class CollisionUtilsTest {
         Vector3f max = new Vector3f(1, 1, 1);
         AABB aabb = new AABB(min, max);
 
-        Sphere sphere3 = new Sphere(new Vector3f(0, 1.5f, 0), 1.0f);
+        Sphere sphere = new Sphere(new Vector3f(0, 1.5f, 0), 1.0f);
 
-        boolean result = CollisionUtils.isAABBCollidingWithSphere(aabb, sphere3);
+        boolean result = CollisionUtils.isAABBCollidingWithSphere(sphere, aabb);
 
         assertTrue(result, "AABB Sphere should be colliding");
     }
@@ -28,7 +28,7 @@ public class CollisionUtilsTest {
         AABB aabb = new AABB(min, max);
 
         Sphere sphere = new Sphere(new Vector3f(2, 2, 2), 0.5f);
-       boolean result = CollisionUtils.isAABBCollidingWithSphere(aabb, sphere);
+        boolean result = CollisionUtils.isAABBCollidingWithSphere(sphere, aabb);
 
         assertFalse(result, "AABB Sphere should not be colliding");
     }
@@ -52,5 +52,31 @@ public class CollisionUtilsTest {
         boolean collision = CollisionUtils.isSphereCollidingWithPlane(sphere, plane);
 
         assertFalse(collision);
+    }
+
+    @Test
+    public void testSphereCollisionWithTriangle() {
+        // Create a sphere and a triangle for testing
+        Sphere sphere = new Sphere(new Vector3f(0, 0, 0), 1.0f);
+        Triangle triangle = new Triangle(
+                new Vector3f(-1, -1, 0),
+                new Vector3f(1, -1, 0),
+                new Vector3f(0, 1, 0)
+        );
+
+        assertTrue(CollisionUtils.isSphereCollidingWithTriangle(sphere, triangle), "Sphere should be colliding with the triangle");
+    }
+
+    @Test
+    public void testSphereNotCollisionWithTriangle() {
+        // Create a sphere and a triangle for testing
+        Sphere sphere = new Sphere(new Vector3f(0, 0, 0), 0.5f);
+        Triangle triangle = new Triangle(
+                new Vector3f(1, 0, 0),
+                new Vector3f(2, 0, 1),
+                new Vector3f(1, 1, 0)
+        );
+
+        assertFalse(CollisionUtils.isSphereCollidingWithTriangle(sphere, triangle), "Sphere should not be colliding with the triangle");
     }
 }
