@@ -86,13 +86,9 @@ public class Triangle {
         Vector3f c2 = ClosestPoint(vertex2, vertex3, point); // Line AB
         Vector3f c3 = ClosestPoint(vertex3, vertex1, point); // Line AB
 
-        Vector3f subSq1 = point.sub(c1);
-        Vector3f subSq2 = point.sub(c2);
-        Vector3f subSq3 = point.sub(c3);
-
-        float magSq1 = subSq1.dot(subSq1);
-        float magSq2 = subSq2.dot(subSq2);
-        float magSq3 = subSq3.dot(subSq3);
+        float magSq1 = point.sub(c1).lengthSquared();
+        float magSq2 = point.sub(c2).lengthSquared();
+        float magSq3 = point.sub(c3).lengthSquared();
 
         if (magSq1 < magSq2 && magSq1 < magSq3) {
             return c1;
@@ -134,13 +130,13 @@ public class Triangle {
     }
 
     private static boolean isSeparatingAxis(Vector3f axis, Triangle triangle1, Triangle triangle2) {
-        Interval interval1 = projectOntoAxis(axis, triangle1);
-        Interval interval2 = projectOntoAxis(axis, triangle2);
+        Interval interval1 = getInterval(axis, triangle1);
+        Interval interval2 = getInterval(axis, triangle2);
 
         return interval1.getMax() < interval2.getMin() || interval2.getMax() < interval1.getMin();
     }
 
-    private static Interval projectOntoAxis(Vector3f axis, Triangle triangle) {
+    public static Interval getInterval(Vector3f axis, Triangle triangle) {
         // Project the triangle vertices onto the axis
         float projection1 = axis.dot(triangle.getVertex1());
         float projection2 = axis.dot(triangle.getVertex2());

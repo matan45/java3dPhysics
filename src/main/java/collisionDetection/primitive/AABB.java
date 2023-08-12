@@ -33,14 +33,23 @@ public class AABB {
                 box2.getMin().z > box1.getMax().z || box2.getMax().z < box1.getMin().z);
     }
 
-
-
     public Vector3f closestPoint(Vector3f point) {
         float closestX = Math.max(min.x, Math.min(point.x, max.x));
         float closestY = Math.max(min.y, Math.min(point.y, max.y));
         float closestZ = Math.max(min.z, Math.min(point.z, max.z));
 
         return new Vector3f(closestX, closestY, closestZ);
+    }
+
+    public static Interval getInterval(Vector3f axis,AABB aabb) {
+        float minProjection = axis.dot(aabb.getMin());
+        float maxProjection = axis.dot(aabb.getMax());
+
+        // Calculate the interval
+        float minInterval = Math.min(minProjection, maxProjection);
+        float maxInterval = Math.max(minProjection, maxProjection);
+
+        return new Interval(minInterval, maxInterval);
     }
 
     @Override
