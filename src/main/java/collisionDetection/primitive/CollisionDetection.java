@@ -127,4 +127,45 @@ public class CollisionDetection {
         return false;
     }
 
+    public static boolean isPlaneCollidingWithAABB(Plane plane, AABB aabb) {
+        return false;
+    }
+
+    public static boolean isCapsuleCollidingWithAABB(Capsule capsule, AABB aabb) {
+        return false;
+    }
+
+    public static boolean isCylinderCollidingWithAABB(Cylinder cylinder, AABB aabb) {
+        return false;
+    }
+    public static boolean isCylinderCollidingWithTriangle(Cylinder cylinder, Triangle triangle) {
+        return false;
+    }
+    public static boolean isCylinderCollidingWithPlane(Cylinder cylinder, Plane plane) {
+        return false;
+    }
+    public static boolean isCylinderCollidingWithOBB(Cylinder cylinder, OBB obb) {
+        return false;
+    }
+
+    public static boolean isTriangleCollidingWithAABB(Triangle triangle, AABB aabb){
+        return false;
+    }
+    public static boolean isTriangleCollidingWithPlane(Triangle triangle, Plane plane){
+        return false;
+    }
+    public static boolean isCapsuleCollidingWithCylinder(Capsule capsule, Cylinder cylinder){
+        return false;
+    }
+    public static boolean isCapsuleCollidingWithTriangle(Capsule capsule, Triangle triangle){
+        return false;
+    }
+    public static boolean isCapsuleCollidingWithOBB(Capsule capsule, OBB obb){
+        return false;
+    }
+    public static boolean isCapsuleCollidingWithPlane(Capsule capsule, Plane plane){
+        return false;
+    }
+
+
 }
