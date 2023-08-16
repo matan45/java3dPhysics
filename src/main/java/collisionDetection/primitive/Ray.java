@@ -60,30 +60,38 @@ public class Ray {
     }
 
     public static boolean isCapsuleCollide(Ray ray, Capsule capsule) {
-        // Calculate the direction from the start to end of the capsule
-        Vector3f capsuleDirection = capsule.getEnd().sub(capsule.getStart());
+        Vector3f rayOrigin = ray.getOrigin();
+        Vector3f rayDirection = ray.getDirection();
 
-        // Calculate the vector from the ray's origin to the start of the capsule
-        Vector3f startToOrigin = ray.getOrigin().sub(capsule.getStart());
+        Vector3f capsuleStart = capsule.getStart();
+        Vector3f capsuleEnd = capsule.getEnd();
+        float capsuleRadius = capsule.getRadius();
 
-        // Project the vector from start to origin onto the capsule direction
-        float t = startToOrigin.dot(capsuleDirection) / capsuleDirection.lengthSquared();
+        Vector3f ab = capsuleEnd.sub(capsuleStart);
+        Vector3f ac = rayOrigin.sub(capsuleStart);
 
-        // Clamp the parameter 't' to the range [0, 1]
-        t = Math.max(0.0f, Math.min(1.0f, t));
+        float t = ac.dot(rayDirection);
+        if (t < 0) t = 0;
+        if (t > 1) t = 1;
 
-        // Calculate the closest point on the capsule
-        Vector3f closestPointOnCapsule = capsule.getStart().add(capsuleDirection.mul(t));
+        Vector3f h = rayDirection.mul(t).sub(ac);
 
-        // Calculate the closest point on the ray to the capsule
-        Vector3f closestPointOnRay = ray.closestPoint(closestPointOnCapsule);
+        float a = ab.dot(ab);
+        float b = 2 * h.dot(ab);
+        float c = h.dot(h) - capsuleRadius * capsuleRadius;
 
-        // Calculate the squared distance between the two closest points
-        float squaredDistance = closestPointOnCapsule.sub(closestPointOnRay).lengthSquared();
+        float discriminant = b * b - 4 * a * c;
 
-        // If the squared distance is less than or equal to the capsule's radius squared, there's a collision
-        float radiusSquared = capsule.getRadius() * capsule.getRadius();
-        return squaredDistance <= radiusSquared;
+        if (discriminant < 0) {
+            return false; // No collision
+        } else {
+            // Calculate the two potential intersection points
+            float sqrtDiscriminant = (float) Math.sqrt(discriminant);
+            float t1 = (-b - sqrtDiscriminant) / (2 * a);
+            float t2 = (-b + sqrtDiscriminant) / (2 * a);
+
+            return (t1 >= 0 && t1 <= 1) || (t2 >= 0 && t2 <= 1); // Collision detected
+        }// No collision
     }
 
     public static boolean isCylinderCollide(Ray ray, Cylinder cylinder) {
