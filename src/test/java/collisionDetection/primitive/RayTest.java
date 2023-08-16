@@ -22,4 +22,53 @@ class RayTest {
         assertFalse(Ray.isSphereCollide(ray, sphere));
     }
 
+
+    @Test
+    public void testRayIntersectsABB() {
+        // Create an AABB
+        AABB aabb = new AABB(new Vector3f(0, 0, 0), new Vector3f(2, 2, 2));
+
+        // Create a ray
+        Ray ray = new Ray(new Vector3f(1, 1, 5), new Vector3f(0, 0, -1));
+
+        // Test for collision
+        assertTrue(Ray.isAABBCollide(ray, aabb));
+    }
+
+    @Test
+    public void testRayMissesAABB() {
+        // Create an AABB
+        AABB aabb = new AABB(new Vector3f(0, 0, 0), new Vector3f(2, 2, 2));
+
+        // Create a ray
+        Ray ray = new Ray(new Vector3f(1, 1, 5), new Vector3f(0, -1, 0));
+
+        // Test for no collision
+        assertFalse(Ray.isAABBCollide(ray, aabb));
+    }
+
+    @Test
+    public void testRayIntersectsCapsule() {
+        // Create a capsule
+        Capsule capsule = new Capsule(new Vector3f(0, 0, 0), new Vector3f(0, 4, 0), 1.0f);
+
+        // Create a ray
+        Ray ray = new Ray(new Vector3f(0, -1, 0), new Vector3f(0, 1, 0));
+
+        // Test for collision
+        assertTrue(Ray.isCapsuleCollide(ray, capsule));
+    }
+
+    @Test
+    public void testRayMissesCapsule() {
+        // Create a capsule
+        Capsule capsule = new Capsule(new Vector3f(0, 0, 0), new Vector3f(0, 4, 0), 1.0f);
+
+        // Create a ray
+        Ray ray = new Ray(new Vector3f(2, 2, 2), new Vector3f(0, 0, -1));
+
+        // Test for no collision
+        assertFalse(Ray.isCapsuleCollide(ray, capsule));
+    }
+
 }
