@@ -1,6 +1,6 @@
 package collisionDetection.primitive;
 
-import org.joml.Vector3f;
+import math.Vector3f;
 
 public class Plane {
     private Vector3f normal; // Normal vector of the plane

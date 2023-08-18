@@ -1,6 +1,7 @@
 package collisionDetection.primitive;
 
-import org.joml.Vector3f;
+
+import math.Vector3f;
 
 public class CollisionDetection {
     public static boolean isSphereCollidingWithAABB(Sphere sphere, AABB aabb) {
@@ -43,9 +44,9 @@ public class CollisionDetection {
         test[5] = obb.getAxis()[2];
 
         for (int i = 0; i < 3; ++i) {
-            test[6 + i * 3] = new Vector3f(test[i]).cross(test[3]);
-            test[6 + i * 3 + 1] = new Vector3f(test[i]).cross(test[4]);
-            test[6 + i * 3 + 2] = new Vector3f(test[i]).cross(test[5]);
+            test[6 + i * 3] = test[i].cross(test[3]);
+            test[6 + i * 3 + 1] = test[i].cross(test[4]);
+            test[6 + i * 3 + 2] = test[i].cross(test[5]);
         }
 
         // Include edge normals of both OBBs

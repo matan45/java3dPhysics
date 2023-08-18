@@ -1,6 +1,6 @@
 package collisionDetection.primitive;
 
-import org.joml.Vector3f;
+import math.Vector3f;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,8 +36,8 @@ public class CollisionDetectionTest {
 
     @Test
     public void testSphereCollidingWithPlane() {
-        Sphere sphere = new Sphere(new Vector3f(0.0f, 0.0f, 5.0f), 2.0f);
-        Plane plane = new Plane(new Vector3f(0.0f, 0.0f, 1.0f), 0.0f);
+        Sphere sphere = new Sphere(new Vector3f(0.0f, 4.0f, 0.0f), 2.0f);
+        Plane plane = new Plane(new Vector3f(0.0f, 1.0f, 0.0f), 3.0f);
 
         boolean collision = CollisionDetection.isSphereCollidingWithPlane(sphere, plane);
 

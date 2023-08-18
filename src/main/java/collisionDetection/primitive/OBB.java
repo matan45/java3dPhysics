@@ -1,6 +1,6 @@
 package collisionDetection.primitive;
 
-import org.joml.Vector3f;
+import math.Vector3f;
 
 import java.util.Arrays;
 
@@ -43,13 +43,13 @@ public class OBB {
     public Vector3f getEdge(int edgeIndex) {
         // Calculate the endpoints of the edge
         Vector3f startPoint = new Vector3f(center);
-        startPoint.add(new Vector3f(axis[edgeIndex]));
+        startPoint.add(axis[edgeIndex]);
 
         Vector3f endPoint = new Vector3f(center);
-        endPoint.add(new Vector3f(axis[edgeIndex]).mul(halfExtents.get(edgeIndex)));
+        endPoint.add(axis[edgeIndex].mul(halfExtents.get(edgeIndex)));
 
         // Calculate the edge vector
-        return new Vector3f(endPoint).sub(startPoint);
+        return endPoint.sub(startPoint);
     }
 
     public static boolean isOBBColliding(OBB obb1, OBB obb2) {
@@ -64,9 +64,9 @@ public class OBB {
         test[5] = obb2.getAxis()[2];
 
         for (int i = 0; i < 3; ++i) {
-            test[6 + i * 3] = new Vector3f(test[i]).cross(test[3]);
-            test[6 + i * 3 + 1] = new Vector3f(test[i]).cross(test[4]);
-            test[6 + i * 3 + 2] = new Vector3f(test[i]).cross(test[5]);
+            test[6 + i * 3] = test[i].cross(test[3]);
+            test[6 + i * 3 + 1] =test[i].cross(test[4]);
+            test[6 + i * 3 + 2] = test[i].cross(test[5]);
         }
 
         // Include edge normals of both OBBs

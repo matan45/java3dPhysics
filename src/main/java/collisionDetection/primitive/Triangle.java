@@ -1,6 +1,6 @@
 package collisionDetection.primitive;
 
-import org.joml.Vector3f;
+import math.Vector3f;
 
 public class Triangle {
     private Vector3f vertex1;
@@ -38,18 +38,18 @@ public class Triangle {
     }
 
     public Vector3f getEdge1() {
-        return new Vector3f(vertex2).sub(vertex1);
+        return vertex2.sub(vertex1);
     }
 
     public Vector3f getEdge2() {
-        return new Vector3f(vertex3).sub(vertex2);
+        return vertex3.sub(vertex2);
     }
 
     public Vector3f getEdge3() {
-        return new Vector3f(vertex1).sub(vertex3);
+        return vertex1.sub(vertex3);
     }
 
-    private Plane fromTriangle() {
+    public Plane fromTriangle() {
         Plane result = new Plane(new Vector3f(), 0);
         result.setNormal(vertex2.sub(vertex1).cross(vertex3.sub(vertex1)));
         result.setDistance(result.getNormal().dot(vertex1));

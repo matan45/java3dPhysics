@@ -1,6 +1,7 @@
 package collisionDetection.primitive;
 
-import org.joml.Vector3f;
+
+import math.Vector3f;
 
 public class AABB {
     private Vector3f min; // Min corner of the AABB
