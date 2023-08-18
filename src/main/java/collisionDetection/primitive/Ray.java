@@ -191,8 +191,72 @@ public class Ray {
         return t >= 0; // Collision detected
     }
 
+
     public static boolean isTriangleCollide(Ray ray, Triangle triangle) {
-        return false;
+        Vector3f rayOrigin = ray.getOrigin();
+        Vector3f rayDirection = ray.getDirection();
+
+        Vector3f vertex1 = triangle.getVertex1();
+
+        // Calculate the triangle's normal
+        Vector3f edge1 = triangle.getEdge1();
+        Vector3f edge2 = triangle.getEdge2();
+        Vector3f triangleNormal = new Vector3f(edge1).cross(edge2).normalize();
+
+        // Calculate the denominator of the ray-plane intersection formula
+        float nd = rayDirection.dot(triangleNormal);
+
+        // Check if the ray is parallel or nearly parallel to the triangle
+        if (Math.abs(nd) < 1e-6) {
+            return false; // No intersection
+        }
+
+        // Calculate the intersection point between the ray and the plane of the triangle
+        float t = (new Vector3f(vertex1).sub(rayOrigin)).dot(triangleNormal) / nd;
+
+        // Check if the intersection point is outside the ray's range
+        if (t < 0) {
+            return false; // Intersection behind the ray
+        }
+
+        // Calculate the point of intersection
+        Vector3f intersectionPoint = new Vector3f(rayOrigin).add(rayDirection.mul(t));
+
+        // Calculate barycentric coordinates of the intersection point within the triangle
+        Vector3f barycentricCords = barycentric(intersectionPoint, triangle);
+
+        // Check if the intersection point is inside the triangle using barycentric coordinates
+        return barycentricCords.x >= 0 && barycentricCords.y >= 0 && barycentricCords.z >= 0;
+    }
+
+
+    private static Vector3f barycentric(Vector3f p, Triangle t) {
+        Vector3f ap = new Vector3f(p).sub(t.getVertex1());
+        Vector3f bp = new Vector3f(p).sub(t.getVertex2());
+        Vector3f cp = new Vector3f(p).sub(t.getVertex3());
+
+        Vector3f ab = new Vector3f(t.getVertex2()).sub(t.getVertex1());
+        Vector3f ac = new Vector3f(t.getVertex3()).sub(t.getVertex1());
+        Vector3f bc = new Vector3f(t.getVertex3()).sub(t.getVertex2());
+        Vector3f cb = new Vector3f(t.getVertex2()).sub(t.getVertex3());
+        Vector3f ca = new Vector3f(t.getVertex1()).sub(t.getVertex3());
+
+        Vector3f v = new Vector3f(ab).sub(project(ab, cb));
+        float a = 1.0f - (v.dot(ap) / v.dot(ab));
+
+        v = new Vector3f(bc).sub(project(bc, ac));
+        float b = 1.0f - (v.dot(bp) / v.dot(bc));
+
+        v = new Vector3f(ca).sub(project(ca, ab));
+        float c = 1.0f - (v.dot(cp) / v.dot(ca));
+
+        return new Vector3f(a, b, c);
+    }
+
+    private static Vector3f project(Vector3f length, Vector3f direction) {
+        float dot = length.dot(direction);
+        float magSq = direction.lengthSquared();
+        return new Vector3f(direction).mul(dot / magSq);
     }
 
 

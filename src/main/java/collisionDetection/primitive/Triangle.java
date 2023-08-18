@@ -49,7 +49,7 @@ public class Triangle {
         return new Vector3f(vertex1).sub(vertex3);
     }
 
-    private Plane FromTriangle() {
+    private Plane fromTriangle() {
         Plane result = new Plane(new Vector3f(), 0);
         result.setNormal(vertex2.sub(vertex1).cross(vertex3.sub(vertex1)));
         result.setDistance(result.getNormal().dot(vertex1));
@@ -75,7 +75,7 @@ public class Triangle {
     }
 
     public Vector3f closestPoint(Vector3f point) {
-        Plane plane = FromTriangle();
+        Plane plane = fromTriangle();
         Vector3f closest = plane.closestPoint(point);
 
         if (pointInTriangleNormals(closest)) {
