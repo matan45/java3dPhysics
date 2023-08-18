@@ -2,6 +2,8 @@ package collisionDetection.primitive;
 
 import org.joml.Vector3f;
 
+import java.util.Arrays;
+
 public class Ray {
 
     private Vector3f origin;
@@ -82,28 +84,111 @@ public class Ray {
 
         float discriminant = b * b - 4 * a * c;
 
-        if (discriminant < 0) {
+        if (discriminant < 0)
             return false; // No collision
-        } else {
-            // Calculate the two potential intersection points
+
+        // Calculate the two potential intersection points
+        float sqrtDiscriminant = (float) Math.sqrt(discriminant);
+        float t1 = (-b - sqrtDiscriminant) / (2 * a);
+        float t2 = (-b + sqrtDiscriminant) / (2 * a);
+
+        return (t1 >= 0 && t1 <= 1) || (t2 >= 0 && t2 <= 1);
+    }
+
+    public static boolean isCylinderCollide(Ray ray, Cylinder cylinder) {
+        Vector3f rayOrigin = ray.getOrigin();
+        Vector3f rayDirection = ray.getDirection();
+
+        Vector3f cylinderCenter = cylinder.getCenter();
+        float cylinderRadius = cylinder.getRadius();
+        float cylinderHeight = cylinder.getHeight();
+
+        Vector3f oc = rayOrigin.sub(cylinderCenter);
+
+        float a = rayDirection.lengthSquared();
+        float b = 2 * oc.dot(rayDirection);
+        float c = oc.lengthSquared() - cylinderRadius * cylinderRadius;
+
+        float discriminant = b * b - 4 * a * c;
+
+        if (discriminant >= 0) {
             float sqrtDiscriminant = (float) Math.sqrt(discriminant);
             float t1 = (-b - sqrtDiscriminant) / (2 * a);
             float t2 = (-b + sqrtDiscriminant) / (2 * a);
 
-            return (t1 >= 0 && t1 <= 1) || (t2 >= 0 && t2 <= 1); // Collision detected
-        }// No collision
-    }
+            // Check if either intersection point is within the bounds of the cylinder's height
+            return (t1 >= 0 && t1 <= cylinderHeight) || (t2 >= 0 && t2 <= cylinderHeight); // Collision detected
+        }
 
-    public static boolean isCylinderCollide(Ray ray, Cylinder cylinder) {
-        return false;
+        return false; // No collision
     }
 
     public static boolean isOBBCollide(Ray ray, OBB obb) {
-        return false;
+        Vector3f rayOrigin = ray.getOrigin();
+        Vector3f rayDirection = ray.getDirection();
+
+        Vector3f obbCenter = obb.getCenter();
+        Vector3f[] obbAxis = obb.getAxis();
+        Vector3f size = obb.getHalfExtents();
+
+        // Vector from ray origin to OBB center
+        Vector3f p = obbCenter.sub(rayOrigin);
+
+        // Calculate dot products between OBB axes and ray direction
+        Vector3f f = new Vector3f(
+                obbAxis[0].dot(rayDirection),
+                obbAxis[1].dot(rayDirection),
+                obbAxis[2].dot(rayDirection));
+
+        // Calculate dot products between OBB axes and vector p
+        Vector3f e = new Vector3f(
+                obbAxis[0].dot(p),
+                obbAxis[1].dot(p),
+                obbAxis[2].dot(p));
+
+
+        float[] t = new float[]{
+                0, 0, 0, 0, 0, 0
+        };
+        // Calculate intersection intervals for each OBB axis
+        for (int i = 0; i < 3; i++) {
+            t[i * 2] = (e.get(i) + size.get(i)) / f.get(i); // min
+            t[i * 2 + 1] = (e.get(i) - size.get(i)) / f.get(i); // max
+        }
+
+        // Calculate min and max for all intervals
+        float min = Math.max(
+                Math.max(
+                        Math.min(t[0], t[1]),
+                        Math.min(t[2], t[3])),
+                Math.min(t[4], t[5])
+        );
+        float max = Math.min(
+                Math.min(
+                        Math.max(t[0], t[1]),
+                        Math.max(t[2], t[3])),
+                Math.max(t[4], t[5])
+        );
+
+        return !(min > max) && !(max < 0);// Collision detected
     }
 
     public static boolean isPlaneCollide(Ray ray, Plane plane) {
-        return false;
+        Vector3f rayOrigin = ray.getOrigin();
+        Vector3f rayDirection = ray.getDirection();
+
+        Vector3f planeNormal = plane.getNormal();
+        float planeDistance = plane.getDistance();
+
+        float nd = rayDirection.dot(planeNormal);
+        float pn = rayOrigin.dot(planeNormal);
+
+        if (nd >= 0.0f)
+            return false;
+
+        float t = (planeDistance - pn) / nd;
+
+        return t >= 0; // Collision detected
     }
 
     public static boolean isTriangleCollide(Ray ray, Triangle triangle) {
