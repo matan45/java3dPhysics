@@ -126,4 +126,8 @@ public class Vector3f {
     public float lengthSquared() {
         return x * x + y * y + z * z;
     }
+
+    public Vector3f div(float v) {
+        return new Vector3f(x / v, y / v, z / v);
+    }
 }

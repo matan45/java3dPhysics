@@ -129,15 +129,79 @@ public class CollisionDetection {
     }
 
     public static boolean isPlaneCollidingWithAABB(Plane plane, AABB aabb) {
-        return false;
-    }
+        // Calculate the half-extents of the AABB
+        Vector3f halfExtents = aabb.getMax().sub(aabb.getMin()).div(2.0f);
 
+        // Calculate the center of the AABB
+        Vector3f center = aabb.getMin().add(halfExtents);
+
+        // Calculate the distance from the center of the AABB to the plane
+        float distanceToPlane = center.dot(plane.getNormal()) - plane.getDistance();
+
+        // Calculate the projection of the half-extents onto the plane's normal
+        float projection = halfExtents.x * Math.abs(plane.getNormal().x)
+                + halfExtents.y * Math.abs(plane.getNormal().y)
+                + halfExtents.z * Math.abs(plane.getNormal().z);
+
+        // Check if the AABB is on the opposite side of the plane's normal
+        // compared to the plane's distance
+        return Math.abs(distanceToPlane) <= projection;
+    }
     public static boolean isCapsuleCollidingWithAABB(Capsule capsule, AABB aabb) {
-        return false;
+        // Calculate squared radius for efficient distance comparison
+        float radiusSquared = capsule.getRadius() * capsule.getRadius();
+
+        // Calculate squared distance from the start of the capsule to the AABB
+        float distanceToStartSquared = aabb.closestPoint(capsule.getStart()).lengthSquared();
+
+        // Calculate squared distance from the end of the capsule to the AABB
+        float distanceToEndSquared = aabb.closestPoint(capsule.getEnd()).lengthSquared();
+
+        // If both the start and end of the capsule are outside the AABB and
+        // their distances are greater than the squared radius, they're not colliding
+        if (distanceToStartSquared > radiusSquared && distanceToEndSquared > radiusSquared) {
+            return false;
+        }
+
+        // Otherwise, at least one of the capsule's ends is within the AABB or their
+        // distances are within the radius, meaning they might be colliding
+
+        // Calculate the closest point on the capsule axis to the AABB
+        Vector3f closestPointOnAxis = aabb.closestPointOnSegmentToAABB(capsule.getStart(), capsule.getEnd());
+
+        // Calculate the squared distance from the closest point on the axis to the AABB
+        float distanceToAxisSquared = aabb.closestPoint(closestPointOnAxis).lengthSquared();
+
+        // If the squared distance to the axis is greater than the radius squared,
+        // the capsule is not colliding with the AABB
+        return distanceToAxisSquared <= radiusSquared;
     }
 
     public static boolean isCylinderCollidingWithAABB(Cylinder cylinder, AABB aabb) {
-        return false;
+        // Calculate squared radius for efficient distance comparison
+        float radiusSquared = cylinder.getRadius() * cylinder.getRadius();
+
+        // Calculate the squared distance from the center of the cylinder to the AABB
+        float distanceToCenterSquared = aabb.closestPoint(cylinder.getCenter()).lengthSquared();
+
+        // If the squared distance is greater than the cylinder's squared height and the squared radius,
+        // and the center of the cylinder is outside the AABB, they're not colliding
+        if (distanceToCenterSquared > cylinder.getHeight() * cylinder.getHeight() &&
+                distanceToCenterSquared > radiusSquared) {
+            return false;
+        }
+
+        // Otherwise, the center of the cylinder is within the AABB or their distances are within the
+        // cylinder's height and radius, meaning they might be colliding
+
+        // Calculate the projection of the cylinder's axis onto the AABB's axes
+        float projectionX = Math.abs(cylinder.getCenter().x - Math.max(aabb.getMin().x, Math.min(cylinder.getCenter().x, aabb.getMax().x)));
+        float projectionZ = Math.abs(cylinder.getCenter().z - Math.max(aabb.getMin().z, Math.min(cylinder.getCenter().z, aabb.getMax().z)));
+
+        // If the projections are less than the cylinder's radius and the cylinder's height is greater than the
+        // distance between the AABB's min and max along the Y-axis, they might be colliding
+        return projectionX <= cylinder.getRadius() && projectionZ <= cylinder.getRadius() &&
+                cylinder.getHeight() > aabb.getMax().y - aabb.getMin().y;
     }
     public static boolean isCylinderCollidingWithTriangle(Cylinder cylinder, Triangle triangle) {
         return false;
@@ -148,7 +212,6 @@ public class CollisionDetection {
     public static boolean isCylinderCollidingWithOBB(Cylinder cylinder, OBB obb) {
         return false;
     }
-
     public static boolean isTriangleCollidingWithAABB(Triangle triangle, AABB aabb){
         return false;
     }

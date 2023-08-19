@@ -200,4 +200,58 @@ public class CollisionDetectionTest {
 
         assertFalse(collision,"Sphere Cylinder should not be colliding");
     }
+
+    @Test
+    void testPlaneCollidingWithAABB() {
+        Plane plane = new Plane(new Vector3f(0, 1, 0), 0); // Plane with normal (0, 1, 0) and distance 0
+        AABB aabb = new AABB(new Vector3f(-1, -1, -1), new Vector3f(1, 1, 1)); // AABB centered at (0, 0, 0)
+
+        boolean result = CollisionDetection.isPlaneCollidingWithAABB(plane, aabb);
+        assertTrue(result, "AABB and plane should be colliding");
+    }
+
+    @Test
+    void testPlaneNotCollidingWithAABB() {
+        Plane plane = new Plane(new Vector3f(0, 1, 0), 0); // Plane with normal (0, 1, 0) and distance 0
+        AABB aabb = new AABB(new Vector3f(-2, -2, -2), new Vector3f(-1, -1, -1)); // AABB above the plane
+
+        boolean result = CollisionDetection.isPlaneCollidingWithAABB(plane, aabb);
+        assertFalse(result, "AABB and plane should not be colliding");
+    }
+
+    @Test
+    void testCapsuleCollidingWithAABB() {
+        Capsule capsule = new Capsule(new Vector3f(0, 0, 0), new Vector3f(0, 2, 0), 1.0f);
+        AABB aabb = new AABB(new Vector3f(-1, -1, -1), new Vector3f(1, 1, 1));
+
+        boolean result = CollisionDetection.isCapsuleCollidingWithAABB(capsule, aabb);
+        assertTrue(result, "Capsule and AABB should be colliding");
+    }
+
+    @Test
+    void testCapsuleNotCollidingWithAABB() {
+        Capsule capsule = new Capsule(new Vector3f(1, 1, 3), new Vector3f(1, 2, 3), 1.0f);
+        AABB aabb = new AABB(new Vector3f(-1, -1, -1), new Vector3f(1, 1, 1));
+
+        boolean result = CollisionDetection.isCapsuleCollidingWithAABB(capsule, aabb);
+        assertFalse(result, "Capsule and AABB should not be colliding");
+    }
+
+    @Test
+    void testCylinderCollidingWithAABB() {
+        Cylinder cylinder = new Cylinder(new Vector3f(0, 1, 0), 1.0f, 4.0f);
+        AABB aabb = new AABB(new Vector3f(-1, 0, -1), new Vector3f(1, 3, 1));
+
+        boolean result = CollisionDetection.isCylinderCollidingWithAABB(cylinder, aabb);
+        assertTrue(result, "Cylinder and AABB should be colliding");
+    }
+
+    @Test
+    void testCylinderNotCollidingWithAABB() {
+        Cylinder cylinder = new Cylinder(new Vector3f(0, 5, 0), 1.0f, 2.0f);
+        AABB aabb = new AABB(new Vector3f(-1, 0, -1), new Vector3f(1, 3, 1));
+
+        boolean result = CollisionDetection.isCylinderCollidingWithAABB(cylinder, aabb);
+        assertFalse(result, "Cylinder and AABB should not be colliding");
+    }
 }
