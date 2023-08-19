@@ -67,11 +67,8 @@ public class Triangle {
 
         if (normPBC.dot(normPCA) < 0.0f) {
             return false;
-        } else if (normPBC.dot(normPAB) < 0.0f) {
-            return false;
         }
-
-        return true;
+        return !(normPBC.dot(normPAB) < 0.0f);
     }
 
     public Vector3f closestPoint(Vector3f point) {

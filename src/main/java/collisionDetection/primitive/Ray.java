@@ -2,6 +2,8 @@ package collisionDetection.primitive;
 
 import math.Vector3f;
 
+import static math.Const.EPSILON;
+
 public class Ray {
 
     private Vector3f origin;
@@ -205,7 +207,7 @@ public class Ray {
         float nd = rayDirection.dot(triangleNormal);
 
         // Check if the ray is parallel or nearly parallel to the triangle
-        if (Math.abs(nd) < 1e-6f) {
+        if (Math.abs(nd) < EPSILON) {
             return false; // No intersection
         }
 

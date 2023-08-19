@@ -1,12 +1,12 @@
 package collisionDetection.primitive;
 
 public class Interval {
-   private float min;
+    private float min;
     private float max;
 
     public Interval() {
-        min=0;
-        max=0;
+        min = 0;
+        max = 0;
     }
 
     public Interval(float min, float max) {

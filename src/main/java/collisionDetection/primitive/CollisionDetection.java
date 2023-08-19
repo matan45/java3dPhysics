@@ -3,6 +3,8 @@ package collisionDetection.primitive;
 
 import math.Vector3f;
 
+import static math.Const.EPSILON;
+
 public class CollisionDetection {
     public static boolean isSphereCollidingWithAABB(Sphere sphere, AABB aabb) {
         Vector3f closestPoint = aabb.closestPoint(sphere.getCenter());
@@ -278,7 +280,7 @@ public class CollisionDetection {
         float projection = capsuleAxis.dot(plane.getNormal());
 
         // If the capsule's axis is almost parallel to the plane, there's no collision
-        if (Math.abs(projection) < 0.0001f) {
+        if (Math.abs(projection) < EPSILON) {
             return false;
         }
 
