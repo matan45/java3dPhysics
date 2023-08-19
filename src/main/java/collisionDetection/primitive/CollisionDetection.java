@@ -147,6 +147,7 @@ public class CollisionDetection {
         // compared to the plane's distance
         return Math.abs(distanceToPlane) <= projection;
     }
+
     public static boolean isCapsuleCollidingWithAABB(Capsule capsule, AABB aabb) {
         // Calculate squared radius for efficient distance comparison
         float radiusSquared = capsule.getRadius() * capsule.getRadius();
@@ -203,32 +204,93 @@ public class CollisionDetection {
         return projectionX <= cylinder.getRadius() && projectionZ <= cylinder.getRadius() &&
                 cylinder.getHeight() > aabb.getMax().y - aabb.getMin().y;
     }
+
     public static boolean isCylinderCollidingWithTriangle(Cylinder cylinder, Triangle triangle) {
         return false;
     }
+
     public static boolean isCylinderCollidingWithPlane(Cylinder cylinder, Plane plane) {
-        return false;
+        // Calculate the projection of the cylinder's center onto the plane's normal
+        float distanceToPlane = cylinder.getCenter().dot(plane.getNormal()) - plane.getDistance();
+
+        // Calculate the distance between the center of the cylinder's top cap and the plane
+        float topCapDistance = Math.abs(distanceToPlane) - cylinder.getHeight() / 2.0f;
+
+        // Calculate the distance between the center of the cylinder's bottom cap and the plane
+        float bottomCapDistance = Math.abs(distanceToPlane) + cylinder.getHeight() / 2.0f;
+
+        // If both the top and bottom caps are on the same side of the plane's normal, there's no collision
+        if (topCapDistance > cylinder.getRadius() && bottomCapDistance > cylinder.getRadius()) {
+            return false;
+        }
+
+        // If the center of the cylinder is on the plane or the top/bottom caps intersect the plane, there's a collision
+        return Math.abs(distanceToPlane) <= cylinder.getRadius();
     }
+
     public static boolean isCylinderCollidingWithOBB(Cylinder cylinder, OBB obb) {
         return false;
     }
-    public static boolean isTriangleCollidingWithAABB(Triangle triangle, AABB aabb){
+
+    public static boolean isTriangleCollidingWithAABB(Triangle triangle, AABB aabb) {
         return false;
     }
-    public static boolean isTriangleCollidingWithPlane(Triangle triangle, Plane plane){
+
+    public static boolean isTriangleCollidingWithPlane(Triangle triangle, Plane plane) {
         return false;
     }
-    public static boolean isCapsuleCollidingWithCylinder(Capsule capsule, Cylinder cylinder){
+
+    public static boolean isCapsuleCollidingWithCylinder(Capsule capsule, Cylinder cylinder) {
+        // Check if either of the capsule's ends is colliding with the cylinder's caps
+        boolean startColliding = isPointCollidingWithCylinderCap(capsule.getStart(), cylinder);
+        boolean endColliding = isPointCollidingWithCylinderCap(capsule.getEnd(), cylinder);
+
+        // Check if the capsule's body is colliding with the cylinder's body
+        boolean bodyColliding = cylinder.isSegmentCollidingWithCylinderBody(capsule.getStart(), capsule.getEnd());
+
+        // If any of the capsule's ends are colliding with the cylinder's caps or the capsule's body
+        // is colliding with the cylinder's body, they are colliding
+        return startColliding || endColliding || bodyColliding;
+    }
+
+    private static boolean isPointCollidingWithCylinderCap(Vector3f point, Cylinder cylinder) {
+        // Calculate the distance between the point and the cylinder's center in the XZ plane
+        float distanceXZ = (float) Math.sqrt((point.x - cylinder.getCenter().x) * (point.x - cylinder.getCenter().x) +
+                (point.z - cylinder.getCenter().z) * (point.z - cylinder.getCenter().z));
+
+        // Check if the point is within the cylinder's cap radius and its Y coordinate is within the cap's height
+        return distanceXZ <= cylinder.getRadius() && Math.abs(point.y - cylinder.getCenter().y) <= cylinder.getHeight() / 2.0f;
+    }
+
+    public static boolean isCapsuleCollidingWithTriangle(Capsule capsule, Triangle triangle) {
         return false;
     }
-    public static boolean isCapsuleCollidingWithTriangle(Capsule capsule, Triangle triangle){
+
+    public static boolean isCapsuleCollidingWithOBB(Capsule capsule, OBB obb) {
         return false;
     }
-    public static boolean isCapsuleCollidingWithOBB(Capsule capsule, OBB obb){
-        return false;
-    }
-    public static boolean isCapsuleCollidingWithPlane(Capsule capsule, Plane plane){
-        return false;
+
+    public static boolean isCapsuleCollidingWithPlane(Capsule capsule, Plane plane) {
+        // Calculate the direction of the capsule's axis
+        Vector3f capsuleAxis = capsule.getEnd().sub(capsule.getStart());
+
+        // Calculate the projection of the capsule's axis onto the plane's normal
+        float projection = capsuleAxis.dot(plane.getNormal());
+
+        // If the capsule's axis is almost parallel to the plane, there's no collision
+        if (Math.abs(projection) < 0.0001f) {
+            return false;
+        }
+
+        // Calculate the distance from the start of the capsule to the plane
+        float distanceToStart = (capsule.getStart().dot(plane.getNormal()) - plane.getDistance()) / projection;
+
+        // Calculate the distance from the end of the capsule to the plane
+        float distanceToEnd = (capsule.getEnd().dot(plane.getNormal()) - plane.getDistance()) / projection;
+
+        // If both the start and end of the capsule are on the same side of the plane, there's no collision
+        return (!(distanceToStart < 0) || !(distanceToEnd < 0)) && (!(distanceToStart > 1) || !(distanceToEnd > 1));
+
     }
 
 

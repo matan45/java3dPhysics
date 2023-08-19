@@ -39,9 +39,9 @@ public class CollisionDetectionTest {
         Sphere sphere = new Sphere(new Vector3f(0.0f, 4.0f, 0.0f), 2.0f);
         Plane plane = new Plane(new Vector3f(0.0f, 1.0f, 0.0f), 3.0f);
 
-        boolean collision = CollisionDetection.isSphereCollidingWithPlane(sphere, plane);
+        boolean result = CollisionDetection.isSphereCollidingWithPlane(sphere, plane);
 
-        assertTrue(collision);
+        assertTrue(result,"Sphere Plane should be colliding");
     }
 
     @Test
@@ -49,9 +49,9 @@ public class CollisionDetectionTest {
         Sphere sphere = new Sphere(new Vector3f(0.0f, 5.0f, 0.0f), 2.0f);
         Plane plane = new Plane(new Vector3f(0.0f, 0.0f, 0.0f), 10.0f);
 
-        boolean collision = CollisionDetection.isSphereCollidingWithPlane(sphere, plane);
+        boolean result = CollisionDetection.isSphereCollidingWithPlane(sphere, plane);
 
-        assertFalse(collision);
+        assertFalse(result,"Sphere Plane should not be colliding");
     }
 
     @Test
@@ -63,8 +63,8 @@ public class CollisionDetectionTest {
                 new Vector3f(1, -1, 0),
                 new Vector3f(0, 1, 0)
         );
-
-        assertTrue(CollisionDetection.isSphereCollidingWithTriangle(sphere, triangle), "Sphere should be colliding with the triangle");
+        boolean result = CollisionDetection.isSphereCollidingWithTriangle(sphere, triangle);
+        assertTrue(result, "Sphere should be colliding with the triangle");
     }
 
     @Test
@@ -77,7 +77,9 @@ public class CollisionDetectionTest {
                 new Vector3f(1, 1, 0)
         );
 
-        assertFalse(CollisionDetection.isSphereCollidingWithTriangle(sphere, triangle), "Sphere should not be colliding with the triangle");
+        boolean result = CollisionDetection.isSphereCollidingWithTriangle(sphere, triangle);
+
+        assertFalse(result, "Sphere should not be colliding with the triangle");
     }
 
     @Test
@@ -85,7 +87,6 @@ public class CollisionDetectionTest {
         Vector3f center1 = new Vector3f(0.0f, 0.0f, 0.0f);
         Vector3f halfExtents1 = new Vector3f(1.0f, 1.0f, 1.0f);
         OBB obb = new OBB(center1, halfExtents1);
-
 
         Sphere sphere = new Sphere(new Vector3f(0, 1.5f, 0), 1.0f);
 
@@ -253,5 +254,59 @@ public class CollisionDetectionTest {
 
         boolean result = CollisionDetection.isCylinderCollidingWithAABB(cylinder, aabb);
         assertFalse(result, "Cylinder and AABB should not be colliding");
+    }
+
+    @Test
+    void testCapsuleCollidingWithCylinder() {
+        Capsule capsule = new Capsule(new Vector3f(0, 1, 0), new Vector3f(0, 3, 0), 0.5f);
+        Cylinder cylinder = new Cylinder(new Vector3f(0, 2, 0), 1.0f, 4.0f);
+
+        boolean result = CollisionDetection.isCapsuleCollidingWithCylinder(capsule, cylinder);
+        assertTrue(result, "Capsule and Cylinder should be colliding");
+    }
+
+    @Test
+    void testCapsuleNotCollidingWithCylinder() {
+        Capsule capsule = new Capsule(new Vector3f(0, 6, 0), new Vector3f(0, 8, 0), 0.5f);
+        Cylinder cylinder = new Cylinder(new Vector3f(0, 2, 0), 1.0f, 4.0f);
+
+        boolean result = CollisionDetection.isCapsuleCollidingWithCylinder(capsule, cylinder);
+        assertFalse(result, "Capsule and Cylinder should not be colliding");
+    }
+
+    @Test
+    void testCylinderCollidingWithPlane() {
+        Cylinder cylinder = new Cylinder(new Vector3f(0, 1, 0), 1.0f, 2.0f);
+        Plane plane = new Plane(new Vector3f(0, 1, 0), 0); // Plane with normal (0, 1, 0) and distance 0
+
+        boolean result = CollisionDetection.isCylinderCollidingWithPlane(cylinder, plane);
+        assertTrue(result, "Cylinder and Plane should be colliding");
+    }
+
+    @Test
+    void testCylinderNotCollidingWithPlane() {
+        Cylinder cylinder = new Cylinder(new Vector3f(0, 5, 0), 1.0f, 2.0f);
+        Plane plane = new Plane(new Vector3f(0, 1, 0), 0); // Plane with normal (0, 1, 0) and distance 0
+
+        boolean result = CollisionDetection.isCylinderCollidingWithPlane(cylinder, plane);
+        assertFalse(result, "Cylinder and Plane should not be colliding");
+    }
+
+    @Test
+    void testCapsuleCollidingWithPlane() {
+        Capsule capsule = new Capsule(new Vector3f(0, 1, 0), new Vector3f(0, 3, 0), 0.5f);
+        Plane plane = new Plane(new Vector3f(0, 1, 0), 0); // Plane with normal (0, 1, 0) and distance 0
+
+        boolean result = CollisionDetection.isCapsuleCollidingWithPlane(capsule, plane);
+        assertTrue(result, "Capsule and Plane should be colliding");
+    }
+
+    @Test
+    void testCapsuleNotCollidingWithPlane() {
+        Capsule capsule = new Capsule(new Vector3f(0, 5, 0), new Vector3f(0, 7, 0), 0.5f);
+        Plane plane = new Plane(new Vector3f(0, 1, 0), 0); // Plane with normal (0, 1, 0) and distance 0
+
+        boolean result = CollisionDetection.isCapsuleCollidingWithPlane(capsule, plane);
+        assertFalse(result, "Capsule and Plane should not be colliding");
     }
 }
