@@ -107,8 +107,8 @@ public class Triangle {
     public static boolean isTriangleColliding(Triangle triangle1, Triangle triangle2) {
         // Axes to test
         Vector3f[] axes = {
-                triangle1.calculateTriangleNormal().normalize(),
-                triangle2.calculateTriangleNormal().normalize(),
+                triangle1.calculateTriangleNormal(),
+                triangle2.calculateTriangleNormal(),
                 triangle1.getEdge1().normalize(),
                 triangle1.getEdge2().normalize(),
                 triangle1.getEdge3().normalize(),

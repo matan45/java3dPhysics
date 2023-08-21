@@ -278,7 +278,6 @@ public class CollisionDetection {
         return isPointInsideCircle(circleCenter, radius, closestPoint);
     }
 
-
     private static float calculateDistanceToPlane(Vector3f point, Vector3f normal, float constant) {
         return normal.dot(point) + constant / normal.length();
     }
@@ -300,48 +299,6 @@ public class CollisionDetection {
 
         // If the center of the cylinder is on the plane or the top/bottom caps intersect the plane, there's a collision
         return Math.abs(distanceToPlane) <= cylinder.getRadius();
-    }
-
-    public static boolean isCylinderCollidingWithOBB(Cylinder cylinder, OBB obb) {
-        return false;
-    }
-
-    public static boolean isTriangleCollidingWithAABB(Triangle triangle, AABB aabb) {
-        return false;
-    }
-
-    public static boolean isTriangleCollidingWithPlane(Triangle triangle, Plane plane) {
-        return false;
-    }
-
-    public static boolean isCapsuleCollidingWithCylinder(Capsule capsule, Cylinder cylinder) {
-        // Check if either of the capsule's ends is colliding with the cylinder's caps
-        boolean startColliding = isPointCollidingWithCylinderCap(capsule.getStart(), cylinder);
-        boolean endColliding = isPointCollidingWithCylinderCap(capsule.getEnd(), cylinder);
-
-        // Check if the capsule's body is colliding with the cylinder's body
-        boolean bodyColliding = cylinder.isSegmentCollidingWithCylinderBody(capsule.getStart(), capsule.getEnd());
-
-        // If any of the capsule's ends are colliding with the cylinder's caps or the capsule's body
-        // is colliding with the cylinder's body, they are colliding
-        return startColliding || endColliding || bodyColliding;
-    }
-
-    private static boolean isPointCollidingWithCylinderCap(Vector3f point, Cylinder cylinder) {
-        // Calculate the distance between the point and the cylinder's center in the XZ plane
-        float distanceXZ = (float) Math.sqrt((point.x - cylinder.getCenter().x) * (point.x - cylinder.getCenter().x) +
-                (point.z - cylinder.getCenter().z) * (point.z - cylinder.getCenter().z));
-
-        // Check if the point is within the cylinder's cap radius and its Y coordinate is within the cap's height
-        return distanceXZ <= cylinder.getRadius() && Math.abs(point.y - cylinder.getCenter().y) <= cylinder.getHeight() / 2.0f;
-    }
-
-    public static boolean isCapsuleCollidingWithTriangle(Capsule capsule, Triangle triangle) {
-        return false;
-    }
-
-    public static boolean isCapsuleCollidingWithOBB(Capsule capsule, OBB obb) {
-        return false;
     }
 
     public static boolean isCapsuleCollidingWithPlane(Capsule capsule, Plane plane) {
@@ -366,6 +323,119 @@ public class CollisionDetection {
         return (!(distanceToStart < 0) || !(distanceToEnd < 0)) && (!(distanceToStart > 1) || !(distanceToEnd > 1));
 
     }
+
+    public static boolean isCapsuleCollidingWithCylinder(Capsule capsule, Cylinder cylinder) {
+        // Check if either of the capsule's ends is colliding with the cylinder's caps
+        boolean startColliding = isPointCollidingWithCylinderCap(capsule.getStart(), cylinder);
+        boolean endColliding = isPointCollidingWithCylinderCap(capsule.getEnd(), cylinder);
+
+        // Check if the capsule's body is colliding with the cylinder's body
+        boolean bodyColliding = cylinder.isSegmentCollidingWithCylinderBody(capsule.getStart(), capsule.getEnd());
+
+        // If any of the capsule's ends are colliding with the cylinder's caps or the capsule's body
+        // is colliding with the cylinder's body, they are colliding
+        return startColliding || endColliding || bodyColliding;
+    }
+
+    private static boolean isPointCollidingWithCylinderCap(Vector3f point, Cylinder cylinder) {
+        // Calculate the distance between the point and the cylinder's center in the XZ plane
+        float distanceXZ = (float) Math.sqrt((point.x - cylinder.getCenter().x) * (point.x - cylinder.getCenter().x) +
+                (point.z - cylinder.getCenter().z) * (point.z - cylinder.getCenter().z));
+
+        // Check if the point is within the cylinder's cap radius and its Y coordinate is within the cap's height
+        return distanceXZ <= cylinder.getRadius() && Math.abs(point.y - cylinder.getCenter().y) <= cylinder.getHeight() / 2.0f;
+    }
+
+    public static boolean isCylinderCollidingWithOBB(Cylinder cylinder, OBB obb) {
+        // Calculate squared distance between cylinder.center and obb.center
+        float dx = obb.getCenter().x - cylinder.getCenter().x;
+        float dy = obb.getCenter().y - cylinder.getCenter().y;
+        float dz = obb.getCenter().z - cylinder.getCenter().z;
+        float distanceSquared = dx * dx + dy * dy + dz * dz;
+
+        // Calculate the maximum extent sum
+        float maxExtentSum = cylinder.getRadius() + obb.getHalfExtents().x + obb.getHalfExtents().y + obb.getHalfExtents().z;
+
+        // Broad Phase Collision Detection
+        if (distanceSquared > maxExtentSum * maxExtentSum) {
+            // Shapes are too far apart, they can't collide
+            return false;
+        }
+
+        // Perform Separating Axis Test for Cylinder-OBB
+        if (!cylinderOBBIntersect(cylinder, obb)) {
+            return false; // No collision
+        }
+
+        // Perform Caps and Faces Test
+        return cylinderOBBCapsFacesIntersect(cylinder, obb); // No collision
+    }
+    private static boolean cylinderOBBIntersect(Cylinder cylinder, OBB obb) {
+        Vector3f cylinderAxis = new Vector3f(0, 1, 0); // Assuming the cylinder's axis is along the y-axis
+        Vector3f cylinderToOBB = obb.getCenter().sub(cylinder.getCenter());
+
+        // Project the distance vector onto the cylinder's axis
+        float distance = cylinderToOBB.dot(cylinderAxis);
+
+        // Calculate the distance from the cylinder axis to the OBB center
+        Vector3f projectedOBB = cylinderToOBB.sub(cylinderAxis.mul(distance));
+        float projectedOBBLength = projectedOBB.length();
+
+        // Calculate the combined radius of the cylinder and OBB projected onto the cylinder's axis
+        float combinedRadius = cylinder.getRadius() + projectedOBBLength;
+
+        // Check if the distance between the projected OBB and cylinder axis is less than the combined radius
+        if (projectedOBBLength > combinedRadius) {
+            // Separating axis found
+            return false;
+        }
+
+        // Check for separation along OBB's local axes
+        for (Vector3f axis : obb.getAxis()) {
+            float obbProjection = obb.getHalfExtents().x * axis.dot(projectedOBB)
+                    + obb.getHalfExtents().y * Math.abs(axis.dot(cylinderAxis))
+                    + obb.getHalfExtents().z * Math.abs(axis.dot(cylinderAxis));
+
+            if (Math.abs(distance) > obbProjection + cylinder.getRadius()) {
+                // Separating axis found
+                return false;
+            }
+        }
+
+        return true; // No separating axis found, shapes intersect
+    }
+
+    private static boolean cylinderOBBCapsFacesIntersect(Cylinder cylinder, OBB obb) {
+
+        // Calculate the distances from cylinder caps to OBB faces
+        float distanceTopCap = Math.abs(obb.getAxis()[1].dot(cylinder.getCenter().sub(obb.getCenter()))) + obb.getHalfExtents().y;
+        float distanceBottomCap = Math.abs(obb.getAxis()[1].dot(cylinder.getCenter().sub(obb.getCenter()))) - obb.getHalfExtents().y;
+
+        // Check if cylinder top cap intersects with OBB top face
+        if (distanceTopCap > cylinder.getHeight() * 0.5f) {
+            return false;
+        }
+
+        // Check if cylinder bottom cap intersects with OBB bottom face
+        return !(distanceBottomCap > cylinder.getHeight() * 0.5f);// Caps and faces intersect
+    }
+
+    public static boolean isTriangleCollidingWithAABB(Triangle triangle, AABB aabb) {
+        return false;
+    }
+
+    public static boolean isTriangleCollidingWithPlane(Triangle triangle, Plane plane) {
+        return false;
+    }
+
+    public static boolean isCapsuleCollidingWithTriangle(Capsule capsule, Triangle triangle) {
+        return false;
+    }
+
+    public static boolean isCapsuleCollidingWithOBB(Capsule capsule, OBB obb) {
+        return false;
+    }
+
 
 
 }
