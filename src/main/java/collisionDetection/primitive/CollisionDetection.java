@@ -208,7 +208,79 @@ public class CollisionDetection {
     }
 
     public static boolean isCylinderCollidingWithTriangle(Cylinder cylinder, Triangle triangle) {
-        return false;
+        Vector3f cylinderTop = cylinder.getCenter().add(new Vector3f(0, cylinder.getHeight() / 2, 0));
+        Vector3f cylinderBottom = cylinder.getCenter().add(new Vector3f(0, cylinder.getHeight() / 2, 0));
+
+        // Calculate triangle's normal and constant term for the plane equation
+        Vector3f triangleNormal = triangle.calculateTriangleNormal();
+        float triangleConstant = -triangleNormal.dot(triangle.getVertex1());
+
+        // Check if cylinder cap collides with triangle plane
+        float distanceToTopCap = calculateDistanceToPlane(cylinderTop, triangleNormal, triangleConstant);
+        float distanceToBottomCap = calculateDistanceToPlane(cylinderBottom, triangleNormal, triangleConstant);
+
+        if (Math.abs(distanceToTopCap) < cylinder.getRadius() || Math.abs(distanceToBottomCap) < cylinder.getRadius()) {
+            return true;
+        }
+
+        // Check cylinder side collision
+        return isCylinderSideCollidingWithTriangle(cylinder, triangle);
+    }
+
+    private static boolean isCylinderSideCollidingWithTriangle(Cylinder cylinder, Triangle triangle) {
+        // Calculate the triangle's normal
+        Vector3f triangleNormal = triangle.calculateTriangleNormal();
+
+        // Calculate the projection of the cylinder onto the triangle's plane
+        Vector3f cylinderProjectionCenter = new Vector3f(cylinder.getCenter().x, triangle.getVertex1().y, cylinder.getCenter().z);
+
+        // Project the cylinder's top and bottom circles onto the triangle's plane
+        Vector3f projectedTopCenter = cylinderProjectionCenter.add(triangleNormal.mul(cylinder.getRadius()));
+        Vector3f projectedBottomCenter = cylinderProjectionCenter.sub(triangleNormal.mul(cylinder.getRadius()));
+
+        // Check if the projected circles intersect the triangle
+        return isCircleIntersectingTriangle(projectedTopCenter, cylinder.getRadius(), triangle) ||
+                isCircleIntersectingTriangle(projectedBottomCenter, cylinder.getRadius(), triangle);
+    }
+
+    private static boolean isCircleIntersectingTriangle(Vector3f circleCenter, float radius, Triangle triangle) {
+        // Check if any vertex of the triangle is inside the circle
+        if (isPointInsideCircle(circleCenter, radius, triangle.getVertex1()) ||
+                isPointInsideCircle(circleCenter, radius, triangle.getVertex2()) ||
+                isPointInsideCircle(circleCenter, radius, triangle.getVertex3())) {
+            return true;
+        }
+
+        // Check if any triangle edge intersects the circle
+        return isSegmentIntersectingCircle(triangle.getVertex1(), triangle.getVertex2(), circleCenter, radius) ||
+                isSegmentIntersectingCircle(triangle.getVertex2(), triangle.getVertex3(), circleCenter, radius) ||
+                isSegmentIntersectingCircle(triangle.getVertex3(), triangle.getVertex1(), circleCenter, radius);
+    }
+
+    private static boolean isPointInsideCircle(Vector3f circleCenter, float radius, Vector3f point) {
+        float distanceSquared = point.sub( circleCenter).lengthSquared();
+        return distanceSquared <= radius * radius;
+    }
+
+    private static boolean isSegmentIntersectingCircle(Vector3f startPoint, Vector3f endPoint, Vector3f circleCenter, float radius) {
+        // Perform intersection test between a line segment and a circle
+        // This is a simplified version and may not handle all cases
+        // A more accurate algorithm like the Bresenham algorithm should be used
+
+        // Calculate the closest point on the segment to the circle center
+        Vector3f segmentDirection = endPoint.sub(startPoint);
+        Vector3f toCircleCenter = circleCenter.sub(startPoint);
+        float t = toCircleCenter.dot(segmentDirection) / segmentDirection.lengthSquared();
+        t = Math.max(0, Math.min(1, t)); // Clamp t to the [0, 1] interval
+        Vector3f closestPoint = startPoint.add(segmentDirection.mul(t));
+
+        // Check if the closest point is within the circle's radius
+        return isPointInsideCircle(circleCenter, radius, closestPoint);
+    }
+
+
+    private static float calculateDistanceToPlane(Vector3f point, Vector3f normal, float constant) {
+        return normal.dot(point) + constant / normal.length();
     }
 
     public static boolean isCylinderCollidingWithPlane(Cylinder cylinder, Plane plane) {

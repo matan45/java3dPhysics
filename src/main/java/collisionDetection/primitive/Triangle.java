@@ -107,8 +107,8 @@ public class Triangle {
     public static boolean isTriangleColliding(Triangle triangle1, Triangle triangle2) {
         // Axes to test
         Vector3f[] axes = {
-                calculateNormal(triangle1).normalize(),
-                calculateNormal(triangle2).normalize(),
+                triangle1.calculateTriangleNormal().normalize(),
+                triangle2.calculateTriangleNormal().normalize(),
                 triangle1.getEdge1().normalize(),
                 triangle1.getEdge2().normalize(),
                 triangle1.getEdge3().normalize(),
@@ -146,11 +146,10 @@ public class Triangle {
         return new Interval(min, max);
     }
 
-    public static Vector3f calculateNormal(Triangle triangle) {
-        // Calculate the normal of the triangle
-        Vector3f edge1 = new Vector3f(triangle.getVertex2()).sub(triangle.getVertex1());
-        Vector3f edge2 = new Vector3f(triangle.getVertex3()).sub(triangle.getVertex1());
-
+    public Vector3f calculateTriangleNormal() {
+        // Calculate triangle normal using cross product
+        Vector3f edge1 = getEdge1();
+        Vector3f edge2 = getEdge2();
         return edge1.cross(edge2).normalize();
     }
 

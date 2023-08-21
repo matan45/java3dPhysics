@@ -309,4 +309,24 @@ public class CollisionDetectionTest {
         boolean result = CollisionDetection.isCapsuleCollidingWithPlane(capsule, plane);
         assertFalse(result, "Capsule and Plane should not be colliding");
     }
+
+    @Test
+    void testCylinderCollidingWithTriangle() {
+        Cylinder cylinder = new Cylinder(new Vector3f(0, 0, 0), 1.0f, 2.0f);
+
+        Triangle triangle = new Triangle(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0), new Vector3f(0, 1, 0));
+
+        boolean collision = CollisionDetection.isCylinderCollidingWithTriangle(cylinder, triangle);
+        assertTrue(collision, "Expected collision between cylinder and triangle");
+    }
+
+    @Test
+    void  testCylinderNotCollidingWithTriangle() {
+        Cylinder cylinder = new Cylinder(new Vector3f(5, 5, 5), 1.0f, 2.0f);
+
+        Triangle triangle = new Triangle(new Vector3f(-3, 0, 0), new Vector3f(-2, 0, 0), new Vector3f(-2, -1, 0));
+
+        boolean collision = CollisionDetection.isCylinderCollidingWithTriangle(cylinder, triangle);
+        assertFalse(collision, "Expected no collision between cylinder and triangle");
+    }
 }
