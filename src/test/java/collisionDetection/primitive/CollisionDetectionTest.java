@@ -347,4 +347,59 @@ public class CollisionDetectionTest {
         boolean result = CollisionDetection.isCylinderCollidingWithOBB(cylinder, obb);
         assertFalse(result, "No collision should be detected");
     }
+
+
+    @Test
+    public void testAABBCollidingWithTriangle() {
+        Vector3f aabbMin = new Vector3f(0, 0, 0);
+        Vector3f aabbMax = new Vector3f(2, 2, 2);
+        AABB aabb = new AABB(aabbMin, aabbMax);
+
+        Vector3f vertex1 = new Vector3f(1, 1, 1);
+        Vector3f vertex2 = new Vector3f(3, 1, 1);
+        Vector3f vertex3 = new Vector3f(1, 3, 1);
+        Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
+
+        assertTrue(CollisionDetection.isTriangleCollidingWithAABB(triangle, aabb));
+    }
+
+    @Test
+    public void testAABBNotCollidingWithTriangle() {
+        Vector3f aabbMin = new Vector3f(-2, -2, 0);
+        Vector3f aabbMax = new Vector3f(0, 0, 0);
+        AABB aabb = new AABB(aabbMin, aabbMax);
+
+        Vector3f vertex1 = new Vector3f(3, 3, 0);
+        Vector3f vertex2 = new Vector3f(4, 4, 0);
+        Vector3f vertex3 = new Vector3f(5, 5, 0);
+        Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
+
+        assertFalse(CollisionDetection.isTriangleCollidingWithAABB(triangle, aabb));
+    }
+
+    @Test
+    void testPlaneCollidingWithTriangle() {
+        Vector3f normal = new Vector3f(0, 1, 0);
+        Plane plane = new Plane(normal, 0);
+
+        Vector3f vertex1 = new Vector3f(0, 0, 0);
+        Vector3f vertex2 = new Vector3f(1, 0, 0);
+        Vector3f vertex3 = new Vector3f(0.5f, 1, 0);
+        Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
+
+        assertTrue(CollisionDetection.isTriangleCollidingWithPlane(triangle, plane));
+    }
+
+    @Test
+    void testPlaneNotCollidingWithTriangle() {
+        Vector3f normal = new Vector3f(0, 1, 0);
+        Plane plane = new Plane(normal, 0);
+
+        Vector3f vertex1 = new Vector3f(0, 0, 0);
+        Vector3f vertex2 = new Vector3f(1, 0, 0);
+        Vector3f vertex3 = new Vector3f(2, 0, 0);
+        Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
+
+        assertFalse(CollisionDetection.isTriangleCollidingWithPlane(triangle, plane));
+    }
 }

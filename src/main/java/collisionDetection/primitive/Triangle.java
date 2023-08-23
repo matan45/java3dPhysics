@@ -2,6 +2,9 @@ package collisionDetection.primitive;
 
 import math.Vector3f;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Triangle {
     private Vector3f vertex1;
     private Vector3f vertex2;
@@ -11,6 +14,14 @@ public class Triangle {
         this.vertex1 = vertex1;
         this.vertex2 = vertex2;
         this.vertex3 = vertex3;
+    }
+
+    public List<Vector3f> getVertices() {
+        ArrayList<Vector3f> vertices = new ArrayList<>();
+        vertices.add(vertex1);
+        vertices.add(vertex2);
+        vertices.add(vertex3);
+        return vertices;
     }
 
     public Vector3f getVertex1() {

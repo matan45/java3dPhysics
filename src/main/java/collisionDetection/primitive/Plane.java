@@ -11,6 +11,10 @@ public class Plane {
         this.distance = distance;
     }
 
+    public boolean isPointInFront(Vector3f point) {
+        return normal.dot(point) + distance > 0;
+    }
+
     public Vector3f getNormal() {
         return normal;
     }

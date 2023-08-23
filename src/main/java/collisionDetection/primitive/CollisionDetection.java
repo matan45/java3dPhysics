@@ -3,6 +3,8 @@ package collisionDetection.primitive;
 
 import math.Vector3f;
 
+import java.util.List;
+
 import static math.Const.EPSILON;
 
 public class CollisionDetection {
@@ -421,11 +423,90 @@ public class CollisionDetection {
     }
 
     public static boolean isTriangleCollidingWithAABB(Triangle triangle, AABB aabb) {
-        return false;
+
+        // Check if any of the triangle's vertices are inside the AABB
+        if (isPointInsideAABB(triangle.getVertex1(), aabb) ||
+                isPointInsideAABB(triangle.getVertex2(), aabb) ||
+                isPointInsideAABB(triangle.getVertex3(), aabb)) {
+            return true;
+        }
+
+        // Check if the triangle intersects any of the AABB's edges
+        return isTriangleEdgeIntersectingAABB(triangle.getVertex1(), triangle.getVertex2(), aabb) ||
+                isTriangleEdgeIntersectingAABB(triangle.getVertex2(), triangle.getVertex3(), aabb) ||
+                isTriangleEdgeIntersectingAABB(triangle.getVertex1(), triangle.getVertex3(), aabb);
+    }
+    public static boolean isPointInsideAABB(Vector3f point, AABB aabb) {
+        return point.x >= aabb.getMin().x && point.x <= aabb.getMax().x &&
+                point.y >= aabb.getMin().y && point.y <= aabb.getMax().y &&
+                point.z >= aabb.getMin().z && point.z <= aabb.getMax().z;
+    }
+
+    public static boolean isTriangleEdgeIntersectingAABB(Vector3f vertex1, Vector3f vertex2, AABB aabb) {
+        // Check if either vertex of the edge is inside the AABB
+        if (isPointInsideAABB(vertex1, aabb) || isPointInsideAABB(vertex2, aabb)) {
+            return true;
+        }
+
+        // Calculate the direction and length of the edge
+        Vector3f edgeDirection = vertex2.sub(vertex1);
+        float edgeLength = edgeDirection.length();
+        edgeDirection.normalize();
+
+        // Calculate the minimum and maximum values of t for intersection
+        float tMin = 0.0f;
+        float tMax = edgeLength;
+
+        // Perform intersection tests with each axis of the AABB
+        for (int i = 0; i < 3; i++) {
+            if (Math.abs(edgeDirection.get(i)) < EPSILON) {
+                // Edge is parallel to the AABB face, so no intersection possible
+                if (vertex1.get(i) < aabb.getMin().get(i) || vertex1.get(i) > aabb.getMax().get(i)) {
+                    return false;
+                }
+            } else {
+                float t1 = (aabb.getMin().get(i) - vertex1.get(i)) / edgeDirection.get(i);
+                float t2 = (aabb.getMax().get(i) - vertex1.get(i)) / edgeDirection.get(i);
+
+                if (t1 > t2) {
+                    float temp = t1;
+                    t1 = t2;
+                    t2 = temp;
+                }
+
+                if (t1 > tMin) {
+                    tMin = t1;
+                }
+
+                if (t2 < tMax) {
+                    tMax = t2;
+                }
+
+                if (tMin > tMax) {
+                    return false;
+                }
+            }
+        }
+
+        // Check if the intersection occurred within the edge length
+        return tMin <= edgeLength && tMax >= 0;
     }
 
     public static boolean isTriangleCollidingWithPlane(Triangle triangle, Plane plane) {
-        return false;
+
+        List<Vector3f> vertices = triangle.getVertices();
+        boolean allVerticesInFront = true;
+        boolean allVerticesBehind = true;
+
+        for (Vector3f vertex : vertices) {
+            if (plane.isPointInFront(vertex)) {
+                allVerticesBehind = false;
+            } else {
+                allVerticesInFront = false;
+            }
+        }
+
+        return !(allVerticesInFront || allVerticesBehind);
     }
 
     public static boolean isCapsuleCollidingWithTriangle(Capsule capsule, Triangle triangle) {
