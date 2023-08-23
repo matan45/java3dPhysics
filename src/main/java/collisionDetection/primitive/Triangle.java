@@ -67,7 +67,7 @@ public class Triangle {
         return result;
     }
 
-    private boolean pointInTriangleNormals(Vector3f point) {
+    public boolean pointInTriangle(Vector3f point) {
         Vector3f a = vertex1.sub(point);
         Vector3f b = vertex2.sub(point);
         Vector3f c = vertex3.sub(point);
@@ -86,7 +86,7 @@ public class Triangle {
         Plane plane = fromTriangle();
         Vector3f closest = plane.closestPoint(point);
 
-        if (pointInTriangleNormals(closest)) {
+        if (pointInTriangle(closest)) {
             return closest;
         }
 

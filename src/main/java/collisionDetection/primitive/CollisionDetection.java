@@ -510,11 +510,104 @@ public class CollisionDetection {
     }
 
     public static boolean isCapsuleCollidingWithTriangle(Capsule capsule, Triangle triangle) {
+        // Step 1: Check if any of the capsule's end points are inside the triangle.
+        if (triangle.pointInTriangle(capsule.getStart()) || triangle.pointInTriangle(capsule.getEnd())) {
+            return true;
+        }
+
+        // Step 2: Check if the capsule intersects the triangle's plane.
+        Vector3f capsuleDirection = capsule.getEnd().sub(capsule.getStart());
+        Vector3f triangleNormal = triangle.calculateTriangleNormal();
+        float dotProduct = triangleNormal.dot(capsuleDirection);
+
+        if (dotProduct == 0) {
+            // Handle the parallel case as needed.
+            return false;
+        }
+
+        Vector3f intersectionPoint = calculateIntersectionPoint(capsule, triangle, triangleNormal, dotProduct);
+
+        // Step 3: Check if the intersection point is inside the triangle.
+        if (triangle.pointInTriangle(intersectionPoint)) {
+            return true;
+        }
+
+        // Step 4: Check for edge-edge collisions.
+        Vector3f[] triangleVertices = {triangle.getVertex1(), triangle.getVertex2(), triangle.getVertex3()};
+        Vector3f capsuleStart = capsule.getStart();
+        Vector3f capsuleEnd = capsule.getEnd();
+
+        for (int i = 0; i < 3; i++) {
+            Vector3f triangleVertex1 = triangleVertices[i];
+            Vector3f triangleVertex2 = triangleVertices[(i + 1) % 3];
+
+            if (checkEdgeEdgeCollision(capsuleStart, capsuleEnd, triangleVertex1, triangleVertex2)) {
+                return true;
+            }
+        }
+
+        // If no collision conditions were met, return false.
         return false;
     }
 
-    public static boolean isCapsuleCollidingWithOBB(Capsule capsule, OBB obb) {
+    private static boolean checkEdgeEdgeCollision(Vector3f A, Vector3f B, Vector3f C, Vector3f D) {
+        Vector3f AB = B.sub(A);
+        Vector3f AC = C.sub(A);
+        Vector3f AD = D.sub(A);
+
+        Vector3f normalABCD = AB.cross(AC);
+
+        // Check if the cross product of AB and AC points in the same direction as AD.
+        if (normalABCD.dot(AD) > 0) {
+            // Check if point D is on the opposite side of ABC as A is.
+            Vector3f BC = C.sub(B);
+            Vector3f BD = D.sub(B);
+            Vector3f normalBCDA = BC.cross(BD);
+
+            // The edges intersect.
+            return normalBCDA.dot(AC) > 0 && normalBCDA.dot(AB) > 0;
+        }
+
         return false;
+    }
+
+    private static Vector3f calculateIntersectionPoint(Capsule capsule, Triangle triangle, Vector3f triangleNormal, float dotProduct) {
+        // Calculate the parameter along the capsule line where the intersection occurs.
+        float t = triangleNormal.dot(triangle.getVertex1().sub(capsule.getStart())) / dotProduct;
+
+        // Calculate the intersection point using the parameter.
+
+        return capsule.getStart().add(capsule.getEnd().sub(capsule.getStart()).mul(t));
+    }
+
+    public static boolean isCapsuleCollidingWithOBB(Capsule capsule, OBB obb) {
+        // Calculate the center and orientation of the OBB
+        Vector3f obbCenter = obb.getCenter();
+        Vector3f[] obbAxes = obb.getAxis();
+        Vector3f obbHalfExtents = obb.getHalfExtents();
+
+        // Calculate the axis between the capsule's start and end points
+        Vector3f capsuleAxis = capsule.getEnd().sub(capsule.getStart()).normalize();
+
+        // Calculate the vector between the capsule's center and the OBB's center
+        Vector3f centerDiff = obbCenter.sub(capsule.getStart());
+
+        // Project the capsule axis onto the OBB axes
+        float capsuleProjection = centerDiff.dot(capsuleAxis);
+        float obbProjection;
+
+        for (Vector3f obbAxis : obbAxes) {
+            obbProjection = centerDiff.dot(obbAxis);
+            float t = Math.max(-obbHalfExtents.x, Math.min(obbHalfExtents.x, obbProjection));
+            float distance = centerDiff.sub(obbAxis.mul(t)).length();
+
+            if (distance > capsule.getRadius() && capsuleProjection < 0) {
+                // No overlap found on this axis, so shapes are not colliding
+                return false;
+            }
+        }
+
+        return true;
     }
 
 

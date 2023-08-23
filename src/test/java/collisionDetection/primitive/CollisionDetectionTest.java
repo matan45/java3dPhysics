@@ -402,4 +402,53 @@ public class CollisionDetectionTest {
 
         assertFalse(CollisionDetection.isTriangleCollidingWithPlane(triangle, plane));
     }
+
+
+    @Test
+    public void testCapsuleCollidingWithOBB() {
+        // Create a colliding capsule and OBB
+        Capsule capsule = new Capsule(new Vector3f(0, 0, 0), new Vector3f(0, 1, 0), 0.5f);
+        OBB obb = new OBB(new Vector3f(0, 0.5f, 0), new Vector3f(0.5f, 0.5f, 0.5f));
+
+        assertTrue(CollisionDetection.isCapsuleCollidingWithOBB(capsule, obb));
+    }
+
+    @Test
+    public void testCapsuleNotCollidingWithOBB() {
+        // Create a non-colliding capsule and OBB
+        Capsule capsule = new Capsule(new Vector3f(3, 3, 0), new Vector3f(5, 5, 0), 0.5f);
+        OBB obb = new OBB(new Vector3f(0, 0, 0), new Vector3f(0.5f, 0.5f, 0.5f));
+
+        assertFalse(CollisionDetection.isCapsuleCollidingWithOBB(capsule, obb));
+    }
+
+    @Test
+    void testCapsuleCollidingWithTriangle() {
+        Vector3f capsuleStart = new Vector3f(0, 0, -1);
+        Vector3f capsuleEnd = new Vector3f(0, 2, 1);
+        float capsuleRadius = 0.5f;
+        Capsule capsule = new Capsule(capsuleStart, capsuleEnd, capsuleRadius);
+
+        Vector3f vertex1 = new Vector3f(-1, 0, 0);
+        Vector3f vertex2 = new Vector3f(0, 1, 0);
+        Vector3f vertex3 = new Vector3f(1, 1, 0);
+        Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
+
+        assertTrue(CollisionDetection.isCapsuleCollidingWithTriangle(capsule, triangle));
+    }
+
+    @Test
+    void testCapsuleNoCollidingWithTriangle() {
+        Vector3f capsuleStart = new Vector3f(0, 0, 0);
+        Vector3f capsuleEnd = new Vector3f(0, 2, 0);
+        float capsuleRadius = 0.5f;
+        Capsule capsule = new Capsule(capsuleStart, capsuleEnd, capsuleRadius);
+
+        Vector3f vertex1 = new Vector3f(-2, -1, 0);
+        Vector3f vertex2 = new Vector3f(2, -1, 0);
+        Vector3f vertex3 = new Vector3f(0, 1, 0);
+        Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
+
+        assertFalse(CollisionDetection.isCapsuleCollidingWithTriangle(capsule, triangle));
+    }
 }
