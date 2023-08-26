@@ -28,6 +28,12 @@ public class AABB {
         this.max = max;
     }
 
+    public boolean isPointInside(Vector3f position) {
+        return position.x >= min.x && position.x <= max.x &&
+                position.y >= min.y && position.y <= max.y &&
+                position.z >= min.z && position.z <= max.z;
+    }
+
     public static boolean isAABBColliding(AABB box1, AABB box2) {
         return !(box2.getMin().x > box1.getMax().x || box2.getMax().x < box1.getMin().x ||
                 box2.getMin().y > box1.getMax().y || box2.getMax().y < box1.getMin().y ||
