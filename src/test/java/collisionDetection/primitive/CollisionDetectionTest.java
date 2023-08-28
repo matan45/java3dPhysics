@@ -440,13 +440,13 @@ public class CollisionDetectionTest {
     @Test
     void testCapsuleNoCollidingWithTriangle() {
         Vector3f capsuleStart = new Vector3f(0, 0, 0);
-        Vector3f capsuleEnd = new Vector3f(0, 2, 0);
+        Vector3f capsuleEnd = new Vector3f(0, 3, 0);
         float capsuleRadius = 0.5f;
         Capsule capsule = new Capsule(capsuleStart, capsuleEnd, capsuleRadius);
 
-        Vector3f vertex1 = new Vector3f(-2, -1, 0);
-        Vector3f vertex2 = new Vector3f(2, -1, 0);
-        Vector3f vertex3 = new Vector3f(0, 1, 0);
+        Vector3f vertex1 = new Vector3f(-1, -1, 0);
+        Vector3f vertex2 = new Vector3f(-1, 2, 0);
+        Vector3f vertex3 = new Vector3f(-3, -1, 0);
         Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
 
         assertFalse(CollisionDetection.isCapsuleCollidingWithTriangle(capsule, triangle));
