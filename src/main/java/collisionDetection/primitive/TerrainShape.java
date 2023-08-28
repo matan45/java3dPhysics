@@ -13,8 +13,6 @@ public class TerrainShape {
     private float width;//define the width of the terrain
     private float length;//define the length of the terrain
     private float gridSquareSize;
-    //add also ray cast
-
 
     public TerrainShape(float[][] heightData, AABB borders, int width, int length) {
         this.heightData = heightData;
@@ -54,8 +52,8 @@ public class TerrainShape {
     }
 
     public float getHeightOfTerrain(float worldX, float worldZ) {
-        float terrainX = worldX - this.width;
-        float terrainZ = worldZ - this.length;
+        float terrainX = worldX - width;
+        float terrainZ = worldZ - length;
         int gridX = (int) Math.floor(terrainX / gridSquareSize);
         int gridZ = (int) Math.floor(terrainZ / gridSquareSize);
         if (gridX >= heightData.length - 1 || gridZ >= heightData.length - 1 || gridX < 0 || gridZ < 0)
@@ -72,8 +70,8 @@ public class TerrainShape {
                     new Vector3f(1, heightData[gridX + 1][gridZ + 1], 1), new Vector3f(0, heightData[gridX][gridZ + 1], 1),
                     new Vector2f(xCord, zCord));
         }
-        return answer;
 
+        return answer;
     }
 
     public boolean isPointOnGround(Vector3f position) {
@@ -84,6 +82,9 @@ public class TerrainShape {
     }
 
     public Vector3f rayTerrainIntersection(Ray ray) {
+        if (!borders.isPointInside(ray.getOrigin()))
+            return null;
+
         Vector3f rayOrigin = ray.getOrigin();
         Vector3f rayDirection = ray.getDirection();
 
