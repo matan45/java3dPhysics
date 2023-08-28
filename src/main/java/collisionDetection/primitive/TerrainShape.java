@@ -7,7 +7,7 @@ import math.Vector3f;
 
 public class TerrainShape {
 
-    private float[][] heightData;//TODO splice for quad tree
+    private float[][] heightData;
     private AABB borders;//define the min and max high
     private static final float SIZE = 1024;
     private float width;//define the width of the terrain
@@ -85,9 +85,6 @@ public class TerrainShape {
         if (!borders.isPointInside(ray.getOrigin()))
             return null;
 
-        Vector3f rayOrigin = ray.getOrigin();
-        Vector3f rayDirection = ray.getDirection();
-
         // Iterate through terrain grid cells
         for (int x = 0; x < heightData.length - 1; x++) {
             for (int z = 0; z < heightData[0].length - 1; z++) {
@@ -100,7 +97,7 @@ public class TerrainShape {
                 Vector3f v3 = new Vector3f(cellX, heightData[x][z + 1], cellZ + gridSquareSize);
 
                 // Perform ray-triangle intersection test
-                Vector3f intersectionPoint = rayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3);
+                Vector3f intersectionPoint = rayTriangleIntersection(ray, v1, v2, v3);
 
                 if (intersectionPoint != null) {
                     // Check if intersection point is within terrain bounds
@@ -109,7 +106,7 @@ public class TerrainShape {
                         float terrainHeight = getHeightOfTerrain(intersectionPoint.x, intersectionPoint.z);
 
                         // Compare intersection point's height with terrain height
-                        if (rayOrigin.y < terrainHeight && intersectionPoint.y > terrainHeight) {
+                        if (ray.getOrigin().y < terrainHeight && intersectionPoint.y > terrainHeight) {
                             return intersectionPoint;
                         }
                     }
@@ -120,11 +117,11 @@ public class TerrainShape {
         return null; // No collision
     }
 
-    private Vector3f rayTriangleIntersection(Vector3f rayOrigin, Vector3f rayDirection,
+    private Vector3f rayTriangleIntersection(Ray ray,
                                              Vector3f v1, Vector3f v2, Vector3f v3) {
         Vector3f edge1 = v2.sub(v1);
         Vector3f edge2 = v3.sub(v1);
-        Vector3f h = rayDirection.cross(edge2);
+        Vector3f h = ray.getDirection().cross(edge2);
         float a = edge1.dot(h);
 
         if (a > -Const.EPSILON && a < Const.EPSILON) {
@@ -132,7 +129,7 @@ public class TerrainShape {
         }
 
         float f = 1.0f / a;
-        Vector3f s = rayOrigin.sub(v1);
+        Vector3f s = ray.getOrigin().sub(v1);
         float u = f * s.dot(h);
 
         if (u < 0.0f || u > 1.0f) {
@@ -140,7 +137,7 @@ public class TerrainShape {
         }
 
         Vector3f q = s.cross(edge1);
-        float v = f * rayDirection.dot(q);
+        float v = f * ray.getDirection().dot(q);
 
         if (v < 0.0f || u + v > 1.0f) {
             return null;
@@ -149,7 +146,7 @@ public class TerrainShape {
         float t = f * edge2.dot(q);
 
         if (t > Const.EPSILON) {
-            return rayOrigin.add(rayDirection.mul(t));
+            return ray.getOrigin().add(ray.getDirection().mul(t));
         }
 
         return null; // Ray intersects triangle behind origin
