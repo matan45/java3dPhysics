@@ -1,11 +1,13 @@
 package collisionDetection.primitive;
 
 import collisionDetection.narrowPhase.Shape;
+import collisionDetection.narrowPhase.sat.Interval;
+import collisionDetection.narrowPhase.sat.SATSupport;
 import math.Vector3f;
 
 import java.util.List;
 
-public class ConvexPolyhedron implements Shape {
+public class ConvexPolyhedron implements Shape, SATSupport {
     private List<Vector3f> vertices;
 
     public ConvexPolyhedron(List<Vector3f> vertices) {
@@ -70,7 +72,7 @@ public class ConvexPolyhedron implements Shape {
 
             Vector3f axis = edgeEnd.sub(edgeStart).normalize();
 
-            if (isAxisSeparating(axis, vertices1, vertices2)) {
+            if (isAxisSeparating(axis, convexPolyhedron1, convexPolyhedron2)) {
                 return false;
             }
         }
@@ -81,7 +83,7 @@ public class ConvexPolyhedron implements Shape {
 
             Vector3f axis = edgeEnd.sub(edgeStart).normalize();
 
-            if (isAxisSeparating(axis, vertices1, vertices2)) {
+            if (isAxisSeparating(axis, convexPolyhedron1, convexPolyhedron2)) {
                 return false;
             }
         }
@@ -89,27 +91,13 @@ public class ConvexPolyhedron implements Shape {
         return true;
     }
 
-    private static boolean isAxisSeparating(Vector3f axis, List<Vector3f> vertices1, List<Vector3f> vertices2) {
-        float min1 = Float.MAX_VALUE;
-        float max1 = Float.MIN_VALUE;
-        float min2 = Float.MAX_VALUE;
-        float max2 = Float.MIN_VALUE;
+    private static boolean isAxisSeparating(Vector3f axis, ConvexPolyhedron convexPolyhedron1, ConvexPolyhedron convexPolyhedron2) {
+        // Project the OBBs onto the axis
+        Interval projection1 = convexPolyhedron1.getInterval(axis);
+        Interval projection2 = convexPolyhedron2.getInterval(axis);
 
-        for (Vector3f vertex : vertices1) {
-            float projection = vertex.dot(axis);
-            min1 = Math.min(min1, projection);
-            max1 = Math.max(max1, projection);
-        }
-
-        for (Vector3f vertex : vertices2) {
-            float projection = vertex.dot(axis);
-            min2 = Math.min(min2, projection);
-            max2 = Math.max(max2, projection);
-        }
-
-        // Check for overlap along the axis
-        // The axis is separating
-        return max1 < min2 || min1 > max2;
+        // Check for separation between the intervals
+        return projection1.getMax() < projection2.getMin() || projection2.getMax() < projection1.getMin();
     }
 
 
@@ -120,4 +108,16 @@ public class ConvexPolyhedron implements Shape {
                 '}';
     }
 
+    @Override
+    public Interval getInterval(Vector3f axis) {
+        float min = Float.MAX_VALUE;
+        float max = Float.MIN_VALUE;
+
+        for (Vector3f vertex : vertices) {
+            float projection = vertex.dot(axis);
+            min = Math.min(min, projection);
+            max = Math.max(max, projection);
+        }
+        return new Interval(min, max);
+    }
 }

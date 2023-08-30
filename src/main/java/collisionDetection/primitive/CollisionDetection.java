@@ -73,7 +73,7 @@ public class CollisionDetection {
     private static boolean isAxisSeparating(Vector3f axis, AABB aabb, OBB obb) {
         // Project the OBBs onto the axis
         Interval projection1 = aabb.getInterval(axis);
-        Interval projection2 = OBB.getInterval(axis, obb);
+        Interval projection2 = obb.getInterval(axis);
 
         // Check for separation between the intervals
         return projection1.getMax() < projection2.getMin() || projection2.getMax() < projection1.getMin();

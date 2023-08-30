@@ -2,11 +2,12 @@ package collisionDetection.primitive;
 
 import collisionDetection.narrowPhase.Shape;
 import collisionDetection.narrowPhase.sat.Interval;
+import collisionDetection.narrowPhase.sat.SATSupport;
 import math.Vector3f;
 
 import java.util.Arrays;
 
-public class OBB implements Shape {
+public class OBB implements Shape, SATSupport {
 
     private Vector3f center;
     private Vector3f[] axis;
@@ -89,21 +90,21 @@ public class OBB implements Shape {
 
     private static boolean isAxisSeparating(Vector3f axis, OBB obb1, OBB obb2) {
         // Project the OBBs onto the axis
-        Interval projection1 = getInterval(axis, obb1);
-        Interval projection2 = getInterval(axis, obb2);
+        Interval projection1 = obb1.getInterval(axis);
+        Interval projection2 = obb2.getInterval(axis);
 
         // Check for separation between the intervals
         return projection1.getMax() < projection2.getMin() || projection2.getMax() < projection1.getMin();
     }
-
-    public static Interval getInterval(Vector3f axis, OBB obb) {
-        float centerProjection = axis.x * obb.getCenter().x + axis.y * obb.getCenter().y + axis.z * obb.getCenter().z;
+    @Override
+    public Interval getInterval(Vector3f axis) {
+        float centerProjection = axis.x * getCenter().x + axis.y * getCenter().y + axis.z * getCenter().z;
 
         // Calculate the half-length of the projection
         float halfLength =
-                obb.getHalfExtents().x * Math.abs(axis.x) +
-                        obb.getHalfExtents().y * Math.abs(axis.y) +
-                        obb.getHalfExtents().z * Math.abs(axis.z);
+                getHalfExtents().x * Math.abs(axis.x) +
+                        getHalfExtents().y * Math.abs(axis.y) +
+                        getHalfExtents().z * Math.abs(axis.z);
 
         // Calculate the interval
         float min = centerProjection - halfLength;
@@ -152,4 +153,5 @@ public class OBB implements Shape {
                 ", halfExtents=" + halfExtents +
                 '}';
     }
+
 }

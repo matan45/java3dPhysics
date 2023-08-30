@@ -2,12 +2,13 @@ package collisionDetection.primitive;
 
 import collisionDetection.narrowPhase.Shape;
 import collisionDetection.narrowPhase.sat.Interval;
+import collisionDetection.narrowPhase.sat.SATSupport;
 import math.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Triangle implements Shape {
+public class Triangle implements Shape, SATSupport {
     private Vector3f vertex1;
     private Vector3f vertex2;
     private Vector3f vertex3;
@@ -143,17 +144,17 @@ public class Triangle implements Shape {
     }
 
     private static boolean isSeparatingAxis(Vector3f axis, Triangle triangle1, Triangle triangle2) {
-        Interval interval1 = getInterval(axis, triangle1);
-        Interval interval2 = getInterval(axis, triangle2);
+        Interval interval1 = triangle1.getInterval(axis);
+        Interval interval2 = triangle2.getInterval(axis);
 
         return interval1.getMax() < interval2.getMin() || interval2.getMax() < interval1.getMin();
     }
 
-    public static Interval getInterval(Vector3f axis, Triangle triangle) {
+    public Interval getInterval(Vector3f axis) {
         // Project the triangle vertices onto the axis
-        float projection1 = axis.dot(triangle.getVertex1());
-        float projection2 = axis.dot(triangle.getVertex2());
-        float projection3 = axis.dot(triangle.getVertex3());
+        float projection1 = axis.dot(getVertex1());
+        float projection2 = axis.dot(getVertex2());
+        float projection3 = axis.dot(getVertex3());
 
         // Calculate the minimum and maximum values of the projection
         float min = Math.min(Math.min(projection1, projection2), projection3);
