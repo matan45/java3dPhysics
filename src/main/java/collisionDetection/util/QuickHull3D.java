@@ -105,7 +105,7 @@ public class QuickHull3D {
         Vector3f farthestPoint = null;
 
         for (Vector3f point : points) {
-            if (point != a && point != b && point != c) {
+            if (!point.equals(a) && !point.equals(b) && !point.equals(c)) {
                 double distance = distanceToPlane(point, a, b, c);
                 if (distance > maxDistance) {
                     maxDistance = distance;
