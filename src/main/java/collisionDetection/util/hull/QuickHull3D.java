@@ -9,7 +9,7 @@ import java.util.List;
 public class QuickHull3D {
     private final List<Vector3f> points;
     private final List<Vector3f> convexHullVertices;
-    private final List<Face> convexHullFaces; // This list holds the faces of the convex hull
+    public final List<Face> convexHullFaces; // This list holds the faces of the convex hull
 
     public QuickHull3D(List<Vector3f> points) {
         this.points = points;
@@ -99,9 +99,7 @@ public class QuickHull3D {
         }
         // Create new faces and divide the points into visible and non-visible sets
         List<Face> newFaces = createNewFaces(furthestPoint, faceVertices);
-        List<Vector3f> visiblePoints = new ArrayList<>();
-        List<Vector3f> nonVisiblePoints = new ArrayList<>();
-        separatePointsByVisibleFaces(convexHullFaces, faceVertices, visiblePoints, nonVisiblePoints);
+        List<Vector3f> visiblePoints = separatePointsByVisibleFaces(faceVertices);
 
         // Recursively build the convex hull for the visible points
         if (!visiblePoints.isEmpty()) {
@@ -116,13 +114,12 @@ public class QuickHull3D {
         combineFaces(newFaces);
     }
 
-    private void separatePointsByVisibleFaces(
-            List<Face> faces, List<Vector3f> points,
-            List<Vector3f> visiblePoints, List<Vector3f> nonVisiblePoints) {
+    private List<Vector3f> separatePointsByVisibleFaces(List<Vector3f> points) {
+        List<Vector3f> visiblePoints = new ArrayList<>();
         for (Vector3f point : points) {
             boolean isVisible = false;
-            for (Face face : faces) {
-                if (calculateDistanceToFace(point, face.vertices) > 0) {
+            for (Face face : convexHullFaces) {
+                if (calculateDistanceToFace(point, face.getVertices()) > 0) {
                     isVisible = true;
                     break;
                 }
@@ -130,10 +127,9 @@ public class QuickHull3D {
 
             if (isVisible) {
                 visiblePoints.add(point);
-            } else {
-                nonVisiblePoints.add(point);
             }
         }
+        return visiblePoints;
     }
 
     private void combineFaces(List<Face> newFaces) {
@@ -160,7 +156,7 @@ public class QuickHull3D {
     }
 
     private boolean isVisibleFromFace(Face testFace, Face existingFace) {
-        Vector3f existingNormal = existingFace.normal;
+        Vector3f existingNormal = existingFace.getNormal();
 
         Vector3f centroidVector = calculateCentroidVector(testFace, existingFace);
 
@@ -173,17 +169,17 @@ public class QuickHull3D {
         Vector3f centroid1 = calculateCentroid(face1);
         Vector3f centroid2 = calculateCentroid(face2);
 
-        return new Vector3f(centroid2).sub(centroid1);
+        return centroid2.sub(centroid1);
     }
 
     private Vector3f calculateCentroid(Face face) {
         Vector3f sum = new Vector3f();
 
-        for (Vector3f vertex : face.vertices) {
+        for (Vector3f vertex : face.getVertices()) {
             sum.add(vertex);
         }
 
-        int numVertices = face.vertices.length;
+        int numVertices = face.getVertices().length;
         return sum.div(numVertices);
     }
 
@@ -193,21 +189,22 @@ public class QuickHull3D {
 
         for (int i = 0; i < visibleVertices.size(); i++) {
             for (int j = i + 1; j < visibleVertices.size(); j++) {
-                Face newFace = new Face();
-                newFace.vertices = new Vector3f[3];
-                newFace.vertices[0] = visibleVertices.get(i);
-                newFace.vertices[1] = visibleVertices.get(j);
-                newFace.vertices[2] = furthestPoint;
+
+                Vector3f[] vertices = new Vector3f[3];
+                vertices[0] = visibleVertices.get(i);
+                vertices[1] = visibleVertices.get(j);
+                vertices[2] = furthestPoint;
 
                 // Optionally calculate normal and orientation of the new face
-                newFace.normal = calculateNormalFromVertices(newFace.vertices);
+                Vector3f normal = calculateNormalFromVertices(vertices);
+
+                Face newFace = new Face(vertices, normal);
 
                 newFaces.add(newFace);
             }
         }
         return newFaces;
     }
-
 
 
     private Vector3f findFurthestPoint(Vector3f[] vertices, List<Vector3f> points) {
@@ -225,7 +222,7 @@ public class QuickHull3D {
         return furthestPoint;
     }
 
-    private double calculateDistanceToFace(Vector3f point,Vector3f[] faceVertices) {
+    private double calculateDistanceToFace(Vector3f point, Vector3f[] faceVertices) {
         // Calculate the normal vector of the face using its vertices
         Vector3f faceNormal = calculateNormalFromVertices(faceVertices);
 

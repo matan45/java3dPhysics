@@ -112,7 +112,10 @@ public class Vector3f {
 
     public Vector3f normalize() {
         float l = length();
-        return new Vector3f(x / l, y / l, z / l);
+        if (l != 0)
+            return new Vector3f(x / l, y / l, z / l);
+
+        return new Vector3f(x, y, z);
     }
 
     public Vector3f sub(Vector3f other) {
