@@ -47,7 +47,7 @@ public class CollisionDetectionTest {
     @Test
     public void testSphereNotCollidingWithPlane() {
         Sphere sphere = new Sphere(new Vector3f(0.0f, 5.0f, 0.0f), 2.0f);
-        Plane plane = new Plane(new Vector3f(0.0f, 0.0f, 0.0f), 10.0f);
+        Plane plane = new Plane(new Vector3f(1.0f, 0.0f, 0.0f), 10.0f);
 
         boolean result = CollisionDetection.isSphereCollidingWithPlane(sphere, plane);
 
