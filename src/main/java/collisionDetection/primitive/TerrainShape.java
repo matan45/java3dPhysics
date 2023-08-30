@@ -51,7 +51,7 @@ public class TerrainShape {
         this.length = length * SIZE;
     }
 
-    public float getHeightOfTerrain(float worldX, float worldZ) {
+    private float getHeightOfTerrain(float worldX, float worldZ) {
         float terrainX = worldX - width;
         float terrainZ = worldZ - length;
         int gridX = (int) Math.floor(terrainX / gridSquareSize);
@@ -150,6 +150,37 @@ public class TerrainShape {
         }
 
         return null; // Ray intersects triangle behind origin
+    }
+
+    private Vector3f calculateTerrainNormal(float x, float z) {
+        // Get neighboring heights for the cross product calculation
+        float leftHeight = getHeightOfTerrain(x - 1, z);
+        float rightHeight = getHeightOfTerrain(x + 1, z);
+        float downHeight = getHeightOfTerrain(x, z - 1);
+        float upHeight = getHeightOfTerrain(x, z + 1);
+
+        // Calculate the tangent and bitangent vectors
+        Vector3f tangent = new Vector3f(2.0f, rightHeight - leftHeight, 0.0f);
+        Vector3f bitangent = new Vector3f(0.0f, upHeight - downHeight, 2.0f);
+
+        // Calculate the terrain normal using the cross product of tangent and bitangent
+        Vector3f terrainNormal = tangent.cross(bitangent);
+        terrainNormal.normalize();
+
+        return terrainNormal;
+    }
+
+    public Vector3f calculateSlidingDisplacement(Vector3f displacement) {
+        // Ensure the terrain normal is normalized
+        Vector3f terrainNormal = calculateTerrainNormal(displacement.x, displacement.y);
+        terrainNormal.normalize();
+
+        // Project the player's displacement vector onto the terrain plane
+        float displacementDotNormal = displacement.dot(terrainNormal);
+        Vector3f projectedDisplacement = terrainNormal.mul(displacementDotNormal);
+
+        // Calculate the sliding displacement by subtracting the projected displacement
+        return displacement.sub(projectedDisplacement);
     }
 
 
