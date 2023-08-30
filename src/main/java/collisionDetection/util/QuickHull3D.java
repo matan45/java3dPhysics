@@ -1,4 +1,4 @@
-package com.boot;
+package collisionDetection.util;
 
 import math.Vector3f;
 
@@ -14,9 +14,9 @@ public class QuickHull3D {
 
         List<Vector3f> convexHull = new ArrayList<>();
 
-        Vector3f A = points.get(0); // Assuming points list is not empty
-        Vector3f B = points.get(1); // Assuming points list has at least 2 points
-        Vector3f C = points.get(2); // Assuming points list has at least 3 points
+        Vector3f A = points.get(0);
+        Vector3f B = points.get(1);
+        Vector3f C = points.get(2);
 
         convexHull.add(A);
         convexHull.add(B);
@@ -26,7 +26,7 @@ public class QuickHull3D {
         List<Vector3f> S2 = new ArrayList<>();
 
         for (Vector3f point : points) {
-            if (!point.equals(A) &&!point.equals(B) && !point.equals(C)) {
+            if (!point.equals(A) && !point.equals(B) && !point.equals(C)) {
                 if (isOnPositiveSide(point, A, B, C)) {
                     S1.add(point);
                 } else {
@@ -38,10 +38,11 @@ public class QuickHull3D {
         findHull3D(convexHull, S1, A, B, C);
         findHull3D(convexHull, S2, B, A, C);
 
+        // Remove duplicates from the convexHull list
         return new HashSet<>(convexHull);
     }
 
-    public static void findHull3D(List<Vector3f> convexHull, List<Vector3f> Sk, Vector3f A, Vector3f B, Vector3f C) {
+    private static void findHull3D(List<Vector3f> convexHull, List<Vector3f> Sk, Vector3f A, Vector3f B, Vector3f C) {
         if (Sk.isEmpty()) {
             return;
         }
@@ -75,7 +76,7 @@ public class QuickHull3D {
         findHull3D(convexHull, S4, E, B, C);
     }
 
-    public static boolean isOnPositiveSide(Vector3f p, Vector3f a, Vector3f b, Vector3f c) {
+    private static boolean isOnPositiveSide(Vector3f p, Vector3f a, Vector3f b, Vector3f c) {
         // Calculate the normal vector of the plane
         Vector3f normal = calculateNormal(a, b, c);
 
@@ -89,7 +90,7 @@ public class QuickHull3D {
         return dotProduct >= 0;
     }
 
-    public static Vector3f calculateNormal(Vector3f a, Vector3f b, Vector3f c) {
+    private static Vector3f calculateNormal(Vector3f a, Vector3f b, Vector3f c) {
         Vector3f vectorAB = new Vector3f(b.x - a.x, b.y - a.y, b.z - a.z);
         Vector3f vectorAC = new Vector3f(c.x - a.x, c.y - a.y, c.z - a.z);
 
@@ -99,7 +100,7 @@ public class QuickHull3D {
         return normal.normalize();
     }
 
-    public static Vector3f findFarthestPoint(List<Vector3f> points, Vector3f a, Vector3f b, Vector3f c) {
+    private static Vector3f findFarthestPoint(List<Vector3f> points, Vector3f a, Vector3f b, Vector3f c) {
         double maxDistance = -1;
         Vector3f farthestPoint = null;
 
@@ -116,27 +117,10 @@ public class QuickHull3D {
         return farthestPoint;
     }
 
-    public static double distanceToPlane(Vector3f p, Vector3f a, Vector3f b, Vector3f c) {
+    private static double distanceToPlane(Vector3f p, Vector3f a, Vector3f b, Vector3f c) {
         Vector3f normal = calculateNormal(a, b, c);
         Vector3f ap = new Vector3f(p.x - a.x, p.y - a.y, p.z - a.z);
         return Math.abs(normal.dot(ap));
-    }
-
-    public static void main(String[] args) {
-        List<Vector3f> points = new ArrayList<>();
-        points.add(new Vector3f(1.0f, 1.0f, 0.0f));
-        points.add(new Vector3f(2.0f, 4.0f, 0.0f));
-        points.add(new Vector3f(4.0f, 3.0f, 0.0f));
-        points.add(new Vector3f(6.0f, 1.0f, 0.0f));
-        points.add(new Vector3f(7.0f, 5.0f, 0.0f));
-        points.add(new Vector3f(9.0f, 2.0f, 0.0f));
-
-
-        Set<Vector3f> convexHull = findConvexHull(points);
-        System.out.println("Convex Hull:");
-        for (Vector3f point : convexHull) {
-            System.out.println("(" + point.x + ", " + point.y + ", " + point.z + ")");
-        }
     }
 
 }
