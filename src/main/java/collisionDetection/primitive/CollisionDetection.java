@@ -512,7 +512,7 @@ public class CollisionDetection {
 
     public static boolean isCapsuleCollidingWithTriangle(Capsule capsule, Triangle triangle) {
         // Step 1: Check if any of the capsule's end points are inside the triangle.
-        if (triangle.pointInTriangle(capsule.getStart()) || triangle.pointInTriangle(capsule.getEnd())) {
+        if (triangle.isPointInside(capsule.getStart()) || triangle.isPointInside(capsule.getEnd())) {
             return true;
         }
 
@@ -529,7 +529,7 @@ public class CollisionDetection {
         Vector3f intersectionPoint = calculateIntersectionPoint(capsule, triangle, triangleNormal, dotProduct);
 
         // Step 3: Check if the intersection point is inside the triangle.
-        if (triangle.pointInTriangle(intersectionPoint)) {
+        if (triangle.isPointInside(intersectionPoint)) {
             return true;
         }
 

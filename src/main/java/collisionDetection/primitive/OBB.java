@@ -1,11 +1,12 @@
 package collisionDetection.primitive;
 
+import collisionDetection.narrowPhase.Shape;
 import collisionDetection.narrowPhase.sat.Interval;
 import math.Vector3f;
 
 import java.util.Arrays;
 
-public class OBB {
+public class OBB implements Shape {
 
     private Vector3f center;
     private Vector3f[] axis;
@@ -111,6 +112,19 @@ public class OBB {
         return new Interval(min, max);
     }
 
+    @Override
+    public boolean isPointInside(Vector3f point) {
+        Vector3f localPoint = point.sub(center); // Transform point to local space
+        for (int i = 0; i < 3; i++) {
+            float distance = localPoint.dot(axis[i]);
+            if (distance > halfExtents.get(i) || distance < -halfExtents.get(i)) {
+                return false; // Point is outside along this axis
+            }
+        }
+        return true; // Point is inside along all axes
+    }
+
+    @Override
     public Vector3f closestPoint(Vector3f point) {
         Vector3f result = center;
         Vector3f dir = point.sub(center);

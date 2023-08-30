@@ -1,12 +1,13 @@
 package collisionDetection.primitive;
 
+import collisionDetection.narrowPhase.Shape;
 import collisionDetection.narrowPhase.sat.Interval;
 import math.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Triangle {
+public class Triangle implements Shape {
     private Vector3f vertex1;
     private Vector3f vertex2;
     private Vector3f vertex3;
@@ -68,7 +69,8 @@ public class Triangle {
         return result;
     }
 
-    public boolean pointInTriangle(Vector3f point) {
+    @Override
+    public boolean isPointInside(Vector3f point) {
         Vector3f a = vertex1.sub(point);
         Vector3f b = vertex2.sub(point);
         Vector3f c = vertex3.sub(point);
@@ -83,11 +85,13 @@ public class Triangle {
         return !(normPBC.dot(normPAB) < 0.0f);
     }
 
+
+    @Override
     public Vector3f closestPoint(Vector3f point) {
         Plane plane = fromTriangle();
         Vector3f closest = plane.closestPoint(point);
 
-        if (pointInTriangle(closest)) {
+        if (isPointInside(closest)) {
             return closest;
         }
 

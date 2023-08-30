@@ -1,7 +1,9 @@
 package collisionDetection.primitive;
 
+import collisionDetection.narrowPhase.Shape;
 import math.Vector3f;
-public class Sphere {
+
+public class Sphere implements Shape {
     private Vector3f center; // Center of the sphere
     private float radius; // Radius of the sphere
 
@@ -27,11 +29,16 @@ public class Sphere {
     }
 
     @Override
-    public String toString() {
-        return "Sphere{" +
-                "center=" + center +
-                ", radius=" + radius +
-                '}';
+    public boolean isPointInside(Vector3f point) {
+        float distanceSquared = center.distanceSquared(point);
+        return distanceSquared <= radius * radius;
+    }
+
+    @Override
+    public Vector3f closestPoint(Vector3f point) {
+        Vector3f direction = point.sub(center);
+        direction = direction.normalize();
+        return center.add(direction.mul(radius));
     }
 
     // Method to find the closest point pair between two spheres
@@ -41,4 +48,14 @@ public class Sphere {
 
         return distanceSquared <= (radiusSum * radiusSum);
     }
+
+
+    @Override
+    public String toString() {
+        return "Sphere{" +
+                "center=" + center +
+                ", radius=" + radius +
+                '}';
+    }
+
 }

@@ -1,8 +1,9 @@
 package collisionDetection.primitive;
 
+import collisionDetection.narrowPhase.Shape;
 import math.Vector3f;
 
-public class Line {
+public class Line implements Shape {
     private Vector3f start;
     private Vector3f end;
 
@@ -28,10 +29,42 @@ public class Line {
     }
 
     @Override
+    public boolean isPointInside(Vector3f point) {
+        // To determine if a point is inside the line, you can check if the point is collinear
+        // with the start and end points. If it is, then it lies on the line.
+        Vector3f direction = end.sub(start);
+        Vector3f toPoint = point.sub(start);
+
+        float dotProduct = direction.dot(toPoint);
+
+        // If the dot product is between 0 and the squared length of the direction vector,
+        // then the point is inside the line segment.
+        return dotProduct >= 0 && dotProduct <= direction.lengthSquared();
+    }
+
+    @Override
+    public Vector3f closestPoint(Vector3f point) {
+        // To find the closest point on the line to the given point, you can project
+        // the vector from the start point to the given point onto the line's direction.
+        Vector3f direction = end.sub(start);
+        Vector3f toPoint = point.sub(start);
+
+        float t = toPoint.dot(direction) / direction.lengthSquared();
+
+        // Ensure t is within the valid range [0, 1] for a point on the line segment.
+        t = Math.max(0, Math.min(1, t));
+
+        // Calculate the closest point by adding the scaled direction to the start point.
+        return start.add(direction.mul(t));
+    }
+
+    @Override
     public String toString() {
         return "Line{" +
                 "start=" + start +
                 ", end=" + end +
                 '}';
     }
+
+
 }
