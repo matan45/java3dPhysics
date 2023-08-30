@@ -30,6 +30,7 @@ public class AABB implements Shape, SATSupport {
     public void setMax(Vector3f max) {
         this.max = max;
     }
+
     @Override
     public boolean isPointInside(Vector3f point) {
         return point.x >= min.x && point.x <= max.x &&
@@ -68,14 +69,6 @@ public class AABB implements Shape, SATSupport {
     }
 
     @Override
-    public String toString() {
-        return "AABB{" +
-                "min=" + min +
-                ", max=" + max +
-                '}';
-    }
-
-    @Override
     public Interval getInterval(Vector3f axis) {
         float minProjection = axis.dot(getMin());
         float maxProjection = axis.dot(getMax());
@@ -85,5 +78,13 @@ public class AABB implements Shape, SATSupport {
         float maxInterval = Math.max(minProjection, maxProjection);
 
         return new Interval(minInterval, maxInterval);
+    }
+
+    @Override
+    public String toString() {
+        return "AABB{" +
+                "min=" + min +
+                ", max=" + max +
+                '}';
     }
 }

@@ -27,7 +27,7 @@ class TriangleTest {
         Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
 
         Vector3f closest = triangle.closestPoint(new Vector3f(2f, 2f, 0));
-        assertEquals(new Vector3f(0.5f, 0.5f, 0), closest); // This is just an example, update with the actual expected result
+        assertEquals(new Vector3f(0.5f, 0.5f, 0), closest);
     }
 
     @Test
