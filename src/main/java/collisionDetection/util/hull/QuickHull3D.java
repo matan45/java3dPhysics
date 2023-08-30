@@ -84,11 +84,13 @@ public class QuickHull3D {
         }
 
         // Create the initial tetrahedron using the found points
-        Vector3f[] initialTetrahedron = new Vector3f[4];
+        Vector3f[] initialTetrahedron = new Vector3f[6];
         initialTetrahedron[0] = minX;
         initialTetrahedron[1] = maxX;
         initialTetrahedron[2] = minY;
         initialTetrahedron[3] = maxY;
+        initialTetrahedron[4] = minZ;
+        initialTetrahedron[5] = maxZ;
 
         return initialTetrahedron;
     }

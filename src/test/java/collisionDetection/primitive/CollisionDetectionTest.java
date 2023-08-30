@@ -267,7 +267,7 @@ public class CollisionDetectionTest {
 
     @Test
     void testCapsuleNotCollidingWithCylinder() {
-        Capsule capsule = new Capsule(new Vector3f(0, 6, 0), new Vector3f(0, 8, 0), 0.5f);
+        Capsule capsule = new Capsule(new Vector3f(0, 10, 0), new Vector3f(0, 12, 0), 1f);
         Cylinder cylinder = new Cylinder(new Vector3f(0, 2, 0), 1.0f, 4.0f);
 
         boolean result = CollisionDetection.isCapsuleCollidingWithCylinder(capsule, cylinder);

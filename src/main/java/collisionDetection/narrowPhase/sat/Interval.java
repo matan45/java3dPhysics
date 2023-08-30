@@ -1,4 +1,4 @@
-package collisionDetection.primitive;
+package collisionDetection.narrowPhase.sat;
 
 public class Interval {
     private float min;

@@ -1,5 +1,6 @@
 package collisionDetection.primitive;
 
+import collisionDetection.narrowPhase.sat.Interval;
 import math.Vector3f;
 
 import java.util.ArrayList;

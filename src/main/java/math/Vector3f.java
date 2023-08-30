@@ -133,4 +133,11 @@ public class Vector3f {
     public Vector3f div(float v) {
         return new Vector3f(x / v, y / v, z / v);
     }
+
+    public float distance(Vector3f point) {
+        float dx = x - point.x;
+        float dy = y - point.y;
+        float dz = z - point.z;
+        return (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
 }

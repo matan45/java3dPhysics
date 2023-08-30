@@ -1,6 +1,7 @@
 package collisionDetection.primitive;
 
 
+import collisionDetection.narrowPhase.sat.Interval;
 import math.Vector3f;
 
 import java.util.List;
@@ -71,7 +72,7 @@ public class CollisionDetection {
 
     private static boolean isAxisSeparating(Vector3f axis, AABB aabb, OBB obb) {
         // Project the OBBs onto the axis
-        Interval projection1 = AABB.getInterval(axis, aabb);
+        Interval projection1 = aabb.getInterval(axis);
         Interval projection2 = OBB.getInterval(axis, obb);
 
         // Check for separation between the intervals

@@ -1,9 +1,12 @@
 package collisionDetection.primitive;
 
 
+import collisionDetection.narrowPhase.Shape;
+import collisionDetection.narrowPhase.sat.Interval;
+import collisionDetection.narrowPhase.sat.SATSupport;
 import math.Vector3f;
 
-public class AABB {
+public class AABB implements Shape, SATSupport {
     private Vector3f min; // Min corner of the AABB
     private Vector3f max; // Max corner of the AABB
 
@@ -27,19 +30,14 @@ public class AABB {
     public void setMax(Vector3f max) {
         this.max = max;
     }
-
-    public boolean isPointInside(Vector3f position) {
-        return position.x >= min.x && position.x <= max.x &&
-                position.y >= min.y && position.y <= max.y &&
-                position.z >= min.z && position.z <= max.z;
+    @Override
+    public boolean isPointInside(Vector3f point) {
+        return point.x >= min.x && point.x <= max.x &&
+                point.y >= min.y && point.y <= max.y &&
+                point.z >= min.z && point.z <= max.z;
     }
 
-    public static boolean isAABBColliding(AABB box1, AABB box2) {
-        return !(box2.getMin().x > box1.getMax().x || box2.getMax().x < box1.getMin().x ||
-                box2.getMin().y > box1.getMax().y || box2.getMax().y < box1.getMin().y ||
-                box2.getMin().z > box1.getMax().z || box2.getMax().z < box1.getMin().z);
-    }
-
+    @Override
     public Vector3f closestPoint(Vector3f point) {
         float closestX = Math.max(min.x, Math.min(point.x, max.x));
         float closestY = Math.max(min.y, Math.min(point.y, max.y));
@@ -48,15 +46,10 @@ public class AABB {
         return new Vector3f(closestX, closestY, closestZ);
     }
 
-    public static Interval getInterval(Vector3f axis,AABB aabb) {
-        float minProjection = axis.dot(aabb.getMin());
-        float maxProjection = axis.dot(aabb.getMax());
-
-        // Calculate the interval
-        float minInterval = Math.min(minProjection, maxProjection);
-        float maxInterval = Math.max(minProjection, maxProjection);
-
-        return new Interval(minInterval, maxInterval);
+    public static boolean isAABBColliding(AABB box1, AABB box2) {
+        return !(box2.getMin().x > box1.getMax().x || box2.getMax().x < box1.getMin().x ||
+                box2.getMin().y > box1.getMax().y || box2.getMax().y < box1.getMin().y ||
+                box2.getMin().z > box1.getMax().z || box2.getMax().z < box1.getMin().z);
     }
 
     // Helper method to calculate the closest point on a line segment to an AABB
@@ -80,5 +73,17 @@ public class AABB {
                 "min=" + min +
                 ", max=" + max +
                 '}';
+    }
+
+    @Override
+    public Interval getInterval(Vector3f axis) {
+        float minProjection = axis.dot(getMin());
+        float maxProjection = axis.dot(getMax());
+
+        // Calculate the interval
+        float minInterval = Math.min(minProjection, maxProjection);
+        float maxInterval = Math.max(minProjection, maxProjection);
+
+        return new Interval(minInterval, maxInterval);
     }
 }
