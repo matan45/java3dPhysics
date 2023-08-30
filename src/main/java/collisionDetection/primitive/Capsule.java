@@ -1,6 +1,7 @@
 package collisionDetection.primitive;
 
-import org.joml.Vector3f;
+
+import math.Vector3f;
 
 public class Capsule {
     private Vector3f start;

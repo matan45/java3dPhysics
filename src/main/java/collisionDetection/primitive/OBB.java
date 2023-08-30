@@ -1,10 +1,8 @@
 package collisionDetection.primitive;
 
-import org.joml.Vector3f;
+import math.Vector3f;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class OBB {
 
@@ -42,14 +40,43 @@ public class OBB {
         this.halfExtents = halfExtents;
     }
 
+    public Vector3f getEdge(int edgeIndex) {
+        // Calculate the endpoints of the edge
+        Vector3f startPoint = new Vector3f(center);
+        startPoint.add(axis[edgeIndex]);
+
+        Vector3f endPoint = new Vector3f(center);
+        endPoint.add(axis[edgeIndex].mul(halfExtents.get(edgeIndex)));
+
+        // Calculate the edge vector
+        return endPoint.sub(startPoint);
+    }
+
     public static boolean isOBBColliding(OBB obb1, OBB obb2) {
         // Combine axes from both OBBs
-        List<Vector3f> axes = new ArrayList<>();
-        axes.addAll(Arrays.asList(obb1.getAxis()));
-        axes.addAll(Arrays.asList(obb2.getAxis()));
+        Vector3f[] test = new Vector3f[18];
+
+        test[0] = obb1.getAxis()[0];
+        test[1] = obb1.getAxis()[1];
+        test[2] = obb1.getAxis()[2];
+        test[3] = obb2.getAxis()[0];
+        test[4] = obb2.getAxis()[1];
+        test[5] = obb2.getAxis()[2];
+
+        for (int i = 0; i < 3; ++i) {
+            test[6 + i * 3] = test[i].cross(test[3]);
+            test[6 + i * 3 + 1] =test[i].cross(test[4]);
+            test[6 + i * 3 + 2] = test[i].cross(test[5]);
+        }
+
+        // Include edge normals of both OBBs
+        for (int i = 0; i < 3; ++i) {
+            test[12 + i] = obb1.getEdge(i).normalize();
+            test[15 + i] = obb2.getEdge(i).normalize();
+        }
 
         // Check for separation along each axis
-        for (Vector3f axis : axes) {
+        for (Vector3f axis : test) {
             if (isAxisSeparating(axis, obb1, obb2)) {
                 return false; // No collision along this axis
             }
@@ -60,23 +87,54 @@ public class OBB {
 
     private static boolean isAxisSeparating(Vector3f axis, OBB obb1, OBB obb2) {
         // Project the OBBs onto the axis
-        float projection1 = projectOntoAxis(axis, obb1);
-        float projection2 = projectOntoAxis(axis, obb2);
+        Interval projection1 = getInterval(axis, obb1);
+        Interval projection2 = getInterval(axis, obb2);
 
-        // Calculate the distance between the projections
-        float distance = Math.abs(projection1 - projection2);
-
-        // Calculate the total length of projections
-        float totalLength = (obb1.getHalfExtents().x + obb2.getHalfExtents().x) * Math.abs(axis.x)
-                + (obb1.getHalfExtents().y + obb2.getHalfExtents().y) * Math.abs(axis.y)
-                + (obb1.getHalfExtents().z + obb2.getHalfExtents().z) * Math.abs(axis.z);
-
-        // Check for separation
-        return distance > totalLength;
+        // Check for separation between the intervals
+        return projection1.getMax() < projection2.getMin() || projection2.getMax() < projection1.getMin();
     }
 
-    public static float projectOntoAxis(Vector3f axis, OBB obb) {
-        // Project the center of the OBB onto the axis
-        return axis.x * obb.getCenter().x + axis.y * obb.getCenter().y + axis.z * obb.getCenter().z;
+    public static Interval getInterval(Vector3f axis, OBB obb) {
+        float centerProjection = axis.x * obb.getCenter().x + axis.y * obb.getCenter().y + axis.z * obb.getCenter().z;
+
+        // Calculate the half-length of the projection
+        float halfLength =
+                obb.getHalfExtents().x * Math.abs(axis.x) +
+                        obb.getHalfExtents().y * Math.abs(axis.y) +
+                        obb.getHalfExtents().z * Math.abs(axis.z);
+
+        // Calculate the interval
+        float min = centerProjection - halfLength;
+        float max = centerProjection + halfLength;
+
+        return new Interval(min, max);
+    }
+
+    public Vector3f closestPoint(Vector3f point) {
+        Vector3f result = center;
+        Vector3f dir = point.sub(center);
+
+        for (int i = 0; i < 3; ++i) {
+            float distance = dir.dot(axis[i]);
+
+            if (distance > halfExtents.get(i)) {
+                distance = halfExtents.get(i);
+            }
+            if (distance < -halfExtents.get(i)) {
+                distance = -halfExtents.get(i);
+            }
+            result = result.add(axis[i].mul(distance));
+        }
+
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "OBB{" +
+                "center=" + center +
+                ", axis=" + Arrays.toString(axis) +
+                ", halfExtents=" + halfExtents +
+                '}';
     }
 }

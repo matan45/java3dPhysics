@@ -1,6 +1,6 @@
 package collisionDetection.primitive;
 
-import org.joml.Vector3f;
+import math.Vector3f;
 
 public class Plane {
     private Vector3f normal; // Normal vector of the plane
@@ -9,6 +9,10 @@ public class Plane {
     public Plane(Vector3f normal, float distance) {
         this.normal = normal.normalize(); // Normalize the normal vector
         this.distance = distance;
+    }
+
+    public boolean isPointInFront(Vector3f point) {
+        return normal.dot(point) + distance > 0;
     }
 
     public Vector3f getNormal() {
@@ -25,6 +29,12 @@ public class Plane {
 
     public void setDistance(float distance) {
         this.distance = distance;
+    }
+
+    public Vector3f closestPoint(Vector3f point) {
+        float dot = point.dot(normal);
+        float dis = dot - distance;
+        return point.sub(normal.mul(dis));
     }
 
     public static boolean isPlaneColliding(Plane plane1, Plane plane2) {

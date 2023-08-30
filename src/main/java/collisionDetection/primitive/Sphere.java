@@ -1,7 +1,6 @@
 package collisionDetection.primitive;
 
-import org.joml.Vector3f;
-
+import math.Vector3f;
 public class Sphere {
     private Vector3f center; // Center of the sphere
     private float radius; // Radius of the sphere
