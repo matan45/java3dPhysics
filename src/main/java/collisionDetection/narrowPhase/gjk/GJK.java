@@ -77,7 +77,7 @@ public class GJK {
 
         Vector3f abc = ab.cross(ac);
 
-        if (sameDirection(abc.cross(ac.cross(ao)), ao)) {
+        if (sameDirection(abc.cross(ac), ao)) {
             if (sameDirection(ac, ao)) {
                 points.setPoints(new Vector3f[]{a, c});
                 direction.sub(ac.cross(ao).cross(ac));
