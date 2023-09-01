@@ -1,13 +1,14 @@
 package collisionDetection.primitive;
 
 import collisionDetection.narrowPhase.Shape;
+import collisionDetection.narrowPhase.gjk.GJKSupport;
 import collisionDetection.narrowPhase.sat.Interval;
 import collisionDetection.narrowPhase.sat.SATSupport;
 import math.Vector3f;
 
 import java.util.Arrays;
 
-public class OBB implements Shape, SATSupport {
+public class OBB implements Shape, SATSupport, GJKSupport {
 
     private Vector3f center;
     private Vector3f[] axis;
@@ -68,7 +69,7 @@ public class OBB implements Shape, SATSupport {
 
         for (int i = 0; i < 3; ++i) {
             test[6 + i * 3] = test[i].cross(test[3]);
-            test[6 + i * 3 + 1] =test[i].cross(test[4]);
+            test[6 + i * 3 + 1] = test[i].cross(test[4]);
             test[6 + i * 3 + 2] = test[i].cross(test[5]);
         }
 
@@ -96,6 +97,7 @@ public class OBB implements Shape, SATSupport {
         // Check for separation between the intervals
         return projection1.getMax() < projection2.getMin() || projection2.getMax() < projection1.getMin();
     }
+
     @Override
     public Interval getInterval(Vector3f axis) {
         float centerProjection = axis.x * getCenter().x + axis.y * getCenter().y + axis.z * getCenter().z;
@@ -154,4 +156,16 @@ public class OBB implements Shape, SATSupport {
                 '}';
     }
 
+    @Override
+    public Vector3f support(Vector3f direction) {
+        Vector3f result = new Vector3f();
+
+        for (int i = 0; i < 3; i++) {
+            float projection = axis[i].dot(direction);
+            result.add(new Vector3f(axis[i].mul(halfExtents.get(i) * ((projection >= 0) ? 1 : -1))));
+        }
+
+        result.add(center);
+        return result;
+    }
 }

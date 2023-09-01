@@ -2,11 +2,12 @@ package collisionDetection.primitive;
 
 
 import collisionDetection.narrowPhase.Shape;
+import collisionDetection.narrowPhase.gjk.GJKSupport;
 import collisionDetection.narrowPhase.sat.Interval;
 import collisionDetection.narrowPhase.sat.SATSupport;
 import math.Vector3f;
 
-public class AABB implements Shape, SATSupport {
+public class AABB implements Shape, SATSupport, GJKSupport {
     private Vector3f min; // Min corner of the AABB
     private Vector3f max; // Max corner of the AABB
 
@@ -86,5 +87,16 @@ public class AABB implements Shape, SATSupport {
                 "min=" + min +
                 ", max=" + max +
                 '}';
+    }
+
+    @Override
+    public Vector3f support(Vector3f direction) {
+        Vector3f result = new Vector3f();
+
+        result.x = (direction.x >= 0) ? max.x : min.x;
+        result.y = (direction.y >= 0) ? max.y : min.y;
+        result.z = (direction.z >= 0) ? max.z : min.z;
+
+        return result;
     }
 }

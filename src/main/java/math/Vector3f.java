@@ -140,4 +140,14 @@ public class Vector3f {
         float dz = z - point.z;
         return (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
+
+    public void set(Vector3f point) {
+        this.x = point.x;
+        this.y = point.y;
+        this.z = point.z;
+    }
+
+    public Vector3f negate() {
+        return new Vector3f(x, y, z).mul(-1);
+    }
 }

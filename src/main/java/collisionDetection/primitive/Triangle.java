@@ -1,6 +1,7 @@
 package collisionDetection.primitive;
 
 import collisionDetection.narrowPhase.Shape;
+import collisionDetection.narrowPhase.gjk.GJKSupport;
 import collisionDetection.narrowPhase.sat.Interval;
 import collisionDetection.narrowPhase.sat.SATSupport;
 import math.Vector3f;
@@ -8,7 +9,7 @@ import math.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Triangle implements Shape, SATSupport {
+public class Triangle implements Shape, SATSupport, GJKSupport {
     private Vector3f vertex1;
     private Vector3f vertex2;
     private Vector3f vertex3;
@@ -177,5 +178,24 @@ public class Triangle implements Shape, SATSupport {
                 ", vertex2=" + vertex2 +
                 ", vertex3=" + vertex3 +
                 '}';
+    }
+
+    @Override
+    public Vector3f support(Vector3f direction) {
+        float dot1 = vertex1.dot(direction);
+        float dot2 = vertex2.dot(direction);
+        float dot3 = vertex3.dot(direction);
+
+        Vector3f supportPoint;
+
+        if (dot1 >= dot2 && dot1 >= dot3) {
+            supportPoint = new Vector3f(vertex1);
+        } else if (dot2 >= dot1 && dot2 >= dot3) {
+            supportPoint = new Vector3f(vertex2);
+        } else {
+            supportPoint = new Vector3f(vertex3);
+        }
+
+        return supportPoint;
     }
 }

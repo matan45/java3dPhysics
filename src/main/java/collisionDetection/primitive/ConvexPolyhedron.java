@@ -1,13 +1,14 @@
 package collisionDetection.primitive;
 
 import collisionDetection.narrowPhase.Shape;
+import collisionDetection.narrowPhase.gjk.GJKSupport;
 import collisionDetection.narrowPhase.sat.Interval;
 import collisionDetection.narrowPhase.sat.SATSupport;
 import math.Vector3f;
 
 import java.util.List;
 
-public class ConvexPolyhedron implements Shape, SATSupport {
+public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
     private List<Vector3f> vertices;
 
     public ConvexPolyhedron(List<Vector3f> vertices) {
@@ -119,5 +120,21 @@ public class ConvexPolyhedron implements Shape, SATSupport {
             max = Math.max(max, projection);
         }
         return new Interval(min, max);
+    }
+
+    @Override
+    public Vector3f support(Vector3f direction) {
+        Vector3f supportPoint = vertices.get(0);
+        float maxProjection = vertices.get(0).dot(direction);
+
+        for (Vector3f vertex : vertices) {
+            float projection = vertex.dot(direction);
+            if (projection > maxProjection) {
+                maxProjection = projection;
+                supportPoint.set(vertex);
+            }
+        }
+
+        return supportPoint;
     }
 }
