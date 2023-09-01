@@ -7,7 +7,7 @@ import java.util.List;
 
 public class Simplex {
 
-    private Vector3f[] points;
+    private final Vector3f[] points;
     private int size;
     private final List<Face> faces;
 
@@ -25,13 +25,16 @@ public class Simplex {
         return this.points[index];
     }
 
-    public int getSize() {
-        return size; // Return the number of faces in the simplex
+    public void setValue(int index, Vector3f value) {
+        this.points[index] = value;
     }
 
-    public void setPoints(Vector3f[] points) {
-        this.points = points;
-        size = points.length - 1;
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public int getSize() {
+        return size;
     }
 
     public List<Face> getFaces() {

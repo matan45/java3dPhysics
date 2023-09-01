@@ -91,14 +91,6 @@ public class AABB implements Shape, SATSupport, GJKSupport {
     }
 
     @Override
-    public String toString() {
-        return "AABB{" +
-                "min=" + min +
-                ", max=" + max +
-                '}';
-    }
-
-    @Override
     public Vector3f support(Vector3f direction) {
         Vector3f result = new Vector3f();
 
@@ -107,5 +99,13 @@ public class AABB implements Shape, SATSupport, GJKSupport {
         result.z = (direction.z >= 0) ? max.z : min.z;
 
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "AABB{" +
+                "min=" + min +
+                ", max=" + max +
+                '}';
     }
 }

@@ -59,14 +59,15 @@ public class GJK {
         if (sameDirection(ab, ao)) {
             direction.set(ab.cross(ao).cross(ab));
         } else {
-            points.setPoints(new Vector3f[]{a});
+            points.setValue(0, a);
+            points.setSize(1);
             direction.set(ao);
         }
 
         return false;
     }
 
-    public static boolean triangle(Simplex points, Vector3f direction) {
+    private static boolean triangle(Simplex points, Vector3f direction) {
         Vector3f a = points.getPoint(0);
         Vector3f b = points.getPoint(1);
         Vector3f c = points.getPoint(2);
@@ -79,21 +80,30 @@ public class GJK {
 
         if (sameDirection(abc.cross(ac), ao)) {
             if (sameDirection(ac, ao)) {
-                points.setPoints(new Vector3f[]{a, c});
+                points.setValue(0, a);
+                points.setValue(1, c);
+                points.setSize(2);
                 direction.sub(ac.cross(ao).cross(ac));
             } else {
-                points.setPoints(new Vector3f[]{a, b});
+                points.setValue(0, a);
+                points.setValue(1, b);
+                points.setSize(2);
                 return line(points, direction);
             }
         } else {
             if (sameDirection(ab.cross(abc), ao)) {
-                points.setPoints(new Vector3f[]{a, b});
+                points.setValue(0, a);
+                points.setValue(1, b);
+                points.setSize(2);
                 return line(points, direction);
             } else {
                 if (sameDirection(abc, ao)) {
                     direction.set(abc);
                 } else {
-                    points.setPoints(new Vector3f[]{a, c, b});
+                    points.setValue(0, a);
+                    points.setValue(1, c);
+                    points.setValue(2, b);
+                    points.setSize(3);
                     direction.set(abc.negate());
                 }
             }
@@ -102,7 +112,7 @@ public class GJK {
         return false;
     }
 
-    public static boolean tetrahedron(Simplex points, Vector3f direction) {
+    private static boolean tetrahedron(Simplex points, Vector3f direction) {
         Vector3f a = points.getPoint(0);
         Vector3f b = points.getPoint(1);
         Vector3f c = points.getPoint(2);
@@ -118,17 +128,26 @@ public class GJK {
         Vector3f adb = ad.cross(ab);
 
         if (sameDirection(abc, ao)) {
-            points.setPoints(new Vector3f[]{a, b, c});
+            points.setValue(0, a);
+            points.setValue(1, b);
+            points.setValue(2, c);
+            points.setSize(3);
             return triangle(points, direction);
         }
 
         if (sameDirection(acd, ao)) {
-            points.setPoints(new Vector3f[]{a, c, d});
+            points.setValue(0, a);
+            points.setValue(1, c);
+            points.setValue(2, d);
+            points.setSize(3);
             return triangle(points, direction);
         }
 
         if (sameDirection(adb, ao)) {
-            points.setPoints(new Vector3f[]{a, d, b});
+            points.setValue(0, a);
+            points.setValue(1, d);
+            points.setValue(2, b);
+            points.setSize(3);
             return triangle(points, direction);
         }
 
