@@ -21,7 +21,11 @@ public class Face {
         Vector3f edge1 = vertices[1].sub(vertices[0]);
         Vector3f edge2 = vertices[2].sub(vertices[0]);
         normal = edge1.cross(edge2).normalize();
-        distanceToOrigin = -vertices[0].dot(normal);
+        distanceToOrigin = vertices[0].dot(normal);
+        if (distanceToOrigin < 0) {
+            distanceToOrigin *= -1;
+            normal = normal.negate();
+        }
     }
 
     public Vector3f[] getVertices() {

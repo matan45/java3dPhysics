@@ -1,38 +1,47 @@
 package collisionDetection.narrowPhase.gjk;
 
 import collisionDetection.narrowPhase.collision_result.CollisionResult;
-import math.Const;
 import math.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static math.Const.EPSILON;
+import static math.Const.GJK_EPA_MAX_ITERATORS;
+
 public class EPA {
-    private static final float MinimumContactSeparation = 1e-5f;
 
-    public static CollisionResult epaCollisionResult(GJKSupport shape1, GJKSupport shape2, Simplex simplex) {
-        if (simplex.containsOrigin()) {
-            for (int iteration = 0; iteration < Const.GJKEPA_MAX_ITERATORS; iteration++) {
+    public static CollisionResult epaCollisionResult(GJKSupport shape1, GJKSupport shape2, Simplex simplex, boolean isCollide) {
+        if (isCollide) {
+            simplex.createFacesFromSimplex();
+
+            for (int iteration = 0; iteration < GJK_EPA_MAX_ITERATORS; iteration++) {
                 // Find the closest face to the origin within the simplex.
-                Face closestFace = simplex.findClosestFaceToOrigin();
+                Face closestFace = findClosestFace(simplex);
 
-                // Find the support point in the direction of the closest face's normal.
-                Vector3f supportPoint = shape1.support(closestFace.getNormal())
-                        .sub(shape2.support(closestFace.getNormal().negate()));
+                // Find the support point in the direction of the closest face normal
+                Vector3f supportPoint = support(shape1, shape2, closestFace.getNormal());
 
-                float distanceToOrigin = closestFace.getNormal().dot(supportPoint);
+                // Calculate the signed distance from the support point to the closest face
+                float distance = closestFace.getNormal().dot(supportPoint);
 
-                // Check if the distance to the origin has converged.
-                if (Math.abs(distanceToOrigin - closestFace.getDistanceToOrigin()) < Const.EPSILON) {
-                    // We have convergence; calculate the penetration depth and contact points.
-                    Vector3f penetrationNormal = closestFace.getNormal().normalize();
+                // If the distance is very close to zero, we have a collision
+                if (Math.abs(distance) < EPSILON) {
+                    // Calculate collision normal (invert it if pointing inwards)
+                    Vector3f collisionNormal = closestFace.getNormal();
+                    if (distance < 0) {
+                        collisionNormal.negate();
+                    }
 
-                    // Find multiple contact points if needed
-                    List<Vector3f> contacts = computeContactPoints(simplex, penetrationNormal);
+                    // Calculate penetration depth (absolute value of distance)
+                    float penetrationDepth = Math.abs(distance);
 
-                    return new CollisionResult(true, penetrationNormal, distanceToOrigin, contacts);
+                    // Calculate contact points by projecting the support point onto the face
+                    List<Vector3f> contactPoints = calculateContactPointsOnFace(closestFace, simplex);
+
+                    // Create and return the collision result
+                    return new CollisionResult(true, collisionNormal, penetrationDepth, contactPoints);
                 }
-
                 // Expand the simplex by adding the support point.
                 simplex.addPoint(supportPoint);
             }
@@ -41,64 +50,78 @@ public class EPA {
         return new CollisionResult(false, new Vector3f(), 0, null);// No collision
     }
 
-    private static List<Vector3f> computeContactPoints(Simplex simplex, Vector3f normal) {
-        List<Vector3f> contacts = new ArrayList<>();
+    public static Face findClosestFace(Simplex simplex) {
+        // Initialize variables to store the closest face and its distance
+        Face closestFace = null;
+        float closestDistance = Float.MAX_VALUE;
 
-        // Determine the faces of the simplex involved in the collision.
-        // You may need to adapt this part based on your specific simplex structure.
-        Face[] collisionFaces = determineCollisionFaces(simplex, normal);
+        // Iterate through the faces of the simplex
+        for (Face currentFace : simplex.getFaces()) {
 
-        for (Face face : collisionFaces) {
-            // Compute contact point on the face.
-            Vector3f contactPoint = computeContactPointOnFace(face, normal);
+            // Calculate the signed distance from the origin to the face
+            float distance = currentFace.getDistanceToOrigin();
 
-            // Check if the contact point is not too close to existing contact points.
-            boolean isValidContact = true;
-            for (Vector3f existingContact : contacts) {
-                if (contactPoint.distance(existingContact) < MinimumContactSeparation) {
-                    isValidContact = false;
-                    break;
-                }
-            }
-
-            if (isValidContact) {
-                contacts.add(contactPoint);
+            // Check if this face is closer than the closest one found so far
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestFace = currentFace;
             }
         }
 
-        return contacts;
+        // Return the closest face
+        return closestFace;
     }
 
-    private static Face[] determineCollisionFaces(Simplex simplex, Vector3f normal) {
-        List<Face> collisionFaces = new ArrayList<>();
+    private static Vector3f support(GJKSupport shape1, GJKSupport shape2, Vector3f direction) {
+        Vector3f pointA = shape1.support(direction);
+        Vector3f pointB = shape2.support(direction.negate());
+        return pointA.sub(pointB);
+    }
 
-        // Iterate through the faces of the simplex and check if each face is involved in the collision.
-        for (int i = 0; i < simplex.getSize(); i++) {
-            Face currentFace = simplex.getFace(i);
+    private static List<Vector3f> calculateContactPointsOnFace(Face closestFace, Simplex simplex) {
+        List<Vector3f> contactPoints = new ArrayList<>();
 
-            // Compute the distance from the origin to the face.
-            float distanceToFace = currentFace.getNormal().dot(new Vector3f(0, 0, 0));
+        // Iterate through the vertices of the simplex
+        for (Vector3f vertex : simplex.getPoints()) {
+            // Calculate the vector from the vertex to the face
+            Vector3f vertexToFace = closestFace.getVertices()[0].sub(vertex);
 
-            // Check if the face is facing the origin and is closer than a threshold.
-            if (currentFace.getNormal().dot(normal) < -Const.EPSILON && distanceToFace < Const.EPSILON) {
-                collisionFaces.add(currentFace);
+            // Calculate the projection of the vertex onto the face
+            float t = vertexToFace.dot(closestFace.getNormal()) / closestFace.getNormal().dot(closestFace.getNormal());
+            Vector3f projectedPoint = vertex.add(closestFace.getNormal().mul(t));
+
+            // Check if the projected point is inside the face
+            if (isPointInsideFace(projectedPoint, closestFace)) {
+                contactPoints.add(projectedPoint);
             }
         }
 
-        // Convert the list of collision faces to an array.
-        return collisionFaces.toArray(new Face[0]);
+        return contactPoints;
     }
 
-    private static Vector3f computeContactPointOnFace(Face face, Vector3f normal) {
-        Vector3f[] vertices = face.getVertices();
-        Vector3f origin = new Vector3f(0, 0, 0); // The origin point
+    private static boolean isPointInsideFace(Vector3f point, Face face) {
+        // Check if the point is inside the face by checking if it is on the correct side
+        // of all the face's edges using the cross product.
 
-        // Compute the vector from one vertex of the face to the origin
-        Vector3f vertexToOrigin = origin.sub(vertices[0]);
+        // Iterate through the edges of the face
+        for (int i = 0; i < face.getVertices().length; i++) {
+            Vector3f edgeStart = face.getVertices()[i];
+            Vector3f edgeEnd = face.getVertices()[(i + 1) % face.getVertices().length];
 
-        // Project the vector onto the face's normal to find the contact point
-        float distance = vertexToOrigin.dot(normal);
+            // Calculate the edge normal (perpendicular to the edge)
+            Vector3f edgeNormal = edgeEnd.sub(edgeStart).cross(face.getNormal());
 
-        return origin.sub(normal.mul(distance));
+            // Calculate the vector from the edge start to the point
+            Vector3f edgeToPoint = point.sub(edgeStart);
+
+            // If the dot product of the edge normal and edge-to-point vector is positive,
+            // the point is on the correct side of the edge.
+            if (edgeNormal.dot(edgeToPoint) < 0) {
+                return false; // Point is outside the face
+            }
+        }
+
+        return true; // Point is inside the face
     }
+
 }

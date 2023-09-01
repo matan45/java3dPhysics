@@ -8,7 +8,7 @@ import java.util.List;
 
 public class SATCollisionResolution {
 /*
-    public CollisionResult SATCollisionResult(SATSupport shape1, SATSupport shape2,boolean colliding) {
+    public CollisionResult SATCollisionResult(SATSupport shape1, SATSupport shape2,boolean isCollide) {
 
         if (colliding) {
             // Calculate collision normal and penetration depth
