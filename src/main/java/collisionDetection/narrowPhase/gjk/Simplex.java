@@ -23,14 +23,7 @@ public class Simplex {
         this.points[size++] = point;
         rank++;
         // Check if you have enough points to form a face (e.g., an edge or a triangle)
-        if (rank == 2) {
-            // Create an edge (a 2D face) using the first two points
-            Vector3f point1 = points[0];
-            Vector3f point2 = points[1];
-            Vector3f[] edgeVertices = {point1, point2};
-            Face edgeFace = new Face(edgeVertices);
-            faces.add(edgeFace);
-        } else if (rank == 3) {
+        if (rank == 3) {
             // Create a triangle (a 3D face) using the first three points
             Vector3f point1 = points[0];
             Vector3f point2 = points[1];
@@ -51,16 +44,7 @@ public class Simplex {
 
     public boolean containsOrigin() {
         // Check if the origin is inside the simplex using the vertices' orientations.
-        if (rank == 2) {
-            // For line segment, check if the origin is on the line.
-            Vector3f a = points[0];
-            Vector3f b = points[1];
-            Vector3f ao = new Vector3f(0, 0, 0).sub(a);
-            Vector3f ab = b.sub(a);
-
-            // Check if the origin is on the line segment.
-            return ab.dot(ao) <= 0;
-        } else if (rank == 3) {
+        if (rank == 3) {
             // For triangle, check if the origin is inside the triangle.
             Vector3f a = points[0];
             Vector3f b = points[1];

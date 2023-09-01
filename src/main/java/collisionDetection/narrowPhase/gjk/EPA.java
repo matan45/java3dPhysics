@@ -8,12 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EPA {
-    private static final int MAX_ITERATORS = 50;
     private static final float MinimumContactSeparation = 1e-5f;
 
     public static CollisionResult epaCollisionResult(GJKSupport shape1, GJKSupport shape2, Simplex simplex) {
         if (simplex.containsOrigin()) {
-            for (int iteration = 0; iteration < MAX_ITERATORS; iteration++) {
+            for (int iteration = 0; iteration < Const.GJKEPA_MAX_ITERATORS; iteration++) {
                 // Find the closest face to the origin within the simplex.
                 Face closestFace = simplex.findClosestFaceToOrigin();
 

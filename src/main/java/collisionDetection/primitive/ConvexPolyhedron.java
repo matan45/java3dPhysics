@@ -6,6 +6,7 @@ import collisionDetection.narrowPhase.sat.Interval;
 import collisionDetection.narrowPhase.sat.SATSupport;
 import math.Vector3f;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
@@ -120,6 +121,18 @@ public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
             max = Math.max(max, projection);
         }
         return new Interval(min, max);
+    }
+
+    @Override
+    public List<Vector3f> getAxis() {
+        List<Vector3f> axis = new ArrayList<>();
+
+        for (int i = 0; i < vertices.size(); i++) {
+            Vector3f edgeStart = vertices.get(i);
+            Vector3f edgeEnd = vertices.get((i + 1) % vertices.size());
+            axis.add(edgeEnd.sub(edgeStart));
+        }
+        return axis;
     }
 
     @Override

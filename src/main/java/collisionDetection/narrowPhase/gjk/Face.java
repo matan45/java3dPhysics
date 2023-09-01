@@ -13,6 +13,10 @@ public class Face {
     }
 
     private void computeNormalAndDistance() {
+        // Ensure that the face has at least three vertices to compute a normal vector.
+        if (vertices.length < 3) {
+            throw new IllegalArgumentException("A face must have at least three vertices to compute a normal vector.");
+        }
         // Compute the normal vector and distance from the face to the origin.
         Vector3f edge1 = vertices[1].sub(vertices[0]);
         Vector3f edge2 = vertices[2].sub(vertices[0]);

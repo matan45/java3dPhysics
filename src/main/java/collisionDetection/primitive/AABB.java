@@ -7,6 +7,8 @@ import collisionDetection.narrowPhase.sat.Interval;
 import collisionDetection.narrowPhase.sat.SATSupport;
 import math.Vector3f;
 
+import java.util.List;
+
 public class AABB implements Shape, SATSupport, GJKSupport {
     private Vector3f min; // Min corner of the AABB
     private Vector3f max; // Max corner of the AABB
@@ -79,6 +81,13 @@ public class AABB implements Shape, SATSupport, GJKSupport {
         float maxInterval = Math.max(minProjection, maxProjection);
 
         return new Interval(minInterval, maxInterval);
+    }
+
+    @Override
+    public List<Vector3f> getAxis() {
+        return List.of(new Vector3f(1, 0, 0),
+                new Vector3f(0, 1, 0),
+                new Vector3f(0, 0, 1));
     }
 
     @Override

@@ -44,9 +44,9 @@ public class CollisionDetection {
         test[0] = new Vector3f(1, 0, 0);
         test[1] = new Vector3f(0, 1, 0);
         test[2] = new Vector3f(0, 0, 1);
-        test[3] = obb.getAxis()[0];
-        test[4] = obb.getAxis()[1];
-        test[5] = obb.getAxis()[2];
+        test[3] = obb.getAxis().get(0);
+        test[4] = obb.getAxis().get(1);
+        test[5] = obb.getAxis().get(2);
 
         for (int i = 0; i < 3; ++i) {
             test[6 + i * 3] = test[i].cross(test[3]);
@@ -411,8 +411,8 @@ public class CollisionDetection {
     private static boolean cylinderOBBCapsFacesIntersect(Cylinder cylinder, OBB obb) {
 
         // Calculate the distances from cylinder caps to OBB faces
-        float distanceTopCap = Math.abs(obb.getAxis()[1].dot(cylinder.getCenter().sub(obb.getCenter()))) + obb.getHalfExtents().y;
-        float distanceBottomCap = Math.abs(obb.getAxis()[1].dot(cylinder.getCenter().sub(obb.getCenter()))) - obb.getHalfExtents().y;
+        float distanceTopCap = Math.abs(obb.getAxis().get(1).dot(cylinder.getCenter().sub(obb.getCenter()))) + obb.getHalfExtents().y;
+        float distanceBottomCap = Math.abs(obb.getAxis().get(1).dot(cylinder.getCenter().sub(obb.getCenter()))) - obb.getHalfExtents().y;
 
         // Check if cylinder top cap intersects with OBB top face
         if (distanceTopCap > cylinder.getHeight() * 0.5f) {
@@ -584,7 +584,7 @@ public class CollisionDetection {
     public static boolean isCapsuleCollidingWithOBB(Capsule capsule, OBB obb) {
         // Calculate the center and orientation of the OBB
         Vector3f obbCenter = obb.getCenter();
-        Vector3f[] obbAxes = obb.getAxis();
+        List<Vector3f> obbAxes = obb.getAxis();
         Vector3f obbHalfExtents = obb.getHalfExtents();
 
         // Calculate the axis between the capsule's start and end points

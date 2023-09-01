@@ -1,11 +1,10 @@
 package collisionDetection.narrowPhase.gjk;
 
 import collisionDetection.narrowPhase.collision_result.CollisionResult;
+import math.Const;
 import math.Vector3f;
 
 public class GJK {
-
-    private static final int MAX_ITERATORS = 50;
 
     public static CollisionResult gjkCollision(GJKSupport shape1, GJKSupport shape2) {
         Simplex simplex = new Simplex();
@@ -15,7 +14,7 @@ public class GJK {
 
         simplex.addPoint(pointA.sub(pointB)); // Initial simplex
 
-        for (int iteration = 0; iteration < MAX_ITERATORS; iteration++) {
+        for (int iteration = 0; iteration < Const.GJKEPA_MAX_ITERATORS; iteration++) {
             pointA = shape1.support(direction);
             pointB = shape2.support(direction.negate());
 
@@ -29,7 +28,7 @@ public class GJK {
 
             // If the simplex has reached rank 3, then check for collision
             if (simplex.containsOrigin()) {
-                return EPA.epaCollisionResult(shape1, shape2, simplex); // No collision
+                return EPA.epaCollisionResult(shape1, shape2, simplex);
             }
 
         }

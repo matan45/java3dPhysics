@@ -164,6 +164,13 @@ public class Triangle implements Shape, SATSupport, GJKSupport {
         return new Interval(min, max);
     }
 
+    @Override
+    public List<Vector3f> getAxis() {
+        return List.of(getEdge1(),
+                getEdge2(),
+                getEdge3());
+    }
+
     public Vector3f calculateTriangleNormal() {
         // Calculate triangle normal using cross product
         Vector3f edge1 = getEdge1();

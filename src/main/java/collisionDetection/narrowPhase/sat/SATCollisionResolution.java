@@ -8,9 +8,7 @@ import java.util.List;
 
 public class SATCollisionResolution {
 /*
-    public CollisionResult checkCollision(SATSupport shape1, SATSupport shape2) {
-        // Perform SAT collision detection
-        boolean colliding = performSATCollisionDetection(objectA, objectB);
+    public CollisionResult SATCollisionResult(SATSupport shape1, SATSupport shape2,boolean colliding) {
 
         if (colliding) {
             // Calculate collision normal and penetration depth
@@ -29,7 +27,7 @@ public class SATCollisionResolution {
     }
 
     public Vector3f calculateCollisionNormal(SATCollisionObject3D objectA, SATCollisionObject3D objectB) {
-        Vector3f smallestOverlapAxis = null;
+        Vector3f smallestOverlapAxis = new Vector3f();
         float smallestOverlap = Float.MAX_VALUE;
 
         List<Vector3f> axesA = objectA.getCollisionAxes();

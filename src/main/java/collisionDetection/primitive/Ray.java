@@ -2,6 +2,8 @@ package collisionDetection.primitive;
 
 import math.Vector3f;
 
+import java.util.List;
+
 import static math.Const.EPSILON;
 
 public class Ray {
@@ -128,7 +130,7 @@ public class Ray {
         Vector3f rayDirection = ray.getDirection();
 
         Vector3f obbCenter = obb.getCenter();
-        Vector3f[] obbAxis = obb.getAxis();
+        List<Vector3f> obbAxis = obb.getAxis();
         Vector3f size = obb.getHalfExtents();
 
         // Vector from ray origin to OBB center
@@ -136,15 +138,15 @@ public class Ray {
 
         // Calculate dot products between OBB axes and ray direction
         Vector3f f = new Vector3f(
-                obbAxis[0].dot(rayDirection),
-                obbAxis[1].dot(rayDirection),
-                obbAxis[2].dot(rayDirection));
+                obbAxis.get(0).dot(rayDirection),
+                obbAxis.get(1).dot(rayDirection),
+                obbAxis.get(2).dot(rayDirection));
 
         // Calculate dot products between OBB axes and vector p
         Vector3f e = new Vector3f(
-                obbAxis[0].dot(p),
-                obbAxis[1].dot(p),
-                obbAxis[2].dot(p));
+                obbAxis.get(0).dot(p),
+                obbAxis.get(1).dot(p),
+                obbAxis.get(2).dot(p));
 
 
         float[] t = new float[]{

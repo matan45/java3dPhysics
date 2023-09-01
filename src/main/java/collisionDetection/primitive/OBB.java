@@ -6,7 +6,9 @@ import collisionDetection.narrowPhase.sat.Interval;
 import collisionDetection.narrowPhase.sat.SATSupport;
 import math.Vector3f;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class OBB implements Shape, SATSupport, GJKSupport {
 
@@ -28,8 +30,9 @@ public class OBB implements Shape, SATSupport, GJKSupport {
         this.center = center;
     }
 
-    public Vector3f[] getAxis() {
-        return axis;
+    @Override
+    public List<Vector3f> getAxis() {
+        return List.of(axis);
     }
 
     public void setAxis(Vector3f[] axis) {
@@ -60,12 +63,12 @@ public class OBB implements Shape, SATSupport, GJKSupport {
         // Combine axes from both OBBs
         Vector3f[] test = new Vector3f[18];
 
-        test[0] = obb1.getAxis()[0];
-        test[1] = obb1.getAxis()[1];
-        test[2] = obb1.getAxis()[2];
-        test[3] = obb2.getAxis()[0];
-        test[4] = obb2.getAxis()[1];
-        test[5] = obb2.getAxis()[2];
+        test[0] = obb1.getAxis().get(0);
+        test[1] = obb1.getAxis().get(1);
+        test[2] = obb1.getAxis().get(2);
+        test[3] = obb2.getAxis().get(0);
+        test[4] = obb2.getAxis().get(1);
+        test[5] = obb2.getAxis().get(2);
 
         for (int i = 0; i < 3; ++i) {
             test[6 + i * 3] = test[i].cross(test[3]);
