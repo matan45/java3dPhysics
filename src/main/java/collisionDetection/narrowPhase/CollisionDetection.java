@@ -3,6 +3,8 @@ package collisionDetection.narrowPhase;
 import collisionDetection.primitive.*;
 import math.Vector3f;
 
+import static math.Const.EPSILON;
+
 public class CollisionDetection {
     public static boolean isCollide(Line line, AABB aabb) {
         // Check if any of the line's endpoints are inside the AABB.
@@ -120,6 +122,26 @@ public class CollisionDetection {
     }
 
     public static boolean isCollide(Line line, Plane plane) {
-        return false;
+        // Calculate the direction vector of the line
+        Vector3f lineDirection = line.getEnd().sub(line.getStart());
+
+        // Check if the line is parallel to the plane (dot product of their directions is close to 0)
+        float dotProduct = lineDirection.dot(plane.getNormal());
+        if (Math.abs(dotProduct) < EPSILON) {
+            return false; // Line is parallel to the plane and does not intersect
+        }
+
+        // Calculate the point of intersection between the line and the plane
+        Vector3f lineStart = line.getStart();
+        Vector3f planeNormal = plane.getNormal();
+        float planeDistance = plane.getDistance();
+
+        // Calculate the parameter 't' for the line equation (lineStart + t * lineDirection)
+        float t = (planeDistance - lineStart.dot(planeNormal)) / dotProduct;
+
+        // Check if the intersection point is within the line segment
+        // Line intersects with the plane, but not within the line segment
+        return t >= 0 && t <= 1; // Line intersects with the plane within the line segment
+
     }
 }

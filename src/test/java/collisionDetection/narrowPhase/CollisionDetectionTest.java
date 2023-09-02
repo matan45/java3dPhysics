@@ -149,5 +149,36 @@ class CollisionDetectionTest {
         Line line5 = new Line(new Vector3f(2, 2, 2), new Vector3f(4, 4, 4));
         assertFalse(CollisionDetection.isCollide(line5, cylinder));
     }
+    @Test
+    public void testPlaneCollisionLine(){
+        // Create a plane with a normal vector (0, 1, 0) and a distance of 2 units from the origin.
+        Plane plane = new Plane(new Vector3f(0, 1, 0), 2);
 
+        // Test a line that collides with the plane.
+        Line line1 = new Line(new Vector3f(0, 0, 0), new Vector3f(0, 3, 0));
+        assertTrue(CollisionDetection.isCollide(line1, plane));
+
+        // Test a line that does collide with the plane.
+        Line line2 = new Line(new Vector3f(1, 1, 1), new Vector3f(2, 2, 2));
+        assertTrue(CollisionDetection.isCollide(line2, plane));
+
+        // Test a line that is parallel to the plane (no collision).
+        Line line3 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 0, 1));
+        assertFalse(CollisionDetection.isCollide(line3, plane));
+
+        // Test a line that intersects the plane at its endpoint.
+        Line line4 = new Line(new Vector3f(0, 2, 0), new Vector3f(0, 3, 0));
+        assertTrue(CollisionDetection.isCollide(line4, plane));
+
+        // Create a plane with a known normal and distance
+        Plane plane2 = new Plane(new Vector3f(0, 0, 1), 0);
+
+        // Test a line that intersects with the plane
+        Line intersectingLine = new Line(new Vector3f(0, 0, -1), new Vector3f(0, 0, 1));
+        assertTrue(CollisionDetection.isCollide(intersectingLine, plane2));
+
+        // Test a line that is parallel to the plane and does not intersect
+        Line parallelLine = new Line(new Vector3f(1, 1, 1), new Vector3f(2, 2, 2));
+        assertFalse(CollisionDetection.isCollide(parallelLine, plane2));
+    }
 }
