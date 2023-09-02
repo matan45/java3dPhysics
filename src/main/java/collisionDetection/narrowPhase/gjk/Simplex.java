@@ -17,8 +17,12 @@ public class Simplex {
         this.faces = new ArrayList<>();
     }
 
-    public void addPoint(Vector3f point) {
-        this.points[size++] = point;
+    public void pushFront(Vector3f point) {
+        for (int i = size; i > 0; i--) {
+            points[i] = points[i - 1];
+        }
+        points[0] = point;
+        size = Math.min(size + 1, 4);
     }
 
     public Vector3f getPoint(int index) {

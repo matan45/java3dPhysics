@@ -8,19 +8,20 @@ public class GJK {
 
     public static boolean collision(GJKSupport shape1, GJKSupport shape2) {
         Simplex simplex = new Simplex();
-        Vector3f direction = new Vector3f(1, 0, 0); // Initial search direction
 
-        simplex.addPoint(support(shape1, shape2, direction)); // Initial simplex
-        direction = direction.negate();
+        Vector3f support = support(shape1, shape2, new Vector3f(1, 0, 0));
+        simplex.pushFront(support); // Initial simplex
+
+        Vector3f direction = support.negate();
 
         for (int i = 0; i < GJK_EPA_MAX_ITERATORS; i++) {
-            Vector3f newPoint = support(shape1, shape2, direction);
+            support = support(shape1, shape2, direction);
 
-            if (newPoint.dot(direction) < 0) {
+            if (support.dot(direction) < 0) {
                 return false; // No collision
             }
 
-            simplex.addPoint(newPoint);
+            simplex.pushFront(support);
 
             // If the simplex has reached rank 3, then check for collision
             if (nextSimplex(simplex, direction)) {
@@ -68,7 +69,7 @@ public class GJK {
     }
 
     private static boolean triangle(Simplex points, Vector3f direction) {
-        Vector3f a = points.getPoint(0);
+        Vector3f a = points.getPoint(0);// 1,1,1
         Vector3f b = points.getPoint(1);
         Vector3f c = points.getPoint(2);
 

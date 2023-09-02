@@ -43,7 +43,7 @@ public class EPA {
                     return new CollisionResult(true, collisionNormal, penetrationDepth, contactPoints);
                 }
                 // Expand the simplex by adding the support point.
-                simplex.addPoint(supportPoint);
+                simplex.pushFront(supportPoint);
             }
         }
 
