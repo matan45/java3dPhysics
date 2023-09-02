@@ -99,7 +99,7 @@ class CollisionDetectionTest {
     }
 
     @Test
-    public void testSphereCollisionLine(){
+    public void testSphereCollisionLine() {
         // Create a sphere with center (0, 0, 0) and radius 1.
         Sphere sphere = new Sphere(new Vector3f(0, 0, 0), 1);
 
@@ -125,7 +125,7 @@ class CollisionDetectionTest {
     }
 
     @Test
-    public void testCylinderCollisionLine(){
+    public void testCylinderCollisionLine() {
         // Create a cylinder with center (0, 0, 0), radius 1, and height 2.
         Cylinder cylinder = new Cylinder(new Vector3f(0, 0, 0), 1, 2);
 
@@ -149,8 +149,9 @@ class CollisionDetectionTest {
         Line line5 = new Line(new Vector3f(2, 2, 2), new Vector3f(4, 4, 4));
         assertFalse(CollisionDetection.isCollide(line5, cylinder));
     }
+
     @Test
-    public void testPlaneCollisionLine(){
+    public void testPlaneCollisionLine() {
         // Create a plane with a normal vector (0, 1, 0) and a distance of 2 units from the origin.
         Plane plane = new Plane(new Vector3f(0, 1, 0), 2);
 
@@ -183,7 +184,7 @@ class CollisionDetectionTest {
     }
 
     @Test
-    public void testOBBCollisionLine(){
+    public void testOBBCollisionLine() {
         // Create an OBB with a known center and half extents
         OBB obb = new OBB(new Vector3f(1, 1, 1), new Vector3f(1, 1, 1));
 
@@ -209,7 +210,7 @@ class CollisionDetectionTest {
     }
 
     @Test
-    public void testTriangleCollisionLine(){
+    public void testTriangleCollisionLine() {
         // Create a simple triangle and line segment for testing
         Vector3f vertex1 = new Vector3f(0, 0, 0);
         Vector3f vertex2 = new Vector3f(2, 0, 0);
@@ -239,21 +240,17 @@ class CollisionDetectionTest {
 
         assertTrue(CollisionDetection.isCollide(line3, triangle2));
     }
+
     @Test
-    public void testTerrainCollisionLine(){
+    public void testTerrainCollisionLine() {
         // Create a TerrainShape with height data, borders, width, and length for testing collision
-        // Sample height data for a 3x3 grid (for demonstration purposes)
-        float[][] heightData = {
-                {0, 0, 0},
-                {0, 2, 0},
-                {0, 0, 0}
-        };
+        float[][] heightData = new float[5][5];
 
         // Define a simple AABB for terrain borders
         AABB borders = new AABB(new Vector3f(-1, -1, -1), new Vector3f(5, 5, 5));
 
         // Initialize the TerrainShape object
-        TerrainShape terrainShape = new TerrainShape(heightData, borders,new Vector3f(), 3, 3);
+        TerrainShape terrainShape = new TerrainShape(heightData, borders, new Vector3f(), 3, 3);
 
         // Create a Line object representing a line segment that collides with the terrain
         Line line = new Line(new Vector3f(0, 5, 0), new Vector3f(0, -1, 0));

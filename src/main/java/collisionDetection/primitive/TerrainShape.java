@@ -6,7 +6,7 @@ import math.Vector2f;
 import math.Vector3f;
 
 public class TerrainShape {
-//TODO need more work on this
+    //TODO need more work on this
     private float[][] heightData;
     private AABB borders;//define the min and max high
     private static final float SIZE = 1024;
@@ -14,11 +14,11 @@ public class TerrainShape {
     private float length;//define the length of the terrain
     private float gridSquareSize;
 
-    public TerrainShape(float[][] heightData, AABB borders,Vector3f offset, int width, int length) {
+    public TerrainShape(float[][] heightData, AABB borders, Vector3f offset, int width, int length) {
         this.heightData = heightData;
         borders.setMin(borders.getMin().add(offset));
         borders.setMax(borders.getMax().add(offset));
-        this.borders =borders;
+        this.borders = borders;
         this.width = width * SIZE;
         this.length = length * SIZE;
         this.gridSquareSize = SIZE / ((float) heightData.length);
@@ -62,18 +62,17 @@ public class TerrainShape {
             return 0;
         float xCord = (terrainX % gridSquareSize) / gridSquareSize;
         float zCord = (terrainZ % gridSquareSize) / gridSquareSize;
-        float answer;
+
         if (xCord <= (1 - zCord)) {
-            answer = Maths.barryCentric(new Vector3f(0, heightData[gridX][gridZ], 0),
+            return Maths.barryCentric(new Vector3f(0, heightData[gridX][gridZ], 0),
                     new Vector3f(1, heightData[gridX + 1][gridZ], 0), new Vector3f(0, heightData[gridX][gridZ + 1], 1),
-                    new Vector2f(xCord, zCord));
-        } else {
-            answer = Maths.barryCentric(new Vector3f(1, heightData[gridX + 1][gridZ], 0),
-                    new Vector3f(1, heightData[gridX + 1][gridZ + 1], 1), new Vector3f(0, heightData[gridX][gridZ + 1], 1),
                     new Vector2f(xCord, zCord));
         }
 
-        return answer;
+        return Maths.barryCentric(new Vector3f(1, heightData[gridX + 1][gridZ], 0),
+                new Vector3f(1, heightData[gridX + 1][gridZ + 1], 1), new Vector3f(0, heightData[gridX][gridZ + 1], 1),
+                new Vector2f(xCord, zCord));
+
     }
 
     public boolean isPointOnGround(Vector3f position) {

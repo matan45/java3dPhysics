@@ -1,5 +1,6 @@
 package collisionDetection.primitive;
 
+import math.Maths;
 import math.Vector3f;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,18 +13,18 @@ class TerrainShapeTest {
 
     @BeforeEach
     public void setUp() {
-        // Sample height data for a 3x3 grid (for demonstration purposes)
-        float[][] heightData = {
-                {0, 0, 0},
-                {0, 2, 0},
-                {0, 0, 0}
-        };
+        float[][] heightData = new float[10][10];
+        for (int i = 0; i < heightData.length; i++) {
+            for (int j = 0; j < heightData[i].length; j++) {
+                heightData[i][j] = Maths.getRandomNumber(0, 3);
+            }
+        }
 
         // Define a simple AABB for terrain borders
-        AABB borders = new AABB(new Vector3f(0, 0, 0), new Vector3f(3, 2, 3));
+        AABB borders = new AABB(new Vector3f(0, 0, 0), new Vector3f(3, 3, 3));
 
         // Initialize the TerrainShape object
-        terrain = new TerrainShape(heightData, borders, new Vector3f(), 3, 3);
+        terrain = new TerrainShape(heightData, borders, new Vector3f(), 2, 2);
     }
 
     @Test
