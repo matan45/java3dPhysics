@@ -42,7 +42,11 @@ public class CollisionDetection {
     }
 
     public static boolean isCollide(Line line, OBB obb) {
-        return false;
+        // First, find the closest point on the line to the OBB
+        Vector3f closestPointOnLine = line.closestPoint(obb.getCenter());
+
+        // Next, check if the closest point on the line is inside the OBB
+        return obb.isPointInside(closestPointOnLine);
     }
 
     public static boolean isCollide(Line line, ConvexPolyhedron convexPolyhedron) {
@@ -118,8 +122,38 @@ public class CollisionDetection {
     }
 
     public static boolean isCollide(Line line, Triangle triangle) {
+        // First, check if any of the line's endpoints are inside the triangle.
+        if (triangle.isPointInside(line.getStart()) || triangle.isPointInside(line.getEnd())) {
+            return true;
+        }
+
+        // Next, check if any of the triangle's vertices are inside the line segment.
+        if (line.isPointInside(triangle.getVertex1()) ||
+                line.isPointInside(triangle.getVertex2()) ||
+                line.isPointInside(triangle.getVertex3())) {
+            return true;
+        }
+
+        // Finally, check for intersection between the line and the triangle's edges.
+        Vector3f[] triangleVertices = new Vector3f[]{
+                triangle.getVertex1(), triangle.getVertex2(), triangle.getVertex3()
+        };
+
+        Line[] triangleEdges = new Line[]{
+                new Line(triangleVertices[0], triangleVertices[1]),
+                new Line(triangleVertices[1], triangleVertices[2]),
+                new Line(triangleVertices[2], triangleVertices[0])
+        };
+
+        for (Line edge : triangleEdges) {
+            if (Line.isLineColliding(line, edge)) {
+                return true;
+            }
+        }
+
         return false;
     }
+
 
     public static boolean isCollide(Line line, Plane plane) {
         // Calculate the direction vector of the line
@@ -144,4 +178,20 @@ public class CollisionDetection {
         return t >= 0 && t <= 1; // Line intersects with the plane within the line segment
 
     }
+
+    public static boolean isCollide(Line line, TerrainShape terrainShape) {
+        // Get the start and end points of the line
+        Vector3f start = line.getStart();
+        Vector3f end = line.getEnd();
+
+        if (!isCollide(line, terrainShape.getBorders())) {
+            return false; // No collision between bounding boxes
+        }
+
+        // Check if either the start or end point is below the terrain
+        return (terrainShape.isPointBlowGround(start) && !terrainShape.isPointBlowGround(end)) ||
+                (terrainShape.isPointBlowGround(end) && !terrainShape.isPointBlowGround(start)) ||
+                terrainShape.isPointOnGround(start) || terrainShape.isPointOnGround(end); // Collision detected
+    }
+
 }

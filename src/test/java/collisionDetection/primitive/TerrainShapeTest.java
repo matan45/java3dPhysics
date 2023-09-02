@@ -23,7 +23,7 @@ class TerrainShapeTest {
         AABB borders = new AABB(new Vector3f(0, 0, 0), new Vector3f(3, 2, 3));
 
         // Initialize the TerrainShape object
-        terrain = new TerrainShape(heightData, borders, 3, 3);
+        terrain = new TerrainShape(heightData, borders, new Vector3f(), 3, 3);
     }
 
     @Test

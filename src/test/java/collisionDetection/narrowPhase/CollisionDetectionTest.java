@@ -181,4 +181,91 @@ class CollisionDetectionTest {
         Line parallelLine = new Line(new Vector3f(1, 1, 1), new Vector3f(2, 2, 2));
         assertFalse(CollisionDetection.isCollide(parallelLine, plane2));
     }
+
+    @Test
+    public void testOBBCollisionLine(){
+        // Create an OBB with a known center and half extents
+        OBB obb = new OBB(new Vector3f(1, 1, 1), new Vector3f(1, 1, 1));
+
+        // Test a line that intersects with the OBB
+        Line intersectingLine = new Line(new Vector3f(0, 0, 0), new Vector3f(2, 2, 2));
+        assertTrue(CollisionDetection.isCollide(intersectingLine, obb));
+
+        // Test a line that does not intersect with the OBB
+        Line nonIntersectingLine = new Line(new Vector3f(3, 3, 0), new Vector3f(5, 5, 0));
+        assertFalse(CollisionDetection.isCollide(nonIntersectingLine, obb));
+
+        // Create an OBB
+        OBB obb2 = new OBB(new Vector3f(0.0f, 0.0f, 0.0f), new Vector3f(1.0f, 1.0f, 1.0f));
+
+        // Create a line that intersects with the OBB
+        Line line1 = new Line(new Vector3f(-2.0f, 0.0f, 0.0f), new Vector3f(2.0f, 0.0f, 0.0f));
+
+        // Create a line that doesn't intersect with the OBB
+        Line line2 = new Line(new Vector3f(-2.0f, 2.0f, 0.0f), new Vector3f(-1.0f, 2.0f, 0.0f));
+
+        assertTrue(CollisionDetection.isCollide(line1, obb2)); // Expect collision
+        assertFalse(CollisionDetection.isCollide(line2, obb2)); // Expect no collision
+    }
+
+    @Test
+    public void testTriangleCollisionLine(){
+        // Create a simple triangle and line segment for testing
+        Vector3f vertex1 = new Vector3f(0, 0, 0);
+        Vector3f vertex2 = new Vector3f(2, 0, 0);
+        Vector3f vertex3 = new Vector3f(1, 2, 0);
+
+        Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
+        Line line = new Line(new Vector3f(0.5f, 0.5f, 1), new Vector3f(1.5f, 1.5f, 1));
+
+        // Test if the line and triangle intersect
+        assertTrue(CollisionDetection.isCollide(line, triangle));
+
+        // Test non-intersecting case
+        Line nonIntersectingLine = new Line(new Vector3f(3, 3, 3), new Vector3f(4, 4, 4));
+        assertFalse(CollisionDetection.isCollide(nonIntersectingLine, triangle));
+
+        Line line2 = new Line(new Vector3f(0.5f, 0.5f, 0), new Vector3f(1.5f, 1.5f, 0));
+
+        assertTrue(CollisionDetection.isCollide(line2, triangle));
+
+        // Create a triangle entirely inside a line segment
+        vertex1 = new Vector3f(0, 0, 0);
+        vertex2 = new Vector3f(4, 0, 0);
+        vertex3 = new Vector3f(2, 2, 0);
+
+        Triangle triangle2 = new Triangle(vertex1, vertex2, vertex3);
+        Line line3 = new Line(new Vector3f(1, 0.5f, 1), new Vector3f(3, 0.5f, 1));
+
+        assertTrue(CollisionDetection.isCollide(line3, triangle2));
+    }
+    @Test
+    public void testTerrainCollisionLine(){
+        // Create a TerrainShape with height data, borders, width, and length for testing collision
+        // Sample height data for a 3x3 grid (for demonstration purposes)
+        float[][] heightData = {
+                {0, 0, 0},
+                {0, 2, 0},
+                {0, 0, 0}
+        };
+
+        // Define a simple AABB for terrain borders
+        AABB borders = new AABB(new Vector3f(-1, -1, -1), new Vector3f(5, 5, 5));
+
+        // Initialize the TerrainShape object
+        TerrainShape terrainShape = new TerrainShape(heightData, borders,new Vector3f(), 3, 3);
+
+        // Create a Line object representing a line segment that collides with the terrain
+        Line line = new Line(new Vector3f(0, 5, 0), new Vector3f(0, -1, 0));
+
+        // Assert that the result is true since the line should collide with the terrain
+        assertTrue(CollisionDetection.isCollide(line, terrainShape));
+
+        // Create a Line object representing a line segment that does not collide with the terrain
+        Line line2 = new Line(new Vector3f(3, 3, 3), new Vector3f(4, 4, 4));
+
+        // Assert that the result is false since the line should not collide with the terrain
+        assertFalse(CollisionDetection.isCollide(line2, terrainShape));
+    }
+
 }

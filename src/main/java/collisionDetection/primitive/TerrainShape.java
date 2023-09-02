@@ -6,7 +6,7 @@ import math.Vector2f;
 import math.Vector3f;
 
 public class TerrainShape {
-
+//TODO need more work on this
     private float[][] heightData;
     private AABB borders;//define the min and max high
     private static final float SIZE = 1024;
@@ -14,17 +14,19 @@ public class TerrainShape {
     private float length;//define the length of the terrain
     private float gridSquareSize;
 
-    public TerrainShape(float[][] heightData, AABB borders, int width, int length) {
+    public TerrainShape(float[][] heightData, AABB borders,Vector3f offset, int width, int length) {
         this.heightData = heightData;
-        this.borders = borders;
+        borders.setMin(borders.getMin().add(offset));
+        borders.setMax(borders.getMax().add(offset));
+        this.borders =borders;
         this.width = width * SIZE;
         this.length = length * SIZE;
-        this.gridSquareSize = SIZE / ((float) heightData.length - 1);
+        this.gridSquareSize = SIZE / ((float) heightData.length);
     }
 
     public void setHeightData(float[][] heightData) {
         this.heightData = heightData;
-        this.gridSquareSize = SIZE / ((float) heightData.length - 1);
+        this.gridSquareSize = SIZE / ((float) heightData.length);
     }
 
     public AABB getBorders() {
@@ -81,13 +83,20 @@ public class TerrainShape {
         return position.y - groundPosition < Const.EPSILON;
     }
 
+    public boolean isPointBlowGround(Vector3f position) {
+        if (!borders.isPointInside(position))
+            return false;
+        float groundPosition = getHeightOfTerrain(position.x, position.y);
+        return position.y < groundPosition;
+    }
+
     public Vector3f rayTerrainIntersection(Ray ray) {
-        if (!borders.isPointInside(ray.getOrigin()))
+        if (!isPointInside(ray.getOrigin()))
             return null;
 
         // Iterate through terrain grid cells
         for (int x = 0; x < heightData.length - 1; x++) {
-            for (int z = 0; z < heightData[0].length - 1; z++) {
+            for (int z = 0; z < heightData[x].length - 1; z++) {
                 float cellX = x * gridSquareSize;
                 float cellZ = z * gridSquareSize;
 
@@ -184,4 +193,8 @@ public class TerrainShape {
     }
 
 
+    private boolean isPointInside(Vector3f point) {
+        // Check if the point is within the terrain's boundaries (defined by 'borders')
+        return borders.isPointInside(point);
+    }
 }
