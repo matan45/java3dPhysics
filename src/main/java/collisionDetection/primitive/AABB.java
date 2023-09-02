@@ -34,6 +34,15 @@ public class AABB implements Shape, SATSupport, GJKSupport {
         this.max = max;
     }
 
+    public Vector3f getCenter() {
+        float centerX = (min.x + max.x) / 2.0f;
+        float centerY = (min.y + max.y) / 2.0f;
+        float centerZ = (min.z + max.z) / 2.0f;
+
+        return new Vector3f(centerX, centerY, centerZ);
+    }
+
+
     @Override
     public boolean isPointInside(Vector3f point) {
         return point.x >= min.x && point.x <= max.x &&

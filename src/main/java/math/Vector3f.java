@@ -72,20 +72,6 @@ public class Vector3f {
         return Float.compare(vector3f.x, x) == 0 && Float.compare(vector3f.y, y) == 0 && Float.compare(vector3f.z, z) == 0;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(x, y, z);
-    }
-
-    @Override
-    public String toString() {
-        return "Vector3f{" +
-                "x=" + x +
-                ", y=" + y +
-                ", z=" + z +
-                '}';
-    }
-
     public float dot(Vector3f other) {
         return x * other.x + y * other.y + z * other.z;
     }
@@ -149,5 +135,29 @@ public class Vector3f {
 
     public Vector3f negate() {
         return new Vector3f(x, y, z).mul(-1);
+    }
+
+    public boolean isBetween(Vector3f start, Vector3f end) {
+        // Check if the current vector is between the start and end vectors in all dimensions.
+        boolean betweenX = (start.x <= this.x && this.x <= end.x) || (end.x <= this.x && this.x <= start.x);
+        boolean betweenY = (start.y <= this.y && this.y <= end.y) || (end.y <= this.y && this.y <= start.y);
+        boolean betweenZ = (start.z <= this.z && this.z <= end.z) || (end.z <= this.z && this.z <= start.z);
+
+        // Return true if the current vector is between the start and end vectors in all dimensions.
+        return betweenX && betweenY && betweenZ;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y, z);
+    }
+
+    @Override
+    public String toString() {
+        return "Vector3f{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}';
     }
 }
