@@ -7,6 +7,11 @@ public class Vector3f {
     public float y;
     public float z;
 
+    public static final Vector3f Zero = new Vector3f();
+    public static final Vector3f XAxis = new Vector3f(1, 0, 0);
+    public static final Vector3f YAxis = new Vector3f(0, 1, 0);
+    public static final Vector3f ZAxis = new Vector3f(0, 0, 1);
+
     public Vector3f(float x, float y, float z) {
         this.x = x;
         this.y = y;
@@ -62,14 +67,6 @@ public class Vector3f {
         float dot = length.dot(direction);
         float magSq = direction.lengthSquared();
         return direction.mul(dot / magSq);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Vector3f vector3f = (Vector3f) o;
-        return Float.compare(vector3f.x, x) == 0 && Float.compare(vector3f.y, y) == 0 && Float.compare(vector3f.z, z) == 0;
     }
 
     public float dot(Vector3f other) {
@@ -145,6 +142,14 @@ public class Vector3f {
 
         // Return true if the current vector is between the start and end vectors in all dimensions.
         return betweenX && betweenY && betweenZ;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Vector3f vector3f = (Vector3f) o;
+        return Float.compare(vector3f.x, x) == 0 && Float.compare(vector3f.y, y) == 0 && Float.compare(vector3f.z, z) == 0;
     }
 
     @Override

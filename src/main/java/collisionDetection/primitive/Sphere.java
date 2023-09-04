@@ -3,6 +3,8 @@ package collisionDetection.primitive;
 import collisionDetection.narrowPhase.Shape;
 import math.Vector3f;
 
+import java.util.Objects;
+
 public class Sphere implements Shape {
     private Vector3f center; // Center of the sphere
     private float radius; // Radius of the sphere
@@ -49,4 +51,16 @@ public class Sphere implements Shape {
                 '}';
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(center, radius);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Sphere sphere = (Sphere) o;
+        return Float.compare(sphere.radius, radius) == 0 && Objects.equals(center, sphere.center);
+    }
 }

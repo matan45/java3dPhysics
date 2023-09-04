@@ -9,6 +9,7 @@ import math.Vector3f;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class OBB implements Shape, SATSupport, GJKSupport {
 
@@ -18,7 +19,7 @@ public class OBB implements Shape, SATSupport, GJKSupport {
 
     public OBB(Vector3f center, Vector3f halfExtents) {
         this.center = center;
-        this.axis = new Vector3f[]{new Vector3f(1.0f, 0.0f, 0.0f), new Vector3f(0.0f, 1.0f, 0.0f), new Vector3f(0.0f, 0.0f, 1.0f)};
+        this.axis = new Vector3f[]{Vector3f.XAxis, Vector3f.YAxis, Vector3f.ZAxis};
         this.halfExtents = halfExtents;
     }
 
@@ -128,5 +129,20 @@ public class OBB implements Shape, SATSupport, GJKSupport {
                 ", axis=" + Arrays.toString(axis) +
                 ", halfExtents=" + halfExtents +
                 '}';
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(center, halfExtents);
+        result = 31 * result + Arrays.hashCode(axis);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OBB obb = (OBB) o;
+        return Objects.equals(center, obb.center) && Arrays.equals(axis, obb.axis) && Objects.equals(halfExtents, obb.halfExtents);
     }
 }

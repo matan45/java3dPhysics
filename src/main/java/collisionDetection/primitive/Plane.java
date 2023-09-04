@@ -1,8 +1,11 @@
 package collisionDetection.primitive;
 
 import collisionDetection.narrowPhase.Shape;
-import math.Const;
 import math.Vector3f;
+
+import java.util.Objects;
+
+import static math.Const.EPSILON;
 
 public class Plane implements Shape {
     private Vector3f normal; // Normal vector of the plane
@@ -39,7 +42,7 @@ public class Plane implements Shape {
         float signedDistance = point.dot(normal) - distance;
 
         // If the signed distance is very close to zero, consider the point to be on the plane
-        return Math.abs(signedDistance) < Const.EPSILON;
+        return Math.abs(signedDistance) < EPSILON;
     }
 
     @Override
@@ -55,5 +58,18 @@ public class Plane implements Shape {
                 "normal=" + normal +
                 ", distance=" + distance +
                 '}';
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(normal, distance);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Plane plane = (Plane) o;
+        return Float.compare(plane.distance, distance) == 0 && Objects.equals(normal, plane.normal);
     }
 }

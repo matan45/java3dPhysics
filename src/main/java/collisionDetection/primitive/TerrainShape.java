@@ -21,9 +21,14 @@ public class TerrainShape {
     public TerrainShape(float[][] heightData, AABB borders, Vector3f terrainScale) {
         this.heightData = heightData;
         this.borders = borders;
-        this.terrainScale = terrainScale;//by default is need to be 1,1,1
         this.terrainCenter = borders.getCenter();
         this.triangles = new ArrayList<>();
+        //by default is need to be 1,1,1
+        if (terrainScale.equals(Vector3f.Zero))
+            this.terrainScale = new Vector3f(1, 1, 1);
+        else
+            this.terrainScale = terrainScale;
+
         computeTriangles();
     }
 
@@ -185,17 +190,17 @@ public class TerrainShape {
         return normal.normalize();
     }
 
-    public Vector3f calculateSlidingDisplacement(Vector3f displacement) {
+    public Vector3f calculateSlidingDisplacement(Vector3f position) {
         // Ensure the terrain normal is normalized
-        Vector3f terrainNormal = calculateTerrainNormal(displacement.x, displacement.y);
+        Vector3f terrainNormal = calculateTerrainNormal(position.x, position.y);
         terrainNormal = terrainNormal.normalize();
 
-        // Project the player's displacement vector onto the terrain plane
-        float displacementDotNormal = displacement.dot(terrainNormal);
+        // Project the player's position vector onto the terrain plane
+        float displacementDotNormal = position.dot(terrainNormal);
         Vector3f projectedDisplacement = terrainNormal.mul(displacementDotNormal);
 
-        // Calculate the sliding displacement by subtracting the projected displacement
-        return displacement.sub(projectedDisplacement);
+        // Calculate the sliding position by subtracting the projected position
+        return position.sub(projectedDisplacement);
     }
 
     public boolean isCollide(Line line) {

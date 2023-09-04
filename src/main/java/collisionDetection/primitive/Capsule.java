@@ -4,6 +4,8 @@ package collisionDetection.primitive;
 import collisionDetection.narrowPhase.Shape;
 import math.Vector3f;
 
+import java.util.Objects;
+
 public class Capsule implements Shape {
     private Vector3f start;
     private Vector3f end;
@@ -75,7 +77,6 @@ public class Capsule implements Shape {
         return closestPointOnAxis.add(vecToPoint.sub(closestPointOnAxis).normalize().mul(radius));
     }
 
-
     @Override
     public String toString() {
         return "Capsule{" +
@@ -85,4 +86,16 @@ public class Capsule implements Shape {
                 '}';
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(start, end, radius);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Capsule capsule = (Capsule) o;
+        return Float.compare(capsule.radius, radius) == 0 && Objects.equals(start, capsule.start) && Objects.equals(end, capsule.end);
+    }
 }

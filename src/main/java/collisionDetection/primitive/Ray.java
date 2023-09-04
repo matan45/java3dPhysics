@@ -3,6 +3,8 @@ package collisionDetection.primitive;
 import collisionDetection.narrowPhase.Shape;
 import math.Vector3f;
 
+import java.util.Objects;
+
 public class Ray implements Shape {
 
     private Vector3f origin;
@@ -36,6 +38,7 @@ public class Ray implements Shape {
         return origin.add(direction.mul(t));
     }
 
+    // check if point have the same direction
     @Override
     public boolean isPointInside(Vector3f point) {
         // Calculate the vector from the ray's origin to the given point
@@ -56,5 +59,18 @@ public class Ray implements Shape {
                 "origin=" + origin +
                 ", direction=" + direction +
                 '}';
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(origin, direction);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Ray ray = (Ray) o;
+        return Objects.equals(origin, ray.origin) && Objects.equals(direction, ray.direction);
     }
 }

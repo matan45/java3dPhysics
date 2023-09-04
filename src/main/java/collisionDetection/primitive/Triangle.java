@@ -8,6 +8,7 @@ import math.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Triangle implements Shape, SATSupport, GJKSupport {
     private Vector3f vertex1;
@@ -21,7 +22,7 @@ public class Triangle implements Shape, SATSupport, GJKSupport {
     }
 
     public List<Vector3f> getVertices() {
-        ArrayList<Vector3f> vertices = new ArrayList<>();
+        List<Vector3f> vertices = new ArrayList<>();
         vertices.add(vertex1);
         vertices.add(vertex2);
         vertices.add(vertex3);
@@ -176,5 +177,18 @@ public class Triangle implements Shape, SATSupport, GJKSupport {
                 ", vertex2=" + vertex2 +
                 ", vertex3=" + vertex3 +
                 '}';
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(vertex1, vertex2, vertex3);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Triangle triangle = (Triangle) o;
+        return Objects.equals(vertex1, triangle.vertex1) && Objects.equals(vertex2, triangle.vertex2) && Objects.equals(vertex3, triangle.vertex3);
     }
 }

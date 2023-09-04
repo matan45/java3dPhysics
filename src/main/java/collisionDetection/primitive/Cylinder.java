@@ -3,6 +3,8 @@ package collisionDetection.primitive;
 import collisionDetection.narrowPhase.Shape;
 import math.Vector3f;
 
+import java.util.Objects;
+
 public class Cylinder implements Shape {
     private Vector3f center;
     private float radius;
@@ -69,7 +71,6 @@ public class Cylinder implements Shape {
         return new Vector3f(closestPointOnAxis.x, clampedY, closestPointOnAxis.z);
     }
 
-
     @Override
     public String toString() {
         return "Cylinder{" +
@@ -79,5 +80,17 @@ public class Cylinder implements Shape {
                 '}';
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(center, radius, height);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Cylinder cylinder = (Cylinder) o;
+        return Float.compare(cylinder.radius, radius) == 0 && Float.compare(cylinder.height, height) == 0 && Objects.equals(center, cylinder.center);
+    }
 
 }

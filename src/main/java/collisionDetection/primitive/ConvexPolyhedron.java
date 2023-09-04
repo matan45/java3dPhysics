@@ -8,6 +8,7 @@ import math.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
     private List<Vector3f> vertices;
@@ -36,7 +37,7 @@ public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
             Vector3f normal = edge.cross(pointToVertex);
 
             // Use a known vector pointing outward from the polyhedron
-            Vector3f outwardVector = new Vector3f(0, 1, 0);
+            Vector3f outwardVector = Vector3f.YAxis;
 
             // Check if the point is on the "correct" side of the plane
             if (normal.dot(outwardVector) < 0) {
@@ -109,5 +110,18 @@ public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
         return "ConvexPolyhedron{" +
                 "vertices=" + vertices +
                 '}';
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(vertices);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ConvexPolyhedron that = (ConvexPolyhedron) o;
+        return Objects.equals(vertices, that.vertices);
     }
 }

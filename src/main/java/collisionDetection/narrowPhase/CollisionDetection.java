@@ -868,4 +868,11 @@ public class CollisionDetection {
         return interval1.getMax() < interval2.getMin() || interval2.getMax() < interval1.getMin();
     }
 
+    public static boolean isCollide(AABB box1, AABB box2) {
+        return !(box2.getMin().x > box1.getMax().x || box2.getMax().x < box1.getMin().x ||
+                box2.getMin().y > box1.getMax().y || box2.getMax().y < box1.getMin().y ||
+                box2.getMin().z > box1.getMax().z || box2.getMax().z < box1.getMin().z);
+    }
+
+
 }

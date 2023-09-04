@@ -8,6 +8,7 @@ import collisionDetection.narrowPhase.sat.SATSupport;
 import math.Vector3f;
 
 import java.util.List;
+import java.util.Objects;
 
 public class AABB implements Shape, SATSupport, GJKSupport {
     private Vector3f min; // Min corner of the AABB
@@ -59,14 +60,6 @@ public class AABB implements Shape, SATSupport, GJKSupport {
         return new Vector3f(closestX, closestY, closestZ);
     }
 
-    public static boolean isAABBColliding(AABB box1, AABB box2) {
-        return !(box2.getMin().x > box1.getMax().x || box2.getMax().x < box1.getMin().x ||
-                box2.getMin().y > box1.getMax().y || box2.getMax().y < box1.getMin().y ||
-                box2.getMin().z > box1.getMax().z || box2.getMax().z < box1.getMin().z);
-    }
-
-
-
     @Override
     public Interval getInterval(Vector3f axis) {
         float minProjection = axis.dot(getMin());
@@ -103,5 +96,18 @@ public class AABB implements Shape, SATSupport, GJKSupport {
                 "min=" + min +
                 ", max=" + max +
                 '}';
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(min, max);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AABB aabb = (AABB) o;
+        return Objects.equals(min, aabb.min) && Objects.equals(max, aabb.max);
     }
 }
