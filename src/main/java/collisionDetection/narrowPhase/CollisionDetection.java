@@ -72,7 +72,7 @@ public class CollisionDetection {
             Vector3f v1 = convexPolyhedron.getVertices().get((i + 1) % convexPolyhedron.getVertices().size());
             Line polyhedronEdge = new Line(v0, v1);
 
-            if (Line.isLineColliding(line, polyhedronEdge)) {
+            if (isCollide(line, polyhedronEdge)) {
                 return true;
             }
         }
@@ -150,7 +150,7 @@ public class CollisionDetection {
         };
 
         for (Line edge : triangleEdges) {
-            if (Line.isLineColliding(line, edge)) {
+            if (isCollide(line, edge)) {
                 return true;
             }
         }
@@ -459,7 +459,7 @@ public class CollisionDetection {
         boolean endColliding = CollisionUtil.isPointCollidingWithCylinderCap(capsule.getEnd(), cylinder);
 
         // Check if the capsule's body is colliding with the cylinder's body
-        boolean bodyColliding = cylinder.isSegmentCollidingWithCylinderBody(capsule.getStart(), capsule.getEnd());
+        boolean bodyColliding = CollisionUtil.isSegmentCollidingWithCylinderBody(new Line(capsule.getStart(), capsule.getEnd()),cylinder);
 
         // If any of the capsule's ends are colliding with the cylinder's caps or the capsule's body
         // is colliding with the cylinder's body, they are colliding
@@ -685,5 +685,187 @@ public class CollisionDetection {
         return true;
     }
 
+    public static boolean isCollide(Capsule capsule1, Capsule capsule2) {
+        float radiusSum = capsule1.getRadius() + capsule2.getRadius();
+
+        // Calculate the squared distance between the capsules' start points
+        float distanceSquared = capsule1.getStart().distanceSquared(capsule2.getStart());
+
+        // Check if the distance is less than the sum of the radii
+        if (distanceSquared <= (radiusSum * radiusSum)) {
+            return true;
+        }
+
+        // Calculate the squared distance between the capsules' start points and the end points of each capsule
+        float distanceSquaredToC1Start = capsule1.getStart().distanceSquared(capsule2.getEnd());
+        float distanceSquaredToC1End = capsule1.getEnd().distanceSquared(capsule2.getStart());
+        float distanceSquaredToC2Start = capsule1.getStart().distanceSquared(capsule2.getEnd());
+        float distanceSquaredToC2End = capsule1.getEnd().distanceSquared(capsule2.getEnd());
+
+        // Check if any of the distances are less than the sum of the radii
+        return distanceSquaredToC1Start <= (radiusSum * radiusSum) ||
+                distanceSquaredToC1End <= (radiusSum * radiusSum) ||
+                distanceSquaredToC2Start <= (radiusSum * radiusSum) ||
+                distanceSquaredToC2End <= (radiusSum * radiusSum);
+    }
+
+    public static boolean isCollide(ConvexPolyhedron convexPolyhedron1, ConvexPolyhedron convexPolyhedron2) {
+        List<Vector3f> vertices1 = convexPolyhedron1.getVertices();
+        List<Vector3f> vertices2 = convexPolyhedron2.getVertices();
+
+        // Loop through all the edges of both polyhedra
+        for (int i = 0; i < vertices1.size(); i++) {
+            Vector3f edgeStart = vertices1.get(i);
+            Vector3f edgeEnd = vertices1.get((i + 1) % vertices1.size());
+
+            Vector3f axis = edgeEnd.sub(edgeStart).normalize();
+
+            if (isAxisSeparating(axis, convexPolyhedron1, convexPolyhedron2)) {
+                return false;
+            }
+        }
+
+        for (int i = 0; i < vertices2.size(); i++) {
+            Vector3f edgeStart = vertices2.get(i);
+            Vector3f edgeEnd = vertices2.get((i + 1) % vertices2.size());
+
+            Vector3f axis = edgeEnd.sub(edgeStart).normalize();
+
+            if (isAxisSeparating(axis, convexPolyhedron1, convexPolyhedron2)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static boolean isAxisSeparating(Vector3f axis, ConvexPolyhedron convexPolyhedron1, ConvexPolyhedron convexPolyhedron2) {
+        // Project the OBBs onto the axis
+        Interval projection1 = convexPolyhedron1.getInterval(axis);
+        Interval projection2 = convexPolyhedron2.getInterval(axis);
+
+        // Check for separation between the intervals
+        return projection1.getMax() < projection2.getMin() || projection2.getMax() < projection1.getMin();
+    }
+
+    public static boolean isCollide(Line line1, Line line2) {
+        // Get the direction vectors of both lines.
+        Vector3f dir1 = line1.getEnd().sub(line1.getStart());
+        Vector3f dir2 = line2.getEnd().sub(line2.getStart());
+
+        // Calculate the determinant of the direction vectors.
+        float determinant = dir1.x * dir2.y - dir1.y * dir2.x;
+
+        // If the determinant is close to zero, the lines are parallel and may not intersect.
+        if (Math.abs(determinant) < EPSILON) {
+            return false;
+        }
+
+        // Calculate parameters for the lines' parametric equations.
+        Vector3f toStart2 = line2.getStart().sub(line1.getStart());
+        float t1 = (toStart2.x * dir2.y - toStart2.y * dir2.x) / determinant;
+        float t2 = (toStart2.x * dir1.y - toStart2.y * dir1.x) / determinant;
+
+        // Check if the intersection points are within the valid range [0, 1] for both lines.
+        return t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1;  // Lines intersect within their segments.
+    }
+
+    public static boolean isCollide(Cylinder cylinder1, Cylinder cylinder2) {
+        Vector3f center1 = cylinder1.getCenter();
+        Vector3f center2 = cylinder2.getCenter();
+
+        float distanceSq = center1.distanceSquared(center2);
+        float sumOfRadii = cylinder1.getRadius() + cylinder2.getRadius();
+        float sumOfHeights = cylinder1.getHeight() + cylinder2.getHeight();
+
+        // Check for collision by comparing the squared distances
+        return distanceSq <= (sumOfRadii * sumOfRadii) && distanceSq <= (sumOfHeights * sumOfHeights);
+    }
+
+    public static boolean isCollide(OBB obb1, OBB obb2) {
+        // Combine axes from both OBBs
+        Vector3f[] test = new Vector3f[18];
+
+        test[0] = obb1.getAxis().get(0);
+        test[1] = obb1.getAxis().get(1);
+        test[2] = obb1.getAxis().get(2);
+        test[3] = obb2.getAxis().get(0);
+        test[4] = obb2.getAxis().get(1);
+        test[5] = obb2.getAxis().get(2);
+
+        for (int i = 0; i < 3; ++i) {
+            test[6 + i * 3] = test[i].cross(test[3]);
+            test[6 + i * 3 + 1] = test[i].cross(test[4]);
+            test[6 + i * 3 + 2] = test[i].cross(test[5]);
+        }
+
+        // Include edge normals of both OBBs
+        for (int i = 0; i < 3; ++i) {
+            test[12 + i] = obb1.getEdge(i).normalize();
+            test[15 + i] = obb2.getEdge(i).normalize();
+        }
+
+        // Check for separation along each axis
+        for (Vector3f axis : test) {
+            if (isAxisSeparating(axis, obb1, obb2)) {
+                return false; // No collision along this axis
+            }
+        }
+
+        return true; // No separation along any axis, collision detected
+    }
+
+    private static boolean isAxisSeparating(Vector3f axis, OBB obb1, OBB obb2) {
+        // Project the OBBs onto the axis
+        Interval projection1 = obb1.getInterval(axis);
+        Interval projection2 = obb2.getInterval(axis);
+
+        // Check for separation between the intervals
+        return projection1.getMax() < projection2.getMin() || projection2.getMax() < projection1.getMin();
+    }
+
+    public static boolean isCollide(Plane plane1, Plane plane2) {
+        Vector3f normal1 = plane1.getNormal();
+        Vector3f normal2 = plane2.getNormal();
+
+        // Check if the normals are parallel (i.e., planes are colliding)
+        return normal1.normalize().equals(normal2.normalize());
+    }
+
+    public static boolean isCollide(Sphere sphere1, Sphere sphere2) {
+        float distanceSquared = sphere1.getCenter().distanceSquared(sphere2.getCenter());
+        float radiusSum = sphere1.getRadius() + sphere2.getRadius();
+
+        return distanceSquared <= (radiusSum * radiusSum);
+    }
+
+    public static boolean isCollide(Triangle triangle1, Triangle triangle2) {
+        // Axes to test
+        Vector3f[] axes = {
+                triangle1.calculateTriangleNormal(),
+                triangle2.calculateTriangleNormal(),
+                triangle1.getEdge1().normalize(),
+                triangle1.getEdge2().normalize(),
+                triangle1.getEdge3().normalize(),
+                triangle2.getEdge1().normalize(),
+                triangle2.getEdge2().normalize(),
+                triangle2.getEdge3().normalize()
+        };
+
+        for (Vector3f axis : axes) {
+            if (isSeparatingAxis(axis, triangle1, triangle2)) {
+                return false; // No collision along this axis
+            }
+        }
+
+        return true; // No separation along any axis, collision detected
+    }
+
+    private static boolean isSeparatingAxis(Vector3f axis, Triangle triangle1, Triangle triangle2) {
+        Interval interval1 = triangle1.getInterval(axis);
+        Interval interval2 = triangle2.getInterval(axis);
+
+        return interval1.getMax() < interval2.getMin() || interval2.getMax() < interval1.getMin();
+    }
 
 }

@@ -59,48 +59,6 @@ public class OBB implements Shape, SATSupport, GJKSupport {
         return endPoint.sub(startPoint);
     }
 
-    public static boolean isOBBColliding(OBB obb1, OBB obb2) {
-        // Combine axes from both OBBs
-        Vector3f[] test = new Vector3f[18];
-
-        test[0] = obb1.getAxis().get(0);
-        test[1] = obb1.getAxis().get(1);
-        test[2] = obb1.getAxis().get(2);
-        test[3] = obb2.getAxis().get(0);
-        test[4] = obb2.getAxis().get(1);
-        test[5] = obb2.getAxis().get(2);
-
-        for (int i = 0; i < 3; ++i) {
-            test[6 + i * 3] = test[i].cross(test[3]);
-            test[6 + i * 3 + 1] = test[i].cross(test[4]);
-            test[6 + i * 3 + 2] = test[i].cross(test[5]);
-        }
-
-        // Include edge normals of both OBBs
-        for (int i = 0; i < 3; ++i) {
-            test[12 + i] = obb1.getEdge(i).normalize();
-            test[15 + i] = obb2.getEdge(i).normalize();
-        }
-
-        // Check for separation along each axis
-        for (Vector3f axis : test) {
-            if (isAxisSeparating(axis, obb1, obb2)) {
-                return false; // No collision along this axis
-            }
-        }
-
-        return true; // No separation along any axis, collision detected
-    }
-
-    private static boolean isAxisSeparating(Vector3f axis, OBB obb1, OBB obb2) {
-        // Project the OBBs onto the axis
-        Interval projection1 = obb1.getInterval(axis);
-        Interval projection2 = obb2.getInterval(axis);
-
-        // Check for separation between the intervals
-        return projection1.getMax() < projection2.getMin() || projection2.getMax() < projection1.getMin();
-    }
-
     @Override
     public Interval getInterval(Vector3f axis) {
         float centerProjection = axis.x * getCenter().x + axis.y * getCenter().y + axis.z * getCenter().z;
@@ -151,15 +109,6 @@ public class OBB implements Shape, SATSupport, GJKSupport {
     }
 
     @Override
-    public String toString() {
-        return "OBB{" +
-                "center=" + center +
-                ", axis=" + Arrays.toString(axis) +
-                ", halfExtents=" + halfExtents +
-                '}';
-    }
-
-    @Override
     public Vector3f support(Vector3f direction) {
         Vector3f result = new Vector3f();
 
@@ -170,5 +119,14 @@ public class OBB implements Shape, SATSupport, GJKSupport {
 
         result.add(center);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "OBB{" +
+                "center=" + center +
+                ", axis=" + Arrays.toString(axis) +
+                ", halfExtents=" + halfExtents +
+                '}';
     }
 }

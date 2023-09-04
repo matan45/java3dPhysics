@@ -63,45 +63,6 @@ public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
         return closestPoint;
     }
 
-    public static boolean isPolyhedronColliding(ConvexPolyhedron convexPolyhedron1, ConvexPolyhedron convexPolyhedron2) {
-        List<Vector3f> vertices1 = convexPolyhedron1.getVertices();
-        List<Vector3f> vertices2 = convexPolyhedron2.getVertices();
-
-        // Loop through all the edges of both polyhedra
-        for (int i = 0; i < vertices1.size(); i++) {
-            Vector3f edgeStart = vertices1.get(i);
-            Vector3f edgeEnd = vertices1.get((i + 1) % vertices1.size());
-
-            Vector3f axis = edgeEnd.sub(edgeStart).normalize();
-
-            if (isAxisSeparating(axis, convexPolyhedron1, convexPolyhedron2)) {
-                return false;
-            }
-        }
-
-        for (int i = 0; i < vertices2.size(); i++) {
-            Vector3f edgeStart = vertices2.get(i);
-            Vector3f edgeEnd = vertices2.get((i + 1) % vertices2.size());
-
-            Vector3f axis = edgeEnd.sub(edgeStart).normalize();
-
-            if (isAxisSeparating(axis, convexPolyhedron1, convexPolyhedron2)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static boolean isAxisSeparating(Vector3f axis, ConvexPolyhedron convexPolyhedron1, ConvexPolyhedron convexPolyhedron2) {
-        // Project the OBBs onto the axis
-        Interval projection1 = convexPolyhedron1.getInterval(axis);
-        Interval projection2 = convexPolyhedron2.getInterval(axis);
-
-        // Check for separation between the intervals
-        return projection1.getMax() < projection2.getMin() || projection2.getMax() < projection1.getMin();
-    }
-
 
     @Override
     public String toString() {

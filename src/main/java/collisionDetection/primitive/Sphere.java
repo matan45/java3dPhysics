@@ -41,15 +41,6 @@ public class Sphere implements Shape {
         return center.add(direction.mul(radius));
     }
 
-    // Method to find the closest point pair between two spheres
-    public static boolean isSphereColliding(Sphere sphere1, Sphere sphere2) {
-        float distanceSquared = sphere1.getCenter().distanceSquared(sphere2.getCenter());
-        float radiusSum = sphere1.getRadius() + sphere2.getRadius();
-
-        return distanceSquared <= (radiusSum * radiusSum);
-    }
-
-
     @Override
     public String toString() {
         return "Sphere{" +

@@ -60,30 +60,6 @@ public class Line implements Shape {
         return start.add(direction.mul(t));
     }
 
-    public static boolean isLineColliding(Line line1, Line line2) {
-        // Get the direction vectors of both lines.
-        Vector3f dir1 = line1.getEnd().sub(line1.getStart());
-        Vector3f dir2 = line2.getEnd().sub(line2.getStart());
-
-        // Calculate the determinant of the direction vectors.
-        float determinant = dir1.x * dir2.y - dir1.y * dir2.x;
-
-        // If the determinant is close to zero, the lines are parallel and may not intersect.
-        if (Math.abs(determinant) < EPSILON) {
-            return false;
-        }
-
-        // Calculate parameters for the lines' parametric equations.
-        Vector3f toStart2 = line2.getStart().sub(line1.getStart());
-        float t1 = (toStart2.x * dir2.y - toStart2.y * dir2.x) / determinant;
-        float t2 = (toStart2.x * dir1.y - toStart2.y * dir1.x) / determinant;
-
-        // Check if the intersection points are within the valid range [0, 1] for both lines.
-        return t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1;  // Lines intersect within their segments.
-    }
-
-
-
     @Override
     public String toString() {
         return "Line{" +

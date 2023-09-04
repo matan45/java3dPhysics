@@ -64,7 +64,7 @@ public class Triangle implements Shape, SATSupport, GJKSupport {
         return vertex1.sub(vertex3);
     }
 
-    public Plane fromTriangle() {
+    private Plane fromTriangle() {
         Plane result = new Plane(new Vector3f(), 0);
         result.setNormal(vertex2.sub(vertex1).cross(vertex3.sub(vertex1)));
         result.setDistance(result.getNormal().dot(vertex1));
@@ -122,35 +122,7 @@ public class Triangle implements Shape, SATSupport, GJKSupport {
     }
 
 
-    public static boolean isTriangleColliding(Triangle triangle1, Triangle triangle2) {
-        // Axes to test
-        Vector3f[] axes = {
-                triangle1.calculateTriangleNormal(),
-                triangle2.calculateTriangleNormal(),
-                triangle1.getEdge1().normalize(),
-                triangle1.getEdge2().normalize(),
-                triangle1.getEdge3().normalize(),
-                triangle2.getEdge1().normalize(),
-                triangle2.getEdge2().normalize(),
-                triangle2.getEdge3().normalize()
-        };
-
-        for (Vector3f axis : axes) {
-            if (isSeparatingAxis(axis, triangle1, triangle2)) {
-                return false; // No collision along this axis
-            }
-        }
-
-        return true; // No separation along any axis, collision detected
-    }
-
-    private static boolean isSeparatingAxis(Vector3f axis, Triangle triangle1, Triangle triangle2) {
-        Interval interval1 = triangle1.getInterval(axis);
-        Interval interval2 = triangle2.getInterval(axis);
-
-        return interval1.getMax() < interval2.getMin() || interval2.getMax() < interval1.getMin();
-    }
-
+    @Override
     public Interval getInterval(Vector3f axis) {
         // Project the triangle vertices onto the axis
         float projection1 = axis.dot(getVertex1());
@@ -179,15 +151,6 @@ public class Triangle implements Shape, SATSupport, GJKSupport {
     }
 
     @Override
-    public String toString() {
-        return "Triangle{" +
-                "vertex1=" + vertex1 +
-                ", vertex2=" + vertex2 +
-                ", vertex3=" + vertex3 +
-                '}';
-    }
-
-    @Override
     public Vector3f support(Vector3f direction) {
         float dot1 = vertex1.dot(direction);
         float dot2 = vertex2.dot(direction);
@@ -204,5 +167,14 @@ public class Triangle implements Shape, SATSupport, GJKSupport {
         }
 
         return supportPoint;
+    }
+
+    @Override
+    public String toString() {
+        return "Triangle{" +
+                "vertex1=" + vertex1 +
+                ", vertex2=" + vertex2 +
+                ", vertex3=" + vertex3 +
+                '}';
     }
 }

@@ -30,7 +30,7 @@ public class CollisionUtil {
         return start.add(segmentDirection.mul(t));
     }
 
-   public static boolean isCylinderSideCollidingWithTriangle(Cylinder cylinder, Triangle triangle) {
+    public static boolean isCylinderSideCollidingWithTriangle(Cylinder cylinder, Triangle triangle) {
         // Calculate the triangle's normal
         Vector3f triangleNormal = triangle.calculateTriangleNormal();
 
@@ -137,6 +137,28 @@ public class CollisionUtil {
 
         // Check if cylinder bottom cap intersects with OBB bottom face
         return !(distanceBottomCap > cylinder.getHeight() * 0.5f);// Caps and faces intersect
+    }
+
+    public static boolean isSegmentCollidingWithCylinderBody(Line line, Cylinder cylinder) {
+        Vector3f start = line.getStart();
+        Vector3f end = line.getEnd();
+        // Check if either end of the segment is within the cylinder's body
+        boolean startInside = cylinder.isPointInside(start);
+        boolean endInside = cylinder.isPointInside(end);
+
+        // If the segment crosses the cylinder's central axis, there's a collision
+        if (startInside || endInside) {
+            return true;
+        }
+
+        // Check if the segment intersects the cylinder's body by checking the distance
+        // of the segment's closest point to the cylinder's central axis
+        Vector3f segmentDirection = end.sub(start);
+        float t = segmentDirection.dot(cylinder.getCenter().sub(start)) / segmentDirection.lengthSquared();
+        t = Math.max(0, Math.min(1, t));
+        Vector3f closestPointOnSegment = start.add(segmentDirection.mul(t));
+
+        return closestPointOnSegment.sub(cylinder.getCenter()).lengthSquared() <= cylinder.getRadius() * cylinder.getRadius();
     }
 
 }

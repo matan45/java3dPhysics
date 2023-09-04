@@ -712,4 +712,247 @@ class CollisionDetectionTest {
         assertFalse(CollisionDetection.isCollide(capsule, triangle));
     }
 
+    @Test
+    public void testIsCapsuleColliding() {
+        Capsule capsule3 = new Capsule(new Vector3f(0, 0, 0), new Vector3f(0, 3, 0), 1.0f);
+        Capsule capsule4 = new Capsule(new Vector3f(0, 2, 0), new Vector3f(0, 5, 0), 1.0f);
+
+        boolean result = CollisionDetection.isCollide(capsule3, capsule4);
+        // Assert that the capsules are not colliding
+        assertTrue(result, "Capsules should not be colliding");
+    }
+
+    @Test
+    public void testIsCapsuleNotColliding() {
+        Capsule capsule1 = new Capsule(new Vector3f(0, 0, 0), new Vector3f(0, 3, 0), 1.0f);
+        Capsule capsule2 = new Capsule(new Vector3f(2, 2, 0), new Vector3f(2, 5, 0), 1.0f);
+
+        boolean result = CollisionDetection.isCollide(capsule1, capsule2);
+
+        assertFalse(result, "Capsules not be should be colliding");
+    }
+
+    @Test
+    void testNonCollidingPolyhedra() {
+        ConvexPolyhedron polyhedron1 = createNonCollidingPolyhedron1();
+        ConvexPolyhedron polyhedron2 = createNonCollidingPolyhedron2();
+
+        assertFalse(CollisionDetection.isCollide(polyhedron1, polyhedron2));
+    }
+
+    @Test
+    void testCollidingPolyhedra() {
+        ConvexPolyhedron polyhedron1 = createCollidingPolyhedron1();
+        ConvexPolyhedron polyhedron2 = createCollidingPolyhedron2();
+
+        assertTrue(CollisionDetection.isCollide(polyhedron1, polyhedron2));
+    }
+
+    private ConvexPolyhedron createNonCollidingPolyhedron1() {
+        List<Vector3f> vertices = new ArrayList<>();
+        vertices.add(new Vector3f(0, 0, 0));
+        vertices.add(new Vector3f(1, 0, 0));
+        vertices.add(new Vector3f(1, 1, 0));
+        vertices.add(new Vector3f(0, 1, 0));
+
+        return new ConvexPolyhedron(vertices);
+    }
+
+    private ConvexPolyhedron createNonCollidingPolyhedron2() {
+        List<Vector3f> vertices = new ArrayList<>();
+        vertices.add(new Vector3f(2, 2, 0));
+        vertices.add(new Vector3f(3, 2, 0));
+        vertices.add(new Vector3f(3, 3, 0));
+        vertices.add(new Vector3f(2, 3, 0));
+
+        return new ConvexPolyhedron(vertices);
+    }
+
+    private ConvexPolyhedron createCollidingPolyhedron1() {
+        List<Vector3f> vertices = new ArrayList<>();
+        vertices.add(new Vector3f(0, 0, 0));
+        vertices.add(new Vector3f(1, 0, 0));
+        vertices.add(new Vector3f(1, 1, 0));
+        vertices.add(new Vector3f(0, 1, 0));
+
+        return new ConvexPolyhedron(vertices);
+    }
+
+    private ConvexPolyhedron createCollidingPolyhedron2() {
+        List<Vector3f> vertices = new ArrayList<>();
+        vertices.add(new Vector3f(0.5f, 0.5f, 0));
+        vertices.add(new Vector3f(1.5f, 0.5f, 0));
+        vertices.add(new Vector3f(1.5f, 1.5f, 0));
+        vertices.add(new Vector3f(0.5f, 1.5f, 0));
+
+        return new ConvexPolyhedron(vertices);
+    }
+
+    @Test
+    public void testCollidingCylinders() {
+        Cylinder cylinder1 = new Cylinder(new Vector3f(1.0f, 1.0f, 1.0f), 1.0f, 2.0f);
+        Cylinder cylinder2 = new Cylinder(new Vector3f(2.0f, 2.0f, 2.0f), 1.0f, 2.0f);
+        assertTrue(CollisionDetection.isCollide(cylinder1, cylinder2));
+    }
+
+    @Test
+    public void testNonCollidingCylinders() {
+        Cylinder cylinder1 = new Cylinder(new Vector3f(1.0f, 1.0f, 1.0f), 1.0f, 2.0f);
+        Cylinder cylinder2 = new Cylinder(new Vector3f(5.0f, 5.0f, 5.0f), 1.0f, 2.0f);
+        assertFalse(CollisionDetection.isCollide(cylinder1, cylinder2));
+    }
+
+    @Test
+    public void testCollidingOBBs() {
+        OBB obb1 = new OBB(
+                new Vector3f(0.0f, 3.0f, 0.0f),
+                new Vector3f(2.0f, 2.0f, 2.0f)
+        );
+
+        OBB obb2 = new OBB(
+                new Vector3f(0.0f, 4.0f, 0.0f),
+                new Vector3f(2.0f, 2.0f, 2.0f)
+        );
+
+        assertTrue(CollisionDetection.isCollide(obb1, obb2),"OBBs should be colliding");
+    }
+
+    @Test
+    public void testNonCollidingOBBs() {
+        Vector3f center1 = new Vector3f(0.0f, 0.0f, 0.0f);
+        Vector3f halfExtents1 = new Vector3f(1.0f, 1.0f, 1.0f);
+        OBB obb1 = new OBB(center1, halfExtents1);
+
+        Vector3f center2 = new Vector3f(3.0f, 3.0f, 3.0f);
+        Vector3f halfExtents2 = new Vector3f(1.0f, 1.0f, 1.0f);
+        OBB obb2 = new OBB(center2, halfExtents2);
+
+        boolean collision = CollisionDetection.isCollide(obb1, obb2);
+
+        assertFalse(collision);
+    }
+
+    @Test
+    public void testNonParallelEdges() {
+        // Create two non-parallel OBBs
+        OBB obb1 = new OBB(new Vector3f(0, 0, 0),new Vector3f(1, 1, 1));
+        OBB obb2 = new OBB(new Vector3f(4, 4, 4),new Vector3f(1, 1, 1));
+
+        assertFalse(CollisionDetection.isCollide(obb1, obb2), "Non-parallel OBBs should not be colliding");
+    }
+
+    @Test
+    public void testLineCollision() {
+        // Test cases where the lines intersect
+        Line line1 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
+        Line line2 = new Line(new Vector3f(0, 1, 0), new Vector3f(1, 0, 0));
+        assertTrue(CollisionDetection.isCollide(line1, line2));
+
+        Line line3 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
+        Line line4 = new Line(new Vector3f(0.5f, 0.5f, 0), new Vector3f(1, 0, 0));
+        assertTrue(CollisionDetection.isCollide(line3, line4));
+
+        // Test cases where the lines do not intersect
+        Line line5 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
+        Line line6 = new Line(new Vector3f(2, 2, 0), new Vector3f(3, 3, 0));
+        assertFalse(CollisionDetection.isCollide(line5, line6));
+
+        Line line7 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
+        Line line8 = new Line(new Vector3f(0, 2, 0), new Vector3f(1, 3, 0));
+        assertFalse(CollisionDetection.isCollide(line7, line8));
+
+        // Test cases where the lines are parallel but not collinear
+        Line line9 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
+        Line line10 = new Line(new Vector3f(0, 0, 1), new Vector3f(1, 1, 1));
+        assertFalse(CollisionDetection.isCollide(line9, line10));
+
+        Line line11 = new Line(new Vector3f(2, 2, 2), new Vector3f(4, 4, 4));
+        Line line12 = new Line(new Vector3f(1, -1, 1), new Vector3f(1, 1, 1));
+        assertFalse(CollisionDetection.isCollide(line11, line12));
+    }
+
+    @Test
+    public void testCollidingPlanes() {
+        Plane plane1 = new Plane(new Vector3f(1.0f, 0.0f, 0.0f), 0.0f);
+        Plane plane2 = new Plane(new Vector3f(2.0f, 0.0f, 0.0f), 0.0f);
+        assertTrue(CollisionDetection.isCollide(plane1, plane2));
+    }
+
+    @Test
+    public void testNonCollidingPlanes() {
+        Plane plane1 = new Plane(new Vector3f(1.0f, 0.0f, 0.0f), 0.0f);
+        Plane plane2 = new Plane(new Vector3f(0.0f, 1.0f, 0.0f), 0.0f);
+        assertFalse(CollisionDetection.isCollide(plane1, plane2));
+    }
+
+    @Test
+    void testIsSphereCollidingWithSphere() {
+        Sphere sphere1 = new Sphere(new Vector3f(0, 0, 0), 1.0f);
+        Sphere sphere2 = new Sphere(new Vector3f(1, 1, 1), 1.0f);
+
+        boolean result = CollisionDetection.isCollide(sphere1, sphere2);
+
+        assertTrue(result, "Spheres should be colliding");
+    }
+
+    @Test
+    void testIsSphereNoCollidingWithSphere() {
+        Sphere sphere1 = new Sphere(new Vector3f(0, 0, 0), 1.0f);
+        Sphere sphere2 = new Sphere(new Vector3f(3, 3, 3), 1.0f);
+
+        boolean result = CollisionDetection.isCollide(sphere1, sphere2);
+
+        assertFalse(result, "Spheres should not be colliding");
+    }
+
+    @Test
+    public void testIntersects() {
+        // Create two colliding triangles
+        Triangle triangle1 = new Triangle(
+                new Vector3f(0, 0, 0),
+                new Vector3f(1, 0, 0),
+                new Vector3f(0, 1, 0)
+        );
+        Triangle triangle2 = new Triangle(
+                new Vector3f(0.5f, 0.5f, 0),
+                new Vector3f(1.5f, 0.5f, 0),
+                new Vector3f(0.5f, 1.5f, 0)
+        );
+        assertTrue(CollisionDetection.isCollide(triangle1, triangle2),"Triangles should be colliding");
+    }
+
+    @Test
+    public void testDoesNotIntersect() {
+        // Create two non-colliding triangles
+        Triangle triangle1 = new Triangle(
+                new Vector3f(0, 0, 1),
+                new Vector3f(1, 0, 0),
+                new Vector3f(0, 1, 0)
+        );
+        Triangle triangle2 = new Triangle(
+                new Vector3f(2, 2, 0),
+                new Vector3f(3, 2, 2),
+                new Vector3f(2, 3, 0)
+        );
+
+        assertFalse(CollisionDetection.isCollide(triangle1, triangle2),"Triangles should not be colliding");
+    }
+
+    @Test
+    public void  parallelEdges() {
+        Triangle triangle1 = new Triangle(
+                new Vector3f(-2,-1,0),
+                new Vector3f(-3, 0, 0),
+                new Vector3f(-1, 0,0)
+        );
+
+        Triangle triangle2 = new Triangle(
+                new Vector3f(2, 1, 0),
+                new Vector3f(3, 0, 0),
+                new Vector3f(1, 0, 0)
+        );
+
+        assertFalse(CollisionDetection.isCollide(triangle1, triangle2),"Triangles not be colliding");
+    }
+
 }
