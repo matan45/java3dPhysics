@@ -1,6 +1,7 @@
 package collisionDetection.narrowPhase.gjk;
 
 import collisionDetection.narrowPhase.collision_result.CollisionResult;
+import collisionDetection.util.CollisionUtil;
 import math.Vector3f;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class EPA {
                 Face closestFace = findClosestFace(simplex);
 
                 // Find the support point in the direction of the closest face normal
-                Vector3f supportPoint = support(shape1, shape2, closestFace.getNormal());
+                Vector3f supportPoint = CollisionUtil.support(shape1, shape2, closestFace.getNormal());
 
                 // Calculate the signed distance from the support point to the closest face
                 float distance = closestFace.getNormal().dot(supportPoint);
@@ -70,12 +71,6 @@ public class EPA {
 
         // Return the closest face
         return closestFace;
-    }
-
-    private static Vector3f support(GJKSupport shape1, GJKSupport shape2, Vector3f direction) {
-        Vector3f pointA = shape1.support(direction);
-        Vector3f pointB = shape2.support(direction.negate());
-        return pointA.sub(pointB);
     }
 
     private static List<Vector3f> calculateContactPointsOnFace(Face closestFace, Simplex simplex) {

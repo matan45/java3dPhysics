@@ -250,7 +250,7 @@ class CollisionDetectionTest {
         AABB borders = new AABB(new Vector3f(-1, -1, -1), new Vector3f(5, 5, 5));
 
         // Initialize the TerrainShape object
-        TerrainShape terrainShape = new TerrainShape(heightData, borders, new Vector3f(), 3, 3);
+        TerrainShape terrainShape = new TerrainShape(heightData, borders, new Vector3f(1,1,1));
 
         // Create a Line object representing a line segment that collides with the terrain
         Line line = new Line(new Vector3f(0, 5, 0), new Vector3f(0, -1, 0));

@@ -1,12 +1,6 @@
 package collisionDetection.narrowPhase.sat;
 
-import collisionDetection.narrowPhase.collision_result.CollisionResult;
-import collisionDetection.narrowPhase.gjk.GJKSupport;
-import math.Vector3f;
-
-import java.util.List;
-
-public class SATCollisionResolution {
+public class SATSolver {
 /*
     public CollisionResult SATCollisionResult(SATSupport shape1, SATSupport shape2,boolean isCollide) {
 

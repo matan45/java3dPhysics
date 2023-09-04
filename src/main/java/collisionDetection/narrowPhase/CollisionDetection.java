@@ -180,18 +180,7 @@ public class CollisionDetection {
     }
 
     public static boolean isCollide(Line line, TerrainShape terrainShape) {
-        // Get the start and end points of the line
-        Vector3f start = line.getStart();
-        Vector3f end = line.getEnd();
-
-        if (!isCollide(line, terrainShape.getBorders())) {
-            return false; // No collision between bounding boxes
-        }
-
-        // Check if either the start or end point is below the terrain
-        return (terrainShape.isPointBlowGround(start) && !terrainShape.isPointBlowGround(end)) ||
-                (terrainShape.isPointBlowGround(end) && !terrainShape.isPointBlowGround(start)) ||
-                terrainShape.isPointOnGround(start) || terrainShape.isPointOnGround(end); // Collision detected
+        return terrainShape.isCollide(line);
     }
 
 }
