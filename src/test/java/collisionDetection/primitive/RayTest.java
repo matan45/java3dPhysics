@@ -1,156 +1,57 @@
 package collisionDetection.primitive;
 
-import math.Vector3f;;
+import math.Vector3f;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class RayTest {
     @Test
-    public void testRayIntersectsSphere() {
-        Ray ray = new Ray(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0)); // Example ray
-        Sphere sphere = new Sphere(new Vector3f(2, 0, 0), 1.0f); // Example sphere
+    public void testClosestPoint() {
+        // Create a ray with an origin at (0, 0, 0) and a direction along the positive X-axis.
+        Ray ray = new Ray(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0));
 
-        assertTrue(Ray.isSphereCollide(ray, sphere));
+        // Test case 1: The closest point to (2, 0, 0) should be (2, 0, 0) itself.
+        Vector3f closest1 = ray.closestPoint(new Vector3f(2, 0, 0));
+        assertEquals(new Vector3f(2, 0, 0), closest1);
+
+        // Test case 2: The closest point to (0, 1, 0) should be (0, 0, 0) since it's on the ray.
+        Vector3f closest2 = ray.closestPoint(new Vector3f(0, 1, 0));
+        assertEquals(new Vector3f(0, 0, 0), closest2);
+
+        // Test case 3: The closest point to (-1, 0, 0) should be (0, 0, 0) since it's on the ray.
+        Vector3f closest3 = ray.closestPoint(new Vector3f(-1, 0, 0));
+        assertEquals(new Vector3f(0, 0, 0), closest3);
+
+        // Test case 4: The closest point to (0, 0, 1) should be (0, 0, 0) since it's on the ray.
+        Vector3f closest4 = ray.closestPoint(new Vector3f(0, 0, 1));
+        assertEquals(new Vector3f(0, 0, 0), closest4);
+
+        // Test case 5: The closest point to a point behind the ray (e.g., (-1, 0, 0))
+        // should be the origin of the ray itself (0, 0, 0).
+        Vector3f closest5 = ray.closestPoint(new Vector3f(-1, 0, 0));
+        assertEquals(new Vector3f(0, 0, 0), closest5);
     }
 
     @Test
-    public void testRayMissesSphere() {
-        Ray ray = new Ray(new Vector3f(0, 0, 0), new Vector3f(0, 1, 0)); // Example ray
-        Sphere sphere = new Sphere(new Vector3f(3, 0, 0), 1.0f); // Example sphere
+    public void testIsPointInside() {
+        // Create a ray with origin at (0, 0, 0) and direction along the positive X-axis.
+        Ray ray = new Ray(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0));
 
-        assertFalse(Ray.isSphereCollide(ray, sphere));
+        // Test case 1: A point on the ray should be considered inside.
+        assertTrue(ray.isPointInside(new Vector3f(1, 0, 0)));
+
+        // Test case 2: A point in the same direction as the ray should be inside.
+        assertTrue(ray.isPointInside(new Vector3f(2, 0, 0)));
+
+        // Test case 3: A point in the opposite direction of the ray should not be inside.
+        assertFalse(ray.isPointInside(new Vector3f(-1, 0, 0)));
+
+        // Test case 4: A point in a different direction but on the same plane as the ray should not be inside.
+        assertFalse(ray.isPointInside(new Vector3f(0, 1, 0)));
+
+        // Test case 4: A point in a different direction but on the same plane as the ray should not be inside.
+        assertFalse(ray.isPointInside(new Vector3f(0, 0, 1)));
+
     }
-
-
-    @Test
-    public void testRayIntersectsABB() {
-        AABB aabb = new AABB(new Vector3f(0, 0, 0), new Vector3f(2, 2, 2));
-        Ray ray = new Ray(new Vector3f(1, 1, 5), new Vector3f(0, 0, -1));
-
-        // Test for collision
-        assertTrue(Ray.isAABBCollide(ray, aabb));
-    }
-
-    @Test
-    public void testRayMissesAABB() {
-        AABB aabb = new AABB(new Vector3f(0, 0, 0), new Vector3f(2, 2, 2));
-        Ray ray = new Ray(new Vector3f(1, 1, 5), new Vector3f(0, -1, 0));
-
-        // Test for no collision
-        assertFalse(Ray.isAABBCollide(ray, aabb));
-    }
-
-    @Test
-    public void testRayIntersectsCapsule() {
-        Capsule capsule = new Capsule(new Vector3f(0, 0, 0), new Vector3f(0, 4, 0), 1.0f);
-        Ray ray = new Ray(new Vector3f(0, 5, 0), new Vector3f(0, -1, 0));
-
-        // Test for collision
-        assertTrue(Ray.isCapsuleCollide(ray, capsule));
-    }
-
-    @Test
-    public void testRayMissesCapsule() {
-        Capsule capsule = new Capsule(new Vector3f(0, 0, 0), new Vector3f(0, 4, 0), 1.0f);
-        Ray ray = new Ray(new Vector3f(2, 2, 2), new Vector3f(0, 0, -1));
-
-        // Test for no collision
-        assertFalse(Ray.isCapsuleCollide(ray, capsule));
-    }
-
-
-    @Test
-    public void testRayIntersectsCylinder() {
-        Vector3f rayOrigin = new Vector3f(0, 0, 0);
-        Vector3f rayDirection = new Vector3f(1, 0, 0);
-        Ray ray = new Ray(rayOrigin, rayDirection);
-
-        Vector3f cylinderCenter = new Vector3f(1, 0, 0);
-        float cylinderRadius = 0.5f;
-        float cylinderHeight = 2.0f;
-        Cylinder cylinder = new Cylinder(cylinderCenter, cylinderRadius, cylinderHeight);
-
-        boolean collision = Ray.isCylinderCollide(ray, cylinder);
-        assertTrue(collision);
-    }
-
-    @Test
-    public void testRayMissesCylinder() {
-        Vector3f rayOrigin = new Vector3f(0, 0, 0);
-        Vector3f rayDirection = new Vector3f(1, 0, 0);
-        Ray ray = new Ray(rayOrigin, rayDirection);
-
-        Vector3f cylinderCenter = new Vector3f(3, 0, 0); // Move cylinder out of the ray's path
-        float cylinderRadius = 0.5f;
-        float cylinderHeight = 2.0f;
-        Cylinder cylinder = new Cylinder(cylinderCenter, cylinderRadius, cylinderHeight);
-
-        boolean collision = Ray.isCylinderCollide(ray, cylinder);
-        assertFalse(collision);
-    }
-
-
-    @Test
-    public void testRayIntersectsPlane() {
-        Vector3f rayOrigin = new Vector3f(0, 2, 0);
-        Vector3f rayDirection = new Vector3f(0, -1, 0);
-        Ray ray = new Ray(rayOrigin, rayDirection);
-
-        Vector3f planeNormal = new Vector3f(0, 1, 0);
-        float planeDistance = 1;
-        Plane plane = new Plane(planeNormal, planeDistance);
-
-        boolean collision = Ray.isPlaneCollide(ray, plane);
-        assertTrue(collision);
-    }
-
-    @Test
-    public void testRayMissesPlane() {
-        Vector3f rayOrigin = new Vector3f(0, 0, 0);
-        Vector3f rayDirection = new Vector3f(1, 0, 0);
-        Ray ray = new Ray(rayOrigin, rayDirection);
-
-        Vector3f planeNormal = new Vector3f(0, 1, 0);
-        float planeDistance = 2;
-        Plane plane = new Plane(planeNormal, planeDistance);
-
-        boolean collision = Ray.isPlaneCollide(ray, plane);
-        assertFalse(collision);
-    }
-
-    @Test
-    public void testRayIntersectsOBB() {
-        OBB obb = new OBB(new Vector3f(0, 0, 0), new Vector3f(1, 1, 1));
-        Ray ray = new Ray(new Vector3f(0, -1, 0), new Vector3f(0, 1, 0));
-
-        // Test for collision
-        assertTrue(Ray.isOBBCollide(ray, obb));
-    }
-
-    @Test
-    public void testRayMissesOBB() {
-        OBB obb = new OBB(new Vector3f(0, 0, 0), new Vector3f(2, 2, 2));
-        Ray ray = new Ray(new Vector3f(0, 3, 0), new Vector3f(0, 1, 0));
-
-        // Test for no collision
-        assertFalse(Ray.isOBBCollide(ray, obb));
-    }
-
-    @Test
-    void testRayIntersectsTriangle() {
-        Triangle triangle = new Triangle(new Vector3f(0, 0, 1), new Vector3f(1, 1, 1), new Vector3f(1, 0, 1));
-        Ray ray = new Ray(new Vector3f(0,0,0), new Vector3f(1, 1, 1));
-
-        assertTrue(Ray.isTriangleCollide(ray, triangle));
-    }
-
-    @Test
-    void testRayMissTriangle() {
-        Triangle triangle = new Triangle(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0), new Vector3f(0, 1, 0));
-        Ray ray = new Ray(new Vector3f(2, 2, 2), new Vector3f(0, 0, -1));
-
-        assertFalse(Ray.isTriangleCollide(ray, triangle));
-    }
-
 }

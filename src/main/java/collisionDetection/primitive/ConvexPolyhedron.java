@@ -36,7 +36,7 @@ public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
             Vector3f normal = edge.cross(pointToVertex);
 
             // Use a known vector pointing outward from the polyhedron
-            Vector3f outwardVector = new Vector3f(0, 0, 1);
+            Vector3f outwardVector = new Vector3f(0, 1, 0);
 
             // Check if the point is on the "correct" side of the plane
             if (normal.dot(outwardVector) < 0) {
@@ -61,14 +61,6 @@ public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
         }
 
         return closestPoint;
-    }
-
-
-    @Override
-    public String toString() {
-        return "ConvexPolyhedron{" +
-                "vertices=" + vertices +
-                '}';
     }
 
     @Override
@@ -110,5 +102,12 @@ public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
         }
 
         return supportPoint;
+    }
+
+    @Override
+    public String toString() {
+        return "ConvexPolyhedron{" +
+                "vertices=" + vertices +
+                '}';
     }
 }

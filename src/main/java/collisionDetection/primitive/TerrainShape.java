@@ -1,5 +1,6 @@
 package collisionDetection.primitive;
 
+import collisionDetection.narrowPhase.RayCast;
 import math.Vector3f;
 
 import java.util.ArrayList;
@@ -90,7 +91,7 @@ public class TerrainShape {
 
     public Vector3f rayTerrainIntersection(Ray ray) {
         // Check if the ray intersects with the terrain's bounding box (borders)
-        if (!Ray.isAABBCollide(ray, borders)) {
+        if (!RayCast.isCollide(ray, borders)) {
             return null; // Ray doesn't intersect with the terrain's bounding box
         }
         // Initialize variables to store the intersection point and distance

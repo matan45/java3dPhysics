@@ -174,7 +174,7 @@ public class CollisionDetection {
         Vector3f planeNormal = plane.getNormal();
         float planeDistance = plane.getDistance();
 
-        // Calculate the parameter 't' for the line equation (lineStart + t * lineDirection)
+        // Calculate the parameter t for the line equation (lineStart + t * lineDirection)
         float t = (planeDistance - lineStart.dot(planeNormal)) / dotProduct;
 
         // Check if the intersection point is within the line segment
