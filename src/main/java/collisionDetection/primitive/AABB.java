@@ -65,20 +65,7 @@ public class AABB implements Shape, SATSupport, GJKSupport {
                 box2.getMin().z > box1.getMax().z || box2.getMax().z < box1.getMin().z);
     }
 
-    // Helper method to calculate the closest point on a line segment to an AABB
-    public Vector3f closestPointOnSegmentToAABB(Vector3f start, Vector3f end) {
-        // Calculate the direction of the line segment
-        Vector3f segmentDirection = end.sub(start);
 
-        // Calculate the parameter along the segment where the closest point lies
-        float t = segmentDirection.dot(getMin().sub(start)) / segmentDirection.lengthSquared();
-
-        // Clamp the parameter to ensure the point is within the segment
-        t = Math.max(0, Math.min(1, t));
-
-        // Calculate the closest point on the segment to the AABB
-        return start.add(segmentDirection.mul(t));
-    }
 
     @Override
     public Interval getInterval(Vector3f axis) {

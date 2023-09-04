@@ -12,7 +12,7 @@ import static math.Const.EPSILON;
 public class TerrainShape {
 
     private float[][] heightData;
-    private List<Triangle> triangles;
+    private final List<Triangle> triangles;
     private AABB borders;
     private Vector3f terrainScale;
     private Vector3f terrainCenter;
@@ -179,7 +179,7 @@ public class TerrainShape {
         float heightU = getHeightInterpolated(x, z + 1);
 
         // Calculate the normal vector using the height differences
-        Vector3f normal = new Vector3f(heightL - heightR, 2.0f, heightD - heightU);
+        Vector3f normal = new Vector3f(heightL - heightR, getHeightInterpolated(x, z), heightD - heightU);
 
         return normal.normalize();
     }
