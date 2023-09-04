@@ -2,6 +2,7 @@ package collisionDetection.narrowPhase;
 
 import collisionDetection.narrowPhase.sat.Interval;
 import collisionDetection.primitive.*;
+import collisionDetection.primitive.terrain.TerrainShape;
 import collisionDetection.util.CollisionUtil;
 import math.Vector3f;
 

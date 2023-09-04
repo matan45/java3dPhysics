@@ -1,6 +1,11 @@
-package collisionDetection.primitive;
+package collisionDetection.primitive.terrain;
 
 import collisionDetection.narrowPhase.RayCast;
+import collisionDetection.primitive.AABB;
+import collisionDetection.primitive.Line;
+import collisionDetection.primitive.Ray;
+import collisionDetection.primitive.Triangle;
+import math.Vector2f;
 import math.Vector3f;
 
 import java.util.ArrayList;
@@ -13,7 +18,7 @@ import static math.Const.EPSILON;
 public class TerrainShape {
 
     private float[][] heightData;
-    private final List<Triangle> triangles;
+    private final List<TerrainTriangle> triangles;
     private AABB borders;
     private Vector3f terrainScale;
     private Vector3f terrainCenter;
@@ -51,9 +56,14 @@ public class TerrainShape {
     }
 
     private float getHeightOfTerrain(float worldX, float worldZ) {
+        Vector2f position = getGridPosition(worldX, worldZ);
+        return getHeightInterpolated(position.x, position.y);
+    }
+
+    private Vector2f getGridPosition(float worldX, float worldZ) {
         float positionX = Math.abs(worldX - terrainCenter.x) / terrainScale.x;
         float positionZ = Math.abs(worldZ - terrainCenter.z) / terrainScale.z;
-        return getHeightInterpolated(positionX, positionZ);
+        return new Vector2f(positionX, positionZ);
     }
 
     private float getHeightInterpolated(float x, float z) {
@@ -99,14 +109,17 @@ public class TerrainShape {
         if (!RayCast.isCollide(ray, borders)) {
             return null; // Ray doesn't intersect with the terrain's bounding box
         }
+        Vector2f position = getGridPosition(ray.getOrigin().x, ray.getOrigin().z);
+        Ray rayForTest = new Ray(new Vector3f(position.x, ray.getOrigin().y, position.y),
+                ray.getDirection());
         // Initialize variables to store the intersection point and distance
         Vector3f intersectionPoint = new Vector3f();
         float minDistance = Float.MAX_VALUE;
 
         // Iterate through the terrain grid and check for intersections
-        for (Triangle triangle : triangles) {
+        for (TerrainTriangle triangle : triangles) {
             // Calculate the intersection point with the current quad
-            Vector3f quadIntersection = rayQuadIntersection(ray, triangle);
+            Vector3f quadIntersection = rayQuadIntersection(rayForTest, triangle.toTriangle());
 
             // If there is an intersection, and it is closer than previous intersections, update the result
             if (quadIntersection != null) {
@@ -168,31 +181,21 @@ public class TerrainShape {
         for (int x = 0; x < heightData.length - 1; x++) {
             for (int z = 0; z < heightData[x].length - 1; z++) {
                 // Calculate the vertices of the current terrain quad
-                Vector3f vertex0 = new Vector3f(x, getHeightOfTerrain(x, z), z);
-                Vector3f vertex1 = new Vector3f((x + 1), getHeightOfTerrain(x + 1, z), z);
-                Vector3f vertex2 = new Vector3f(x, getHeightOfTerrain(x, z + 1), (z + 1));
+                Vector3f vertex0 = new Vector3f(x, heightData[x][z], z);
+                Vector3f vertex1 = new Vector3f((x + 1), heightData[x + 1][z], z);
+                Vector3f vertex2 = new Vector3f(x, heightData[x][z + 1], (z + 1));
 
-                triangles.add(new Triangle(vertex0, vertex1, vertex2));
+                triangles.add(new TerrainTriangle(vertex0, vertex1, vertex2, new Vector2f(x, z)));
             }
         }
     }
 
-    private Vector3f calculateTerrainNormal(float x, float z) {
-        // Calculate the normals using central differencing
-        float heightL = getHeightInterpolated(x - 1, z);
-        float heightR = getHeightInterpolated(x + 1, z);
-        float heightD = getHeightInterpolated(x, z - 1);
-        float heightU = getHeightInterpolated(x, z + 1);
-
-        // Calculate the normal vector using the height differences
-        Vector3f normal = new Vector3f(heightL - heightR, getHeightInterpolated(x, z), heightD - heightU);
-
-        return normal.normalize();
-    }
-
     public Vector3f calculateSlidingDisplacement(Vector3f position) {
+        Vector2f gridPosition = getGridPosition(position.x, position.z);
         // Ensure the terrain normal is normalized
-        Vector3f terrainNormal = calculateTerrainNormal(position.x, position.y);
+        Vector3f terrainNormal = triangles.stream()
+                .filter(t -> t.getGridPosition().equals(gridPosition))
+                .findFirst().orElseThrow().getNormal();
         terrainNormal = terrainNormal.normalize();
 
         // Project the player's position vector onto the terrain plane
@@ -215,8 +218,8 @@ public class TerrainShape {
                 isPointOnGround(start) || isPointOnGround(end))
             return true;
 
-        for (Triangle triangle : triangles) {
-            if (CollisionDetection.isCollide(line, triangle))
+        for (TerrainTriangle triangle : triangles) {
+            if (CollisionDetection.isCollide(line, triangle.toTriangle()))
                 return true;
         }
 

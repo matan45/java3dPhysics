@@ -1,6 +1,7 @@
 package collisionDetection.narrowPhase;
 
 import collisionDetection.primitive.*;
+import collisionDetection.primitive.terrain.TerrainShape;
 import math.Vector3f;
 import org.junit.jupiter.api.Test;
 

@@ -1,5 +1,6 @@
 package collisionDetection.primitive;
 
+import collisionDetection.primitive.terrain.TerrainShape;
 import math.Maths;
 import math.Vector3f;
 import org.junit.jupiter.api.BeforeEach;
