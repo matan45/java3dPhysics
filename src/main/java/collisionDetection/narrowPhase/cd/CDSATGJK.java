@@ -305,7 +305,7 @@ public class CDSATGJK {
         // distances are within the radius, meaning they might be colliding
 
         // Calculate the closest point on the capsule axis to the AABB
-        Vector3f closestPointOnAxis = CollisionUtil.closestPointOnSegmentToAABB(aabb, new Line(capsule.getStart(), capsule.getEnd()));
+        Vector3f closestPointOnAxis = CollisionUtil.closestPointOnLineToAABB(aabb, new Line(capsule.getStart(), capsule.getEnd()));
 
         // Calculate the squared distance from the closest point on the axis to the AABB
         float distanceToAxisSquared = aabb.closestPoint(closestPointOnAxis).lengthSquared();
@@ -359,7 +359,7 @@ public class CDSATGJK {
         }
 
         // Check cylinder side collision
-        return CollisionUtil.isCylinderSideCollidingWithTriangle(cylinder, triangle);
+        return isCylinderSideCollidingWithTriangle(cylinder, triangle);
     }
 
     public static boolean isCollide(Cylinder cylinder, Plane plane) {
@@ -406,11 +406,11 @@ public class CDSATGJK {
 
     public static boolean isCollide(Capsule capsule, Cylinder cylinder) {
         // Check if either of the capsule's ends is colliding with the cylinder's caps
-        boolean startColliding = CollisionUtil.isPointCollidingWithCylinderCap(capsule.getStart(), cylinder);
-        boolean endColliding = CollisionUtil.isPointCollidingWithCylinderCap(capsule.getEnd(), cylinder);
+        boolean startColliding = isPointCollidingWithCylinderCap(capsule.getStart(), cylinder);
+        boolean endColliding = isPointCollidingWithCylinderCap(capsule.getEnd(), cylinder);
 
         // Check if the capsule's body is colliding with the cylinder's body
-        boolean bodyColliding = CollisionUtil.isSegmentCollidingWithCylinderBody(new Line(capsule.getStart(), capsule.getEnd()),cylinder);
+        boolean bodyColliding = CollisionUtil.isLineCollidingWithCylinderBody(new Line(capsule.getStart(), capsule.getEnd()),cylinder);
 
         // If any of the capsule's ends are colliding with the cylinder's caps or the capsule's body
         // is colliding with the cylinder's body, they are colliding
@@ -526,7 +526,7 @@ public class CDSATGJK {
             Vector3f triangleVertex1 = triangleVertices[i];
             Vector3f triangleVertex2 = triangleVertices[(i + 1) % 3];
 
-            if (CollisionUtil.checkEdgeEdgeCollision(capsuleStart, capsuleEnd, triangleVertex1, triangleVertex2)) {
+            if (checkEdgeEdgeCollision(capsuleStart, capsuleEnd, triangleVertex1, triangleVertex2)) {
                 return true;
             }
         }
@@ -643,4 +643,86 @@ public class CDSATGJK {
     public static boolean isCollide(Line line, TerrainShape terrainShape) {
         return terrainShape.isCollide(line);
     }
+
+    private static boolean isCylinderSideCollidingWithTriangle(Cylinder cylinder, Triangle triangle) {
+        // Calculate the triangle's normal
+        Vector3f triangleNormal = triangle.calculateFaceNormal();
+
+        // Calculate the projection of the cylinder onto the triangle's plane
+        Vector3f cylinderProjectionCenter = new Vector3f(cylinder.getCenter().x, triangle.getVertex1().y, cylinder.getCenter().z);
+
+        // Project the cylinder's top and bottom circles onto the triangle's plane
+        Vector3f projectedTopCenter = cylinderProjectionCenter.add(triangleNormal.mul(cylinder.getRadius()));
+        Vector3f projectedBottomCenter = cylinderProjectionCenter.sub(triangleNormal.mul(cylinder.getRadius()));
+
+        // Check if the projected circles intersect the triangle
+        return isCircleIntersectingTriangle(projectedTopCenter, cylinder.getRadius(), triangle) ||
+                isCircleIntersectingTriangle(projectedBottomCenter, cylinder.getRadius(), triangle);
+    }
+
+    private static boolean isCircleIntersectingTriangle(Vector3f circleCenter, float radius, Triangle triangle) {
+        // Check if any vertex of the triangle is inside the circle
+        if (isPointInsideCircle(circleCenter, radius, triangle.getVertex1()) ||
+                isPointInsideCircle(circleCenter, radius, triangle.getVertex2()) ||
+                isPointInsideCircle(circleCenter, radius, triangle.getVertex3())) {
+            return true;
+        }
+
+        // Check if any triangle edge intersects the circle
+        return isSegmentIntersectingCircle(triangle.getVertex1(), triangle.getVertex2(), circleCenter, radius) ||
+                isSegmentIntersectingCircle(triangle.getVertex2(), triangle.getVertex3(), circleCenter, radius) ||
+                isSegmentIntersectingCircle(triangle.getVertex3(), triangle.getVertex1(), circleCenter, radius);
+    }
+
+    private static boolean isPointInsideCircle(Vector3f circleCenter, float radius, Vector3f point) {
+        float distanceSquared = point.sub(circleCenter).lengthSquared();
+        return distanceSquared <= radius * radius;
+    }
+
+    private static boolean isSegmentIntersectingCircle(Vector3f startPoint, Vector3f endPoint, Vector3f circleCenter, float radius) {
+        // Perform intersection test between a line segment and a circle
+        // This is a simplified version and may not handle all cases
+        // A more accurate algorithm like the Bresenham algorithm should be used
+
+        // Calculate the closest point on the segment to the circle center
+        Vector3f segmentDirection = endPoint.sub(startPoint);
+        Vector3f toCircleCenter = circleCenter.sub(startPoint);
+        float t = toCircleCenter.dot(segmentDirection) / segmentDirection.lengthSquared();
+        t = Math.max(0, Math.min(1, t)); // Clamp t to the [0, 1] interval
+        Vector3f closestPoint = startPoint.add(segmentDirection.mul(t));
+
+        // Check if the closest point is within the circle's radius
+        return isPointInsideCircle(circleCenter, radius, closestPoint);
+    }
+
+    private static boolean isPointCollidingWithCylinderCap(Vector3f point, Cylinder cylinder) {
+        // Calculate the distance between the point and the cylinder's center in the XZ plane
+        float distanceXZ = (float) Math.sqrt((point.x - cylinder.getCenter().x) * (point.x - cylinder.getCenter().x) +
+                (point.z - cylinder.getCenter().z) * (point.z - cylinder.getCenter().z));
+
+        // Check if the point is within the cylinder's cap radius and its Y coordinate is within the cap's height
+        return distanceXZ <= cylinder.getRadius() && Math.abs(point.y - cylinder.getCenter().y) <= cylinder.getHeight() / 2.0f;
+    }
+
+    private static boolean checkEdgeEdgeCollision(Vector3f A, Vector3f B, Vector3f C, Vector3f D) {
+        Vector3f AB = B.sub(A);
+        Vector3f AC = C.sub(A);
+        Vector3f AD = D.sub(A);
+
+        Vector3f normalABCD = AB.cross(AC);
+
+        // Check if the cross product of AB and AC points in the same direction as AD.
+        if (normalABCD.dot(AD) > 0) {
+            // Check if point D is on the opposite side of ABC as A is.
+            Vector3f BC = C.sub(B);
+            Vector3f BD = D.sub(B);
+            Vector3f normalBCDA = BC.cross(BD);
+
+            // The edges intersect.
+            return normalBCDA.dot(AC) > 0 && normalBCDA.dot(AB) > 0;
+        }
+
+        return false;
+    }
+
 }

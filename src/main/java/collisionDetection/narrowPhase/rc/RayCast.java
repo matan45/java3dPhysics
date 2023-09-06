@@ -1,6 +1,7 @@
 package collisionDetection.narrowPhase.rc;
 
 import collisionDetection.primitive.*;
+import collisionDetection.util.CollisionUtil;
 import math.Maths;
 import math.Vector3f;
 
@@ -196,7 +197,7 @@ public class RayCast {
         Vector3f intersectionPoint = rayOrigin.add(rayDirection.mul(t));
 
         // Calculate barycentric coordinates of the intersection point within the triangle
-        Vector3f barycentricCords = Maths.barycentric(intersectionPoint, triangle);
+        Vector3f barycentricCords = CollisionUtil.barycentric(intersectionPoint, triangle);
 
         // Check if the intersection point is inside the triangle using barycentric coordinates
         return barycentricCords.x >= 0 && barycentricCords.y >= 0 && barycentricCords.z >= 0;

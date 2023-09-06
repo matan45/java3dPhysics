@@ -1,6 +1,6 @@
 package math;
 
-import collisionDetection.primitive.Triangle;
+import static math.Const.EPSILON;
 
 public class Maths {
     public static float barryCentric(Vector3f p1, Vector3f p2, Vector3f p3, Vector2f pos) {
@@ -11,30 +11,58 @@ public class Maths {
         return l1 * p1.y + l2 * p2.y + l3 * p3.y;
     }
 
+    public static Vector3f getRandomNumber(Vector3f min, Vector3f max) {
+        return new Vector3f((float) ((Math.random() * (max.x - min.x)) + min.x),
+                (float) ((Math.random() * (max.y - min.y)) + min.y),
+                (float) ((Math.random() * (max.z - min.z)) + min.z));
+
+    }
+
+    public static Vector4f getRandomNumber(Vector4f min, Vector4f max) {
+        return new Vector4f((float) ((Math.random() * (max.x - min.x)) + min.x),
+                (float) ((Math.random() * (max.y - min.y)) + min.y),
+                (float) ((Math.random() * (max.z - min.z)) + min.z),
+                (float) ((Math.random() * (max.w - min.w)) + min.w));
+
+    }
+
+    public static Vector2f getRandomNumber(Vector2f min, Vector2f max) {
+        return new Vector2f((float) ((Math.random() * (max.x - min.x)) + min.x),
+                (float) ((Math.random() * (max.y - min.y)) + min.y));
+
+    }
+
     public static float getRandomNumber(int min, int max) {
         return (float) ((Math.random() * (max - min)) + min);
     }
 
-    public static Vector3f barycentric(Vector3f p, Triangle t) {
-        Vector3f ap = p.sub(t.getVertex1());
-        Vector3f bp = p.sub(t.getVertex2());
-        Vector3f cp = p.sub(t.getVertex3());
-
-        Vector3f ab = t.getVertex2().sub(t.getVertex1());
-        Vector3f ac = t.getVertex3().sub(t.getVertex1());
-        Vector3f bc = t.getVertex3().sub(t.getVertex2());
-        Vector3f cb = t.getVertex2().sub(t.getVertex3());
-        Vector3f ca = t.getVertex1().sub(t.getVertex3());
-
-        Vector3f v = ab.sub(Vector3f.project(ab, cb));
-        float a = 1.0f - (v.dot(ap) / v.dot(ab));
-
-        v = bc.sub(Vector3f.project(bc, ac));
-        float b = 1.0f - (v.dot(bp) / v.dot(bc));
-
-        v = ca.sub(Vector3f.project(ca, ab));
-        float c = 1.0f - (v.dot(cp) / v.dot(ca));
-
-        return new Vector3f(a, b, c);
+    public static float inverseSqrt(float r) {
+        return 1.0f / (float) Math.sqrt(r);
     }
+
+    public static float clamp(float value, float min, float max) {
+        return (value < min) ? min : Math.min(value, max);
+    }
+
+    public static float interpretTo(float current, float target, float deltaTime, float interpreted) {
+        // If no interp speed, jump to target value
+        if (interpreted <= 0.f) {
+            return target;
+        }
+
+        // Distance to reach
+        final float dist = target - current;
+
+        // If distance is too small, just set the desired location
+        if (Math.sqrt(dist) < EPSILON) {
+            return target;
+        }
+
+        // Delta Move, Clamp so we do not over shoot.
+        final float deltaMove = dist * clamp(deltaTime * interpreted, 0.f, 1.f);
+
+        return current + deltaMove;
+    }
+
+
 }
