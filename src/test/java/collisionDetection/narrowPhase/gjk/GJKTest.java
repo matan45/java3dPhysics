@@ -29,7 +29,6 @@ class GJKTest {
         assertTrue(collision,"OBB AABB should be colliding");
     }
 
-    @Disabled //TODO: fix
     @Test
     public void testOBBNotCollidingWithAABB() {
         Vector3f min = new Vector3f(-1.0f, -1.0f, -1.0f);
@@ -131,7 +130,7 @@ class GJKTest {
         return new ConvexPolyhedron(vertices);
     }
 
-    @Disabled //TODO: fix
+
     @Test
     public void testCollidingOBBs() {
         OBB obb1 = new OBB(
@@ -171,7 +170,6 @@ class GJKTest {
         assertFalse(GJK.isCollide(obb1, obb2), "Non-parallel OBBs should not be colliding");
     }
 
-    @Disabled //TODO: fix
     @Test
     public void testIntersectsTriangle() {
         // Create two colliding triangles

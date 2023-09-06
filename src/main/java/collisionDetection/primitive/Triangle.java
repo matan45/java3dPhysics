@@ -139,9 +139,9 @@ public class Triangle implements Shape, SATSupport, GJKSupport {
 
     @Override
     public List<Vector3f> getAxis() {
-        return List.of(getEdge1(),
-                getEdge2(),
-                getEdge3());
+        return List.of(getEdge1().normalize(),
+                getEdge2().normalize(),
+                getEdge3().normalize());
     }
 
     public Vector3f calculateFaceNormal() {
@@ -157,17 +157,12 @@ public class Triangle implements Shape, SATSupport, GJKSupport {
         float dot2 = vertex2.dot(direction);
         float dot3 = vertex3.dot(direction);
 
-        Vector3f supportPoint;
-
         if (dot1 >= dot2 && dot1 >= dot3) {
-            supportPoint = new Vector3f(vertex1);
+            return vertex1;
         } else if (dot2 >= dot1 && dot2 >= dot3) {
-            supportPoint = new Vector3f(vertex2);
-        } else {
-            supportPoint = new Vector3f(vertex3);
+            return vertex2;
         }
-
-        return supportPoint;
+        return vertex3;
     }
 
     @Override

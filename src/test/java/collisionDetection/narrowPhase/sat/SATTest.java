@@ -1,15 +1,17 @@
 package collisionDetection.narrowPhase.sat;
 
-import collisionDetection.narrowPhase.gjk.GJK;
-import collisionDetection.primitive.*;
+import collisionDetection.primitive.AABB;
+import collisionDetection.primitive.ConvexPolyhedron;
+import collisionDetection.primitive.OBB;
+import collisionDetection.primitive.Triangle;
 import math.Vector3f;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 
@@ -24,12 +26,11 @@ class SATTest {
         Vector3f halfExtents = new Vector3f(1.0f, 1.0f, 1.0f);
         OBB obb = new OBB(center, halfExtents);
 
-        boolean collision = GJK.isCollide(aabb, obb);
+        boolean collision = SAT.isCollide(aabb, obb);
 
         assertTrue(collision,"OBB AABB should be colliding");
     }
 
-    @Disabled //TODO: fix
     @Test
     public void testOBBNotCollidingWithAABB() {
         Vector3f min = new Vector3f(-1.0f, -1.0f, -1.0f);
@@ -40,7 +41,7 @@ class SATTest {
         Vector3f halfExtents = new Vector3f(1.0f, 1.0f, 1.0f);
         OBB obb = new OBB(center, halfExtents);
 
-        boolean collision = GJK.isCollide(aabb, obb);
+        boolean collision = SAT.isCollide(aabb, obb);
 
         assertFalse(collision,"OBB AABB should not be colliding");
     }
@@ -58,7 +59,7 @@ class SATTest {
         Vector3f vertex3 = new Vector3f(1, 3, 1);
         Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
 
-        assertTrue(GJK.isCollide(triangle, aabb));
+        assertTrue(SAT.isCollide(triangle, aabb));
     }
 
     @Test
@@ -72,7 +73,7 @@ class SATTest {
         Vector3f vertex3 = new Vector3f(5, 5, 0);
         Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
 
-        assertFalse(GJK.isCollide(triangle, aabb));
+        assertFalse(SAT.isCollide(triangle, aabb));
     }
 
 
@@ -81,7 +82,7 @@ class SATTest {
         ConvexPolyhedron polyhedron1 = createNonCollidingPolyhedron1();
         ConvexPolyhedron polyhedron2 = createNonCollidingPolyhedron2();
 
-        assertFalse(GJK.isCollide(polyhedron1, polyhedron2));
+        assertFalse(SAT.isCollide(polyhedron1, polyhedron2));
     }
 
     @Test
@@ -89,7 +90,7 @@ class SATTest {
         ConvexPolyhedron polyhedron1 = createCollidingPolyhedron1();
         ConvexPolyhedron polyhedron2 = createCollidingPolyhedron2();
 
-        assertTrue(GJK.isCollide(polyhedron1, polyhedron2));
+        assertTrue(SAT.isCollide(polyhedron1, polyhedron2));
     }
 
     private ConvexPolyhedron createNonCollidingPolyhedron1() {
@@ -132,7 +133,6 @@ class SATTest {
         return new ConvexPolyhedron(vertices);
     }
 
-    @Disabled //TODO: fix
     @Test
     public void testCollidingOBBs() {
         OBB obb1 = new OBB(
@@ -145,7 +145,7 @@ class SATTest {
                 new Vector3f(2.0f, 2.0f, 2.0f)
         );
 
-        assertTrue(GJK.isCollide(obb1, obb2),"OBBs should be colliding");
+        assertTrue(SAT.isCollide(obb1, obb2),"OBBs should be colliding");
     }
 
     @Test
@@ -158,7 +158,7 @@ class SATTest {
         Vector3f halfExtents2 = new Vector3f(1.0f, 1.0f, 1.0f);
         OBB obb2 = new OBB(center2, halfExtents2);
 
-        boolean collision = GJK.isCollide(obb1, obb2);
+        boolean collision = SAT.isCollide(obb1, obb2);
 
         assertFalse(collision);
     }
@@ -169,10 +169,9 @@ class SATTest {
         OBB obb1 = new OBB(new Vector3f(0, 0, 0),new Vector3f(1, 1, 1));
         OBB obb2 = new OBB(new Vector3f(4, 4, 4),new Vector3f(1, 1, 1));
 
-        assertFalse(GJK.isCollide(obb1, obb2), "Non-parallel OBBs should not be colliding");
+        assertFalse(SAT.isCollide(obb1, obb2), "Non-parallel OBBs should not be colliding");
     }
 
-    @Disabled //TODO: fix
     @Test
     public void testIntersectsTriangle() {
         // Create two colliding triangles
@@ -186,7 +185,7 @@ class SATTest {
                 new Vector3f(1.5f, 0.5f, 0),
                 new Vector3f(0.5f, 1.5f, 0)
         );
-        assertTrue(GJK.isCollide(triangle1, triangle2),"Triangles should be colliding");
+        assertTrue(SAT.isCollide(triangle1, triangle2),"Triangles should be colliding");
     }
 
     @Test
@@ -203,7 +202,7 @@ class SATTest {
                 new Vector3f(2, 3, 0)
         );
 
-        assertFalse(GJK.isCollide(triangle1, triangle2),"Triangles should not be colliding");
+        assertFalse(SAT.isCollide(triangle1, triangle2),"Triangles should not be colliding");
     }
 
     @Test
@@ -220,7 +219,7 @@ class SATTest {
                 new Vector3f(1, 0, 0)
         );
 
-        assertFalse(GJK.isCollide(triangle1, triangle2),"Triangles not be colliding");
+        assertFalse(SAT.isCollide(triangle1, triangle2),"Triangles not be colliding");
     }
 
     @Test
@@ -233,7 +232,7 @@ class SATTest {
         Vector3f max2 = new Vector3f(3, 3, 3);
         AABB aabb2 = new AABB(min2, max2);
 
-        boolean result = GJK.isCollide(aabb1, aabb2);
+        boolean result = SAT.isCollide(aabb1, aabb2);
 
         assertTrue(result, "AABBs should be colliding");
 
@@ -249,7 +248,7 @@ class SATTest {
         Vector3f max2 = new Vector3f(5, 5, 5);
         AABB aabb2 = new AABB(min2, max2);
 
-        boolean result = GJK.isCollide(aabb1, aabb2);
+        boolean result = SAT.isCollide(aabb1, aabb2);
 
         assertFalse(result, "AABBs should not be colliding");
     }

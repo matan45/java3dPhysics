@@ -111,15 +111,31 @@ public class OBB implements Shape, SATSupport, GJKSupport {
 
     @Override
     public Vector3f support(Vector3f direction) {
-        Vector3f result = new Vector3f();
+        // Initialize variables to store the maximum dot product and the corresponding vertex
+        float maxDotProduct = Float.NEGATIVE_INFINITY;
+        Vector3f supportVertex = null;
 
-        for (int i = 0; i < 3; i++) {
-            float projection = axis[i].dot(direction);
-            result.add(new Vector3f(axis[i].mul(halfExtents.get(i) * ((projection >= 0) ? 1 : -1))));
+        // Iterate through all the vertices of the OBB
+        for (int i = 0; i < 8; i++) {
+            // Calculate the vertex position using a combination of half extents and axis
+            Vector3f vertex = new Vector3f(
+                    center.x + halfExtents.x * ((i & 1) == 0 ? 1 : -1),
+                    center.y + halfExtents.y * ((i & 2) == 0 ? 1 : -1),
+                    center.z + halfExtents.z * ((i & 4) == 0 ? 1 : -1)
+            );
+
+            // Calculate the dot product of the vertex and the given direction
+            float dotProduct = vertex.dot(direction);
+
+            // Check if this vertex has a greater dot product than the current maximum
+            if (dotProduct > maxDotProduct) {
+                maxDotProduct = dotProduct;
+                supportVertex = vertex;
+            }
         }
 
-        result.add(center);
-        return result;
+        // Return the support vertex
+        return supportVertex;
     }
 
     @Override
