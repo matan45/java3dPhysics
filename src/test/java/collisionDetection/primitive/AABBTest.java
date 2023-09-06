@@ -8,33 +8,36 @@ import static org.junit.jupiter.api.Assertions.*;
 class AABBTest {
 
     @Test
-    void testIsAABBCollidingWithAABB() {
-        Vector3f min1 = new Vector3f(0, 0, 0);
-        Vector3f max1 = new Vector3f(2, 2, 2);
-        AABB aabb1 = new AABB(min1, max1);
+    public void testIsPointInside() {
+        // Create an AABB instance for testing
+        Vector3f min = new Vector3f(0, 0, 0);
+        Vector3f max = new Vector3f(5, 5, 5);
+        AABB aabb = new AABB(min, max);
 
-        Vector3f min2 = new Vector3f(1, 1, 1);
-        Vector3f max2 = new Vector3f(3, 3, 3);
-        AABB aabb2 = new AABB(min2, max2);
+        // Test points
+        Vector3f insidePoint = new Vector3f(2, 2, 2);
+        Vector3f outsidePoint = new Vector3f(6, 6, 6);
 
-        boolean result = AABB.isAABBColliding(aabb1, aabb2);
-
-        assertTrue(result, "AABBs should be colliding");
-
+        assertTrue(aabb.isPointInside(insidePoint));
+        assertFalse(aabb.isPointInside(outsidePoint));
     }
 
     @Test
-    void testIsAABBNoCollidingWithAABB() {
-        Vector3f min1 = new Vector3f(0, 0, 0);
-        Vector3f max1 = new Vector3f(2, 2, 2);
-        AABB aabb1 = new AABB(min1, max1);
+    public void testClosestPoint() {
+        // Create an AABB instance for testing
+        Vector3f min = new Vector3f(0, 0, 0);
+        Vector3f max = new Vector3f(5, 5, 5);
+        AABB aabb = new AABB(min, max);
 
-        Vector3f min2 = new Vector3f(3, 3, 3);
-        Vector3f max2 = new Vector3f(5, 5, 5);
-        AABB aabb2 = new AABB(min2, max2);
+        // Test point
+        Vector3f testPoint = new Vector3f(2, 7, 2);
 
-        boolean result = AABB.isAABBColliding(aabb1, aabb2);
+        Vector3f closestPoint = aabb.closestPoint(testPoint);
+        // Calculate the expected closest point manually or using your own method
+        Vector3f expectedClosestPoint = new Vector3f(2, 5, 2);
 
-        assertFalse(result, "AABBs should not be colliding");
+        assertEquals(expectedClosestPoint, closestPoint);
     }
+
+
 }

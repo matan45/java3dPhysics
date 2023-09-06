@@ -8,53 +8,25 @@ import static org.junit.jupiter.api.Assertions.*;
 class TriangleTest {
 
     @Test
-    public void testIntersects() {
-        // Create two colliding triangles
-        Triangle triangle1 = new Triangle(
-                new Vector3f(0, 0, 0),
-                new Vector3f(1, 0, 0),
-                new Vector3f(0, 1, 0)
-        );
-        Triangle triangle2 = new Triangle(
-                new Vector3f(0.5f, 0.5f, 0),
-                new Vector3f(1.5f, 0.5f, 0),
-                new Vector3f(0.5f, 1.5f, 0)
-        );
-        assertTrue(Triangle.isTriangleColliding(triangle1, triangle2),"Triangles should be colliding");
+    public void testIsPointInside() {
+        Vector3f vertex1 = new Vector3f(0, 0, 0);
+        Vector3f vertex2 = new Vector3f(0, 1, 0);
+        Vector3f vertex3 = new Vector3f(1, 0, 0);
+        Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
+
+        // Test points inside and outside the triangle
+        assertTrue(triangle.isPointInside(new Vector3f(0.5f, 0.5f, 0)));
+        assertFalse(triangle.isPointInside(new Vector3f(2f, 2f, 0)));
     }
 
     @Test
-    public void testDoesNotIntersect() {
-        // Create two non-colliding triangles
-        Triangle triangle1 = new Triangle(
-                new Vector3f(0, 0, 1),
-                new Vector3f(1, 0, 0),
-                new Vector3f(0, 1, 0)
-        );
-        Triangle triangle2 = new Triangle(
-                new Vector3f(2, 2, 0),
-                new Vector3f(3, 2, 2),
-                new Vector3f(2, 3, 0)
-        );
+    public void testClosestPoint() {
+        Vector3f vertex1 = new Vector3f(0, 0, 0);
+        Vector3f vertex2 = new Vector3f(0, 1, 0);
+        Vector3f vertex3 = new Vector3f(1, 0, 0);
+        Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
 
-        assertFalse(Triangle.isTriangleColliding(triangle1, triangle2),"Triangles should not be colliding");
+        Vector3f closest = triangle.closestPoint(new Vector3f(2f, 2f, 0));
+        assertEquals(new Vector3f(0.5f, 0.5f, 0), closest);
     }
-
-    @Test
-    public void  parallelEdges() {
-        Triangle triangle1 = new Triangle(
-                new Vector3f(-2,-1,0),
-                new Vector3f(-3, 0, 0),
-                new Vector3f(-1, 0,0)
-        );
-
-        Triangle triangle2 = new Triangle(
-                new Vector3f(2, 1, 0),
-                new Vector3f(3, 0, 0),
-                new Vector3f(1, 0, 0)
-        );
-
-        assertFalse(Triangle.isTriangleColliding(triangle1, triangle2),"Triangles not be colliding");
-    }
-
 }

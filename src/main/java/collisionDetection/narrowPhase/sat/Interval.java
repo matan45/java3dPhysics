@@ -1,13 +1,8 @@
-package collisionDetection.primitive;
+package collisionDetection.narrowPhase.sat;
 
 public class Interval {
     private float min;
     private float max;
-
-    public Interval() {
-        min = 0;
-        max = 0;
-    }
 
     public Interval(float min, float max) {
         this.min = min;

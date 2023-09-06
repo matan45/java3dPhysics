@@ -1,5 +1,7 @@
 package collisionDetection.primitive;
 
+import collisionDetection.primitive.terrain.TerrainShape;
+import math.Maths;
 import math.Vector3f;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,18 +14,18 @@ class TerrainShapeTest {
 
     @BeforeEach
     public void setUp() {
-        // Sample height data for a 3x3 grid (for demonstration purposes)
-        float[][] heightData = {
-                {0, 0, 0},
-                {0, 2, 0},
-                {0, 0, 0}
-        };
+        float[][] heightData = new float[10][10];
+        for (int i = 0; i < heightData.length; i++) {
+            for (int j = 0; j < heightData[i].length; j++) {
+                heightData[i][j] = Maths.getRandomNumber(0, 5);
+            }
+        }
 
         // Define a simple AABB for terrain borders
-        AABB borders = new AABB(new Vector3f(0, 0, 0), new Vector3f(3, 2, 3));
+        AABB borders = new AABB(new Vector3f(-1, -1, -1), new Vector3f(12, 12, 12));
 
         // Initialize the TerrainShape object
-        terrain = new TerrainShape(heightData, borders, 3, 3);
+        terrain = new TerrainShape(heightData, borders, new Vector3f(1,1,1));
     }
 
     @Test
@@ -51,7 +53,7 @@ class TerrainShapeTest {
     @Test
     public void testRayTerrainNotIntersection() {
         // Create a test ray
-        Ray testRay = new Ray(new Vector3f(1, 5, 1), new Vector3f(0, -1, 0));
+        Ray testRay = new Ray(new Vector3f(0, 10, 0), new Vector3f(0, 1, 0));
 
         // Perform the ray-terrain intersection
         Vector3f intersection = terrain.rayTerrainIntersection(testRay);
@@ -67,6 +69,6 @@ class TerrainShapeTest {
         // Perform the ray-terrain intersection
         Vector3f intersection = terrain.rayTerrainIntersection(testRay);
 
-        assertNull(intersection, "Ray should intersect the terrain");
+        assertNotNull(intersection, "Ray should intersect the terrain");
     }
 }

@@ -1,11 +1,16 @@
 package collisionDetection.primitive;
 
+import collisionDetection.narrowPhase.Shape;
+import collisionDetection.narrowPhase.gjk.GJKSupport;
+import collisionDetection.narrowPhase.sat.Interval;
+import collisionDetection.narrowPhase.sat.SATSupport;
 import math.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class Triangle {
+public class Triangle implements Shape, SATSupport, GJKSupport {
     private Vector3f vertex1;
     private Vector3f vertex2;
     private Vector3f vertex3;
@@ -17,7 +22,7 @@ public class Triangle {
     }
 
     public List<Vector3f> getVertices() {
-        ArrayList<Vector3f> vertices = new ArrayList<>();
+        List<Vector3f> vertices = new ArrayList<>();
         vertices.add(vertex1);
         vertices.add(vertex2);
         vertices.add(vertex3);
@@ -60,14 +65,15 @@ public class Triangle {
         return vertex1.sub(vertex3);
     }
 
-    public Plane fromTriangle() {
+    private Plane fromTriangle() {
         Plane result = new Plane(new Vector3f(), 0);
         result.setNormal(vertex2.sub(vertex1).cross(vertex3.sub(vertex1)));
         result.setDistance(result.getNormal().dot(vertex1));
         return result;
     }
 
-    public boolean pointInTriangle(Vector3f point) {
+    @Override
+    public boolean isPointInside(Vector3f point) {
         Vector3f a = vertex1.sub(point);
         Vector3f b = vertex2.sub(point);
         Vector3f c = vertex3.sub(point);
@@ -82,11 +88,13 @@ public class Triangle {
         return !(normPBC.dot(normPAB) < 0.0f);
     }
 
+
+    @Override
     public Vector3f closestPoint(Vector3f point) {
         Plane plane = fromTriangle();
         Vector3f closest = plane.closestPoint(point);
 
-        if (pointInTriangle(closest)) {
+        if (isPointInside(closest)) {
             return closest;
         }
 
@@ -115,40 +123,12 @@ public class Triangle {
     }
 
 
-    public static boolean isTriangleColliding(Triangle triangle1, Triangle triangle2) {
-        // Axes to test
-        Vector3f[] axes = {
-                triangle1.calculateTriangleNormal(),
-                triangle2.calculateTriangleNormal(),
-                triangle1.getEdge1().normalize(),
-                triangle1.getEdge2().normalize(),
-                triangle1.getEdge3().normalize(),
-                triangle2.getEdge1().normalize(),
-                triangle2.getEdge2().normalize(),
-                triangle2.getEdge3().normalize()
-        };
-
-        for (Vector3f axis : axes) {
-            if (isSeparatingAxis(axis, triangle1, triangle2)) {
-                return false; // No collision along this axis
-            }
-        }
-
-        return true; // No separation along any axis, collision detected
-    }
-
-    private static boolean isSeparatingAxis(Vector3f axis, Triangle triangle1, Triangle triangle2) {
-        Interval interval1 = getInterval(axis, triangle1);
-        Interval interval2 = getInterval(axis, triangle2);
-
-        return interval1.getMax() < interval2.getMin() || interval2.getMax() < interval1.getMin();
-    }
-
-    public static Interval getInterval(Vector3f axis, Triangle triangle) {
+    @Override
+    public Interval getInterval(Vector3f axis) {
         // Project the triangle vertices onto the axis
-        float projection1 = axis.dot(triangle.getVertex1());
-        float projection2 = axis.dot(triangle.getVertex2());
-        float projection3 = axis.dot(triangle.getVertex3());
+        float projection1 = axis.dot(getVertex1());
+        float projection2 = axis.dot(getVertex2());
+        float projection3 = axis.dot(getVertex3());
 
         // Calculate the minimum and maximum values of the projection
         float min = Math.min(Math.min(projection1, projection2), projection3);
@@ -157,11 +137,37 @@ public class Triangle {
         return new Interval(min, max);
     }
 
-    public Vector3f calculateTriangleNormal() {
+    @Override
+    public List<Vector3f> getAxis() {
+        return List.of(getEdge1(),
+                getEdge2(),
+                getEdge3());
+    }
+
+    public Vector3f calculateFaceNormal() {
         // Calculate triangle normal using cross product
         Vector3f edge1 = getEdge1();
         Vector3f edge2 = getEdge2();
         return edge1.cross(edge2).normalize();
+    }
+
+    @Override
+    public Vector3f support(Vector3f direction) {
+        float dot1 = vertex1.dot(direction);
+        float dot2 = vertex2.dot(direction);
+        float dot3 = vertex3.dot(direction);
+
+        Vector3f supportPoint;
+
+        if (dot1 >= dot2 && dot1 >= dot3) {
+            supportPoint = new Vector3f(vertex1);
+        } else if (dot2 >= dot1 && dot2 >= dot3) {
+            supportPoint = new Vector3f(vertex2);
+        } else {
+            supportPoint = new Vector3f(vertex3);
+        }
+
+        return supportPoint;
     }
 
     @Override
@@ -171,5 +177,18 @@ public class Triangle {
                 ", vertex2=" + vertex2 +
                 ", vertex3=" + vertex3 +
                 '}';
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(vertex1, vertex2, vertex3);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Triangle triangle = (Triangle) o;
+        return Objects.equals(vertex1, triangle.vertex1) && Objects.equals(vertex2, triangle.vertex2) && Objects.equals(vertex3, triangle.vertex3);
     }
 }

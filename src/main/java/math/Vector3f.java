@@ -7,6 +7,11 @@ public class Vector3f {
     public float y;
     public float z;
 
+    public static final Vector3f Zero = new Vector3f();
+    public static final Vector3f XAxis = new Vector3f(1, 0, 0);
+    public static final Vector3f YAxis = new Vector3f(0, 1, 0);
+    public static final Vector3f ZAxis = new Vector3f(0, 0, 1);
+
     public Vector3f(float x, float y, float z) {
         this.x = x;
         this.y = y;
@@ -64,28 +69,6 @@ public class Vector3f {
         return direction.mul(dot / magSq);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Vector3f vector3f = (Vector3f) o;
-        return Float.compare(vector3f.x, x) == 0 && Float.compare(vector3f.y, y) == 0 && Float.compare(vector3f.z, z) == 0;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(x, y, z);
-    }
-
-    @Override
-    public String toString() {
-        return "Vector3f{" +
-                "x=" + x +
-                ", y=" + y +
-                ", z=" + z +
-                '}';
-    }
-
     public float dot(Vector3f other) {
         return x * other.x + y * other.y + z * other.z;
     }
@@ -132,5 +115,54 @@ public class Vector3f {
 
     public Vector3f div(float v) {
         return new Vector3f(x / v, y / v, z / v);
+    }
+
+    public float distance(Vector3f point) {
+        float dx = x - point.x;
+        float dy = y - point.y;
+        float dz = z - point.z;
+        return (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+
+    public void set(Vector3f point) {
+        this.x = point.x;
+        this.y = point.y;
+        this.z = point.z;
+    }
+
+    public Vector3f negate() {
+        return new Vector3f(x, y, z).mul(-1);
+    }
+
+    public boolean isBetween(Vector3f start, Vector3f end) {
+        // Check if the current vector is between the start and end vectors in all dimensions.
+        boolean betweenX = (start.x <= this.x && this.x <= end.x) || (end.x <= this.x && this.x <= start.x);
+        boolean betweenY = (start.y <= this.y && this.y <= end.y) || (end.y <= this.y && this.y <= start.y);
+        boolean betweenZ = (start.z <= this.z && this.z <= end.z) || (end.z <= this.z && this.z <= start.z);
+
+        // Return true if the current vector is between the start and end vectors in all dimensions.
+        return betweenX && betweenY && betweenZ;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Vector3f vector3f = (Vector3f) o;
+        return Float.compare(vector3f.x, x) == 0 && Float.compare(vector3f.y, y) == 0 && Float.compare(vector3f.z, z) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y, z);
+    }
+
+    @Override
+    public String toString() {
+        return "Vector3f{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}';
     }
 }

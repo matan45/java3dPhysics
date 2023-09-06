@@ -4,13 +4,13 @@ import math.Vector3f;
 
 import java.util.List;
 
-public class CollisionManifold {
+public class CollisionResult {
     private boolean colliding;
     private Vector3f normal;
     private float depth;
     private List<Vector3f> contacts;
 
-    public CollisionManifold(boolean colliding, Vector3f normal, float depth, List<Vector3f> contacts) {
+    public CollisionResult(boolean colliding, Vector3f normal, float depth, List<Vector3f> contacts) {
         this.colliding = colliding;
         this.normal = normal;
         this.depth = depth;

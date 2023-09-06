@@ -4,7 +4,7 @@ import math.Vector3f;
 
 public interface Shape {
 
-    boolean inPointInside(Vector3f point);
+    boolean isPointInside(Vector3f point);
 
     Vector3f closestPoint(Vector3f point);
 }
