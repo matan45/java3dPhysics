@@ -70,7 +70,10 @@ public class Sphere implements Shape, GJKSupport, SATSupport {
     public List<Vector3f> getAxis() {
         // In the case of a sphere, there are no unique axes to return,
         // as all axes are valid. You can return an empty list.
-        return new ArrayList<>();
+        return List.of(center.normalize()
+                , Vector3f.XAxis
+                , Vector3f.YAxis
+                , Vector3f.ZAxis);
     }
 
     @Override
