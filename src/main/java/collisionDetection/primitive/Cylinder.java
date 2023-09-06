@@ -73,6 +73,26 @@ public class Cylinder implements Shape, GJKSupport {
     }
 
     @Override
+    public Vector3f support(Vector3f direction) {
+        // Calculate the support point based on the cylinder's geometry and direction.
+
+        // First, calculate the direction's projection on the cylinder's axis.
+        Vector3f axis = Vector3f.YAxis; // Assuming the cylinder is aligned with the Y-axis.
+        float projection = direction.dot(axis);
+
+        // Calculate the support point on the cylinder's surface along the axis.
+        float halfHeight = height / 2.0f;
+        float clampedProjection = Math.min(halfHeight, Math.max(-halfHeight, projection));
+        Vector3f supportOnAxis = axis.mul(clampedProjection);
+
+        // Calculate the support point on the cylinder's circular top/bottom surface.
+        Vector3f supportOnCircle = direction.sub(supportOnAxis).normalize().mul(radius);
+
+        // Calculate the final support point by adding the components together.
+        return center.add(supportOnAxis).add(supportOnCircle);
+    }
+
+    @Override
     public String toString() {
         return "Cylinder{" +
                 "center=" + center +
@@ -92,25 +112,5 @@ public class Cylinder implements Shape, GJKSupport {
         if (o == null || getClass() != o.getClass()) return false;
         Cylinder cylinder = (Cylinder) o;
         return Float.compare(cylinder.radius, radius) == 0 && Float.compare(cylinder.height, height) == 0 && Objects.equals(center, cylinder.center);
-    }
-
-    @Override
-    public Vector3f support(Vector3f direction) {
-        // Calculate the support point based on the cylinder's geometry and direction.
-
-        // First, calculate the direction's projection on the cylinder's axis.
-        Vector3f axis = Vector3f.YAxis; // Assuming the cylinder is aligned with the Y-axis.
-        float projection = direction.dot(axis);
-
-        // Calculate the support point on the cylinder's surface along the axis.
-        float halfHeight = height / 2.0f;
-        float clampedProjection = Math.min(halfHeight, Math.max(-halfHeight, projection));
-        Vector3f supportOnAxis = axis.mul(clampedProjection);
-
-        // Calculate the support point on the cylinder's circular top/bottom surface.
-        Vector3f supportOnCircle = direction.sub(supportOnAxis).normalize().mul(radius);
-
-        // Calculate the final support point by adding the components together.
-        return center.add(supportOnAxis).add(supportOnCircle);
     }
 }

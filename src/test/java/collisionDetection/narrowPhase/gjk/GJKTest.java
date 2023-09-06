@@ -1,5 +1,6 @@
 package collisionDetection.narrowPhase.gjk;
 
+import collisionDetection.narrowPhase.cd.CDSATGJK;
 import collisionDetection.primitive.*;
 import math.Vector3f;
 import org.junit.jupiter.api.Test;
@@ -815,5 +816,4 @@ class GJKTest {
         Line line5 = new Line(new Vector3f(2, 2, 2), new Vector3f(4, 4, 4));
         assertFalse(GJK.isCollide(line5, cylinder));
     }
-
 }

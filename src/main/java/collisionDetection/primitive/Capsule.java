@@ -79,6 +79,16 @@ public class Capsule implements Shape, GJKSupport {
     }
 
     @Override
+    public Vector3f support(Vector3f direction) {
+
+        // For simplicity, let's assume the support point is at the center of the capsule.
+        Vector3f center = start.add(end).div(2.0f);
+
+        // Now, move the center in the direction specified by the input vector.
+        return center.add(direction.normalize().mul(radius));
+    }
+
+    @Override
     public String toString() {
         return "Capsule{" +
                 "start=" + start +
@@ -98,15 +108,5 @@ public class Capsule implements Shape, GJKSupport {
         if (o == null || getClass() != o.getClass()) return false;
         Capsule capsule = (Capsule) o;
         return Float.compare(capsule.radius, radius) == 0 && Objects.equals(start, capsule.start) && Objects.equals(end, capsule.end);
-    }
-
-    @Override
-    public Vector3f support(Vector3f direction) {
-
-        // For simplicity, let's assume the support point is at the center of the capsule.
-        Vector3f center = start.add(end).div(2.0f);
-
-        // Now, move the center in the direction specified by the input vector.
-        return center.add(direction.normalize().mul(radius));
     }
 }

@@ -45,6 +45,11 @@ public class Sphere implements Shape, GJKSupport {
     }
 
     @Override
+    public Vector3f support(Vector3f direction) {
+        return center.add(direction.normalize().mul(radius));
+    }
+
+    @Override
     public String toString() {
         return "Sphere{" +
                 "center=" + center +
@@ -63,10 +68,5 @@ public class Sphere implements Shape, GJKSupport {
         if (o == null || getClass() != o.getClass()) return false;
         Sphere sphere = (Sphere) o;
         return Float.compare(sphere.radius, radius) == 0 && Objects.equals(center, sphere.center);
-    }
-
-    @Override
-    public Vector3f support(Vector3f direction) {
-        return center.add(direction.normalize().mul(radius));
     }
 }

@@ -62,6 +62,20 @@ public class Line implements Shape, GJKSupport {
     }
 
     @Override
+    public Vector3f support(Vector3f direction) {
+        // Calculate the dot products of the direction vector with the start and end points
+        float dotStart = start.dot(direction);
+        float dotEnd = end.dot(direction);
+
+        // Determine which endpoint is farthest in the given direction
+        if (dotStart >= dotEnd) {
+            return start; // Start point is the support point
+        }
+        return end; // End point is the support point
+
+    }
+
+    @Override
     public String toString() {
         return "Line{" +
                 "start=" + start +
@@ -80,19 +94,5 @@ public class Line implements Shape, GJKSupport {
         if (o == null || getClass() != o.getClass()) return false;
         Line line = (Line) o;
         return Objects.equals(start, line.start) && Objects.equals(end, line.end);
-    }
-
-    @Override
-    public Vector3f support(Vector3f direction) {
-        // Calculate the dot products of the direction vector with the start and end points
-        float dotStart = start.dot(direction);
-        float dotEnd = end.dot(direction);
-
-        // Determine which endpoint is farthest in the given direction
-        if (dotStart >= dotEnd) {
-            return start; // Start point is the support point
-        }
-        return end; // End point is the support point
-
     }
 }
