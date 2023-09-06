@@ -1,16 +1,11 @@
 package collisionDetection.primitive;
 
 import collisionDetection.narrowPhase.Shape;
-import collisionDetection.narrowPhase.gjk.GJKSupport;
-import collisionDetection.narrowPhase.sat.Interval;
-import collisionDetection.narrowPhase.sat.SATSupport;
 import math.Vector3f;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
-public class Cylinder implements Shape, GJKSupport, SATSupport {
+public class Cylinder implements Shape {
     private Vector3f center;
     private float radius;
     private float height;
@@ -74,57 +69,6 @@ public class Cylinder implements Shape, GJKSupport, SATSupport {
         float clampedY = Math.max(center.y, Math.min(center.y + height, point.y)); // Clamp y-coordinate
 
         return new Vector3f(closestPointOnAxis.x, clampedY, closestPointOnAxis.z);
-    }
-
-    @Override
-    public Vector3f support(Vector3f direction) {
-        // Compute the direction projected onto the axis of the cylinder
-        Vector3f axis = Vector3f.YAxis; // Cylinder's axis, assuming it's aligned with the Y-axis
-        float projection = direction.dot(axis);
-
-        // Calculate the endpoint on the cylinder's axis
-        Vector3f axisEndpoint = new Vector3f(center.x, center.y + height, center.z).add(axis.mul(projection));
-
-        // Calculate the support point on the cylinder's surface
-        return axisEndpoint.add(direction.normalize().mul(radius));
-    }
-
-    @Override
-    public Interval getInterval(Vector3f axis) {
-        // Calculate the projection of the center of the cylinder onto the axis
-        float projectionCenter = center.dot(axis);
-
-        // Calculate the half-length of the cylinder along the axis
-        float halfLength = height / 2.0f;
-
-        // Calculate the interval min and max
-        float min = projectionCenter - halfLength;
-        float max = projectionCenter + halfLength;
-
-        return new Interval(min - radius, max + radius);
-    }
-
-    @Override
-    public List<Vector3f> getAxis() {
-        List<Vector3f> axes = new ArrayList<>();
-
-        // Axis along the cylinder's central axis
-        Vector3f cylinderAxis = Vector3f.ZAxis; // Assuming cylinder is aligned with the z-axis
-        axes.add(cylinderAxis);
-
-        // Perpendicular axes (choose any two perpendicular vectors)
-        Vector3f arbitraryVector1 = Vector3f.XAxis;
-        Vector3f arbitraryVector2 = Vector3f.YAxis;
-
-        // Calculate the perpendicular axes based on the cylinder's orientation
-        Vector3f perpendicularAxis1 = arbitraryVector1.cross(cylinderAxis);
-        Vector3f perpendicularAxis2 = arbitraryVector2.cross(cylinderAxis);
-
-        // Normalize the perpendicular axes
-        axes.add(perpendicularAxis1.normalize());
-        axes.add(perpendicularAxis2.normalize());
-
-        return axes;
     }
 
     @Override

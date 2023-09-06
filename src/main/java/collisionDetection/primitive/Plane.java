@@ -1,17 +1,13 @@
 package collisionDetection.primitive;
 
 import collisionDetection.narrowPhase.Shape;
-import collisionDetection.narrowPhase.gjk.GJKSupport;
-import collisionDetection.narrowPhase.sat.Interval;
-import collisionDetection.narrowPhase.sat.SATSupport;
 import math.Vector3f;
 
-import java.util.List;
 import java.util.Objects;
 
 import static math.Const.EPSILON;
 
-public class Plane implements Shape, GJKSupport, SATSupport {
+public class Plane implements Shape {
     private Vector3f normal; // Normal vector of the plane
     private float distance;  // Distance from the origin to the plane along the normal
 
@@ -56,14 +52,6 @@ public class Plane implements Shape, GJKSupport, SATSupport {
         return point.sub(normal.mul(dis));
     }
 
-    @Override
-    public Vector3f support(Vector3f direction) {
-        // Calculate the dot product of the direction vector and the plane's normal
-        float dotProduct = normal.dot(direction);
-
-        // Use the dot product to calculate the furthest point in the given direction
-        return normal.mul(distance / dotProduct);
-    }
 
     @Override
     public String toString() {
@@ -84,26 +72,5 @@ public class Plane implements Shape, GJKSupport, SATSupport {
         if (o == null || getClass() != o.getClass()) return false;
         Plane plane = (Plane) o;
         return Float.compare(plane.distance, distance) == 0 && Objects.equals(normal, plane.normal);
-    }
-
-    @Override
-    public Interval getInterval(Vector3f axis) {
-        // Project the plane onto the given axis
-        float projection = normal.dot(axis);
-
-        // Calculate the half-extent of the projection
-        float halfExtent = Math.abs(projection) * distance;
-
-        // Calculate the minimum and maximum values of the interval
-        float minInterval = -halfExtent;
-        float maxInterval = halfExtent;
-
-        // Create and return an interval
-        return new Interval(minInterval, maxInterval);
-    }
-
-    @Override
-    public List<Vector3f> getAxis() {
-        return List.of(normal);
     }
 }

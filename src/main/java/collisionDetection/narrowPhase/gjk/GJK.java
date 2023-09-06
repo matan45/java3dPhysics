@@ -7,7 +7,7 @@ import static math.Const.GJK_EPA_MAX_ITERATORS;
 
 public class GJK {
 
-    public static boolean collision(GJKSupport shape1, GJKSupport shape2) {
+    public static boolean isCollide(GJKSupport shape1, GJKSupport shape2) {
         Simplex simplex = new Simplex();
 
         Vector3f support = CollisionUtil.support(shape1, shape2, new Vector3f(1, 0, 0));

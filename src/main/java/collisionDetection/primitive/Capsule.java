@@ -2,16 +2,11 @@ package collisionDetection.primitive;
 
 
 import collisionDetection.narrowPhase.Shape;
-import collisionDetection.narrowPhase.gjk.GJKSupport;
-import collisionDetection.narrowPhase.sat.Interval;
-import collisionDetection.narrowPhase.sat.SATSupport;
 import math.Vector3f;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
-public class Capsule implements Shape, GJKSupport, SATSupport {
+public class Capsule implements Shape {
     private Vector3f start;
     private Vector3f end;
     private float radius;
@@ -80,70 +75,6 @@ public class Capsule implements Shape, GJKSupport, SATSupport {
         Vector3f closestPointOnAxis = start.add(axis.mul(t));
 
         return closestPointOnAxis.add(vecToPoint.sub(closestPointOnAxis).normalize().mul(radius));
-    }
-
-    @Override
-    public Vector3f support(Vector3f direction) {
-        Vector3f capsuleAxis = end.sub(start); // Compute the capsule's axis
-
-        // Project the direction onto the capsule's axis
-        float projection = direction.dot(capsuleAxis);
-
-        // Calculate the endpoints of the capsule
-        Vector3f capsuleStart = start.add(capsuleAxis.mul(projection));
-        Vector3f capsuleEnd = end.add(capsuleAxis.mul(projection));
-
-        // Calculate the center of the capsule
-        Vector3f capsuleCenter = capsuleStart.add(capsuleEnd).div(2.0f);
-
-        // Calculate the support point by moving from the center along the direction
-        return capsuleCenter.add(direction.normalize().mul(radius));
-    }
-
-    @Override
-    public List<Vector3f> getAxis() {
-        List<Vector3f> axes = new ArrayList<>();
-
-        // Axis along the capsule's central line
-        Vector3f capsuleAxis = end.sub(start).normalize();
-        axes.add(capsuleAxis);
-
-        // Perpendicular axis (choose any two perpendicular vectors)
-        Vector3f arbitraryVector1 = Vector3f.XAxis;
-        Vector3f perpendicularAxis = capsuleAxis.cross(arbitraryVector1);
-
-        if (perpendicularAxis.lengthSquared() < 0.0001) {
-            // If the cross product is too small, choose a different arbitrary vector
-            arbitraryVector1 = Vector3f.YAxis;
-            perpendicularAxis = capsuleAxis.cross(arbitraryVector1);
-        }
-        axes.add(perpendicularAxis.normalize());
-
-        return axes;
-    }
-
-    @Override
-    public Interval getInterval(Vector3f axis) {
-        // Calculate the projections of the capsule's endpoints onto the axis
-        float projectionStart = start.dot(axis);
-        float projectionEnd = end.dot(axis);
-
-        // Calculate the projection of the center of the capsule
-        Vector3f capsuleCenter = new Vector3f(
-                (start.x + end.x) / 2,
-                (start.y + end.y) / 2,
-                (start.z + end.z) / 2
-        );
-        float projectionCenter = capsuleCenter.dot(axis);
-
-        // Calculate the half-length of the capsule along the axis
-        float halfLength = (projectionEnd - projectionStart) / 2;
-
-        // Calculate the interval min and max
-        float min = projectionCenter - halfLength - radius;
-        float max = projectionCenter + halfLength + radius;
-
-        return new Interval(min, max);
     }
 
     @Override
