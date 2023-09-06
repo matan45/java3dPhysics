@@ -2,11 +2,12 @@ package collisionDetection.primitive;
 
 
 import collisionDetection.narrowPhase.Shape;
+import collisionDetection.narrowPhase.gjk.GJKSupport;
 import math.Vector3f;
 
 import java.util.Objects;
 
-public class Capsule implements Shape {
+public class Capsule implements Shape, GJKSupport {
     private Vector3f start;
     private Vector3f end;
     private float radius;
@@ -97,5 +98,15 @@ public class Capsule implements Shape {
         if (o == null || getClass() != o.getClass()) return false;
         Capsule capsule = (Capsule) o;
         return Float.compare(capsule.radius, radius) == 0 && Objects.equals(start, capsule.start) && Objects.equals(end, capsule.end);
+    }
+
+    @Override
+    public Vector3f support(Vector3f direction) {
+
+        // For simplicity, let's assume the support point is at the center of the capsule.
+        Vector3f center = start.add(end).div(2.0f);
+
+        // Now, move the center in the direction specified by the input vector.
+        return center.add(direction.normalize().mul(radius));
     }
 }

@@ -1,11 +1,12 @@
 package collisionDetection.primitive;
 
 import collisionDetection.narrowPhase.Shape;
+import collisionDetection.narrowPhase.gjk.GJKSupport;
 import math.Vector3f;
 
 import java.util.Objects;
 
-public class Sphere implements Shape {
+public class Sphere implements Shape, GJKSupport {
     private Vector3f center; // Center of the sphere
     private float radius; // Radius of the sphere
 
@@ -62,5 +63,10 @@ public class Sphere implements Shape {
         if (o == null || getClass() != o.getClass()) return false;
         Sphere sphere = (Sphere) o;
         return Float.compare(sphere.radius, radius) == 0 && Objects.equals(center, sphere.center);
+    }
+
+    @Override
+    public Vector3f support(Vector3f direction) {
+        return center.add(direction.normalize().mul(radius));
     }
 }

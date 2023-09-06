@@ -1,11 +1,12 @@
 package collisionDetection.primitive;
 
 import collisionDetection.narrowPhase.Shape;
+import collisionDetection.narrowPhase.gjk.GJKSupport;
 import math.Vector3f;
 
 import java.util.Objects;
 
-public class Line implements Shape {
+public class Line implements Shape, GJKSupport {
     private Vector3f start;
     private Vector3f end;
 
@@ -79,5 +80,19 @@ public class Line implements Shape {
         if (o == null || getClass() != o.getClass()) return false;
         Line line = (Line) o;
         return Objects.equals(start, line.start) && Objects.equals(end, line.end);
+    }
+
+    @Override
+    public Vector3f support(Vector3f direction) {
+        // Calculate the dot products of the direction vector with the start and end points
+        float dotStart = start.dot(direction);
+        float dotEnd = end.dot(direction);
+
+        // Determine which endpoint is farthest in the given direction
+        if (dotStart >= dotEnd) {
+            return start; // Start point is the support point
+        }
+        return end; // End point is the support point
+
     }
 }

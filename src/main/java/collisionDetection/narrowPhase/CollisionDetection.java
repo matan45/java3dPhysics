@@ -1,8 +1,10 @@
 package collisionDetection.narrowPhase;
 
 import collisionDetection.narrowPhase.sat.Interval;
-import collisionDetection.primitive.*;
-import collisionDetection.primitive.terrain.TerrainShape;
+import collisionDetection.primitive.AABB;
+import collisionDetection.primitive.ConvexPolyhedron;
+import collisionDetection.primitive.OBB;
+import collisionDetection.primitive.Triangle;
 import math.Vector3f;
 
 import java.util.List;
