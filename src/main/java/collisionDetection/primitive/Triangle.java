@@ -144,7 +144,7 @@ public class Triangle implements Shape, SATSupport, GJKSupport {
                 getEdge3());
     }
 
-    public Vector3f calculateTriangleNormal() {
+    public Vector3f calculateFaceNormal() {
         // Calculate triangle normal using cross product
         Vector3f edge1 = getEdge1();
         Vector3f edge2 = getEdge2();

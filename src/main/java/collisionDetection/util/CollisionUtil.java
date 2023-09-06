@@ -32,7 +32,7 @@ public class CollisionUtil {
 
     public static boolean isCylinderSideCollidingWithTriangle(Cylinder cylinder, Triangle triangle) {
         // Calculate the triangle's normal
-        Vector3f triangleNormal = triangle.calculateTriangleNormal();
+        Vector3f triangleNormal = triangle.calculateFaceNormal();
 
         // Calculate the projection of the cylinder onto the triangle's plane
         Vector3f cylinderProjectionCenter = new Vector3f(cylinder.getCenter().x, triangle.getVertex1().y, cylinder.getCenter().z);

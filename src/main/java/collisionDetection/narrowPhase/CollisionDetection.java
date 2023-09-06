@@ -395,7 +395,7 @@ public class CollisionDetection {
         Vector3f cylinderBottom = cylinder.getCenter().add(new Vector3f(0, cylinder.getHeight() / 2, 0));
 
         // Calculate triangle's normal and constant term for the plane equation
-        Vector3f triangleNormal = triangle.calculateTriangleNormal();
+        Vector3f triangleNormal = triangle.calculateFaceNormal();
         float triangleConstant = -triangleNormal.dot(triangle.getVertex1());
 
         // Check if cylinder cap collides with triangle plane
@@ -623,7 +623,7 @@ public class CollisionDetection {
 
         // Step 2: Check if the capsule intersects the triangle's plane.
         Vector3f capsuleDirection = capsule.getEnd().sub(capsule.getStart());
-        Vector3f triangleNormal = triangle.calculateTriangleNormal();
+        Vector3f triangleNormal = triangle.calculateFaceNormal();
         float dotProduct = triangleNormal.dot(capsuleDirection);
 
         if (dotProduct == 0) {
@@ -843,8 +843,8 @@ public class CollisionDetection {
     public static boolean isCollide(Triangle triangle1, Triangle triangle2) {
         // Axes to test
         Vector3f[] axes = {
-                triangle1.calculateTriangleNormal(),
-                triangle2.calculateTriangleNormal(),
+                triangle1.calculateFaceNormal(),
+                triangle2.calculateFaceNormal(),
                 triangle1.getEdge1().normalize(),
                 triangle1.getEdge2().normalize(),
                 triangle1.getEdge3().normalize(),

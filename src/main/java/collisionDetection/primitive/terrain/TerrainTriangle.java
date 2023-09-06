@@ -18,14 +18,14 @@ public class TerrainTriangle {
         this.vertex2 = vertex2;
         this.vertex3 = vertex3;
         this.gridPosition = gridPosition;
-        this.normal = calculateTriangleNormal(vertex1, vertex2, vertex3);
+        this.normal = calculateFaceNormal(vertex1, vertex2, vertex3);
     }
 
     public Triangle toTriangle() {
         return new Triangle(vertex1, vertex2, vertex3);
     }
 
-    private Vector3f calculateTriangleNormal(Vector3f vertex1, Vector3f vertex2, Vector3f vertex3) {
+    private Vector3f calculateFaceNormal(Vector3f vertex1, Vector3f vertex2, Vector3f vertex3) {
         // Calculate triangle normal using cross product
         Vector3f edge1 = vertex2.sub(vertex1);
         Vector3f edge2 = vertex3.sub(vertex2);
