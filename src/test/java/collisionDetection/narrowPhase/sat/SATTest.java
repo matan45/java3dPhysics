@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class SATTest {
+
     @Test
     public void testOBBCollidingWithAABB() {
         Vector3f min = new Vector3f(-1.0f, -1.0f, -1.0f);

@@ -1,6 +1,7 @@
 package collisionDetection.primitive.terrain;
 
-import collisionDetection.narrowPhase.RayCast;
+import collisionDetection.narrowPhase.cd.CDSATGJK;
+import collisionDetection.narrowPhase.rc.RayCast;
 import collisionDetection.primitive.AABB;
 import collisionDetection.primitive.Line;
 import collisionDetection.primitive.Ray;
@@ -10,8 +11,6 @@ import math.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import collisionDetection.narrowPhase.CollisionDetection;
 
 import static math.Const.EPSILON;
 
@@ -207,7 +206,7 @@ public class TerrainShape {
     }
 
     public boolean isCollide(Line line) {
-        if (!CollisionDetection.isCollide(line, borders))
+        if (!CDSATGJK.isCollide(line, borders))
             return false;
 
         // Get the start and end points of the line
@@ -219,7 +218,7 @@ public class TerrainShape {
             return true;
 
         for (TerrainTriangle triangle : triangles) {
-            if (CollisionDetection.isCollide(line, triangle.toTriangle()))
+            if (CDSATGJK.isCollide(line, triangle.toTriangle()))
                 return true;
         }
 

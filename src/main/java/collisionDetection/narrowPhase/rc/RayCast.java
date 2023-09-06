@@ -1,4 +1,4 @@
-package collisionDetection.narrowPhase;
+package collisionDetection.narrowPhase.rc;
 
 import collisionDetection.primitive.*;
 import math.Maths;

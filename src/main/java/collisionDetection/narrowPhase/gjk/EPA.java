@@ -1,6 +1,6 @@
 package collisionDetection.narrowPhase.gjk;
 
-import collisionDetection.narrowPhase.collision_result.CollisionResult;
+import collisionDetection.narrowPhase.collisionResult.CollisionResult;
 import collisionDetection.util.CollisionUtil;
 import math.Vector3f;
 
