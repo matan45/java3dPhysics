@@ -1,11 +1,15 @@
 package collisionDetection.primitive;
 
 import collisionDetection.narrowPhase.Shape;
+import collisionDetection.narrowPhase.gjk.GJKSupport;
+import collisionDetection.narrowPhase.sat.Interval;
+import collisionDetection.narrowPhase.sat.SATSupport;
 import math.Vector3f;
 
+import java.util.List;
 import java.util.Objects;
 
-public class Line implements Shape {
+public class Line implements Shape, GJKSupport, SATSupport {
     private Vector3f start;
     private Vector3f end;
 
@@ -58,6 +62,32 @@ public class Line implements Shape {
 
         // Calculate the closest point by adding the scaled direction to the start point.
         return start.add(direction.mul(t));
+    }
+
+    @Override
+    public Vector3f support(Vector3f direction) {
+        if (start.dot(direction) > end.dot(direction))
+            return start;
+        return end;
+    }
+
+    @Override
+    public Interval getInterval(Vector3f axis) {
+        // Calculate the projections of the line segment's endpoints onto the axis
+        float projectionStart = start.dot(axis);
+        float projectionEnd = end.dot(axis);
+
+        // Calculate the interval min and max
+        float min = Math.min(projectionStart, projectionEnd);
+        float max = Math.max(projectionStart, projectionEnd);
+
+        return new Interval(min, max);
+    }
+
+    @Override
+    public List<Vector3f> getAxis() {
+        // Calculate the axis along the line segment
+        return List.of(end.sub(start).normalize());
     }
 
     @Override
