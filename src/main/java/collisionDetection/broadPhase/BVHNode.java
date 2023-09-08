@@ -10,6 +10,8 @@ public class BVHNode {
     private BVHNode left;
     private BVHNode right;
 
+    private static final int BALANCE_THRESHOLD = 2;
+
     public BVHNode(BPBox box) {
         this.box = box;
         this.left = null;
@@ -45,7 +47,7 @@ public class BVHNode {
                 }
             }
 
-            performBalancing(obj);
+            performBalancing();
 
             // Update the current node's bounding box to include the inserted object.
             // You need to implement a method to update the bounding box accordingly.
@@ -99,7 +101,7 @@ public class BVHNode {
 
     public void remove(BPBox obj) {
         // Check if the current node's bounding box matches the object to remove.
-        if (box == obj) {
+        if (box.equals(obj)) {
             box = null; // Remove the object from this node.
         } else {
             // Check if the object to remove potentially collides with the left child node.
@@ -117,11 +119,11 @@ public class BVHNode {
                     right.remove(obj);
                 }
 
-                performBalancing(obj);
-
                 // After removing, update the current node's bounding box.
                 updateBoundingBox();
             }
+
+            performBalancing();
         }
     }
 
@@ -194,28 +196,35 @@ public class BVHNode {
         return new BPBox(newMin, newMax, box1.getShape()); // Assuming the shape remains the same.
     }
 
-    private void performBalancing(BPBox obj){
+    private void performBalancing() {
         // Check and perform balancing if necessary.
         if (leftDepth() - rightDepth() > 1) {
-            if (obj.getMin().x + obj.getMax().x < box.getCenter().x) {
+            if (box != null && left != null && left.box != null &&
+                    (box.getCenter().x - left.box.getCenter().x) > BALANCE_THRESHOLD) {
                 // Left-left case, perform a right rotation.
                 rotateRight();
             } else {
                 // Left-right case, perform a left rotation followed by a right rotation.
-                left = left.rotateLeft();
+                if (left != null) {
+                    left = left.rotateLeft();
+                }
                 rotateRight();
             }
         } else if (rightDepth() - leftDepth() > 1) {
-            if (obj.getMin().x + obj.getMax().x >= box.getCenter().x) {
+            if (box != null && right != null && right.box != null &&
+                    (right.box.getCenter().x - box.getCenter().x) > BALANCE_THRESHOLD) {
                 // Right-right case, perform a left rotation.
                 rotateLeft();
             } else {
                 // Right-left case, perform a right rotation followed by a left rotation.
-                right = right.rotateRight();
+                if (right != null) {
+                    right = right.rotateRight();
+                }
                 rotateLeft();
             }
         }
     }
+
 
     private BVHNode rotateLeft() {
         BVHNode newRoot = right;
