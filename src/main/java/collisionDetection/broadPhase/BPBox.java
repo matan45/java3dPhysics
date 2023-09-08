@@ -17,6 +17,17 @@ public class BPBox {
         this.shape = shape;
     }
 
+    public int getLongestAxis() {
+        Vector3f size = max.sub(min);
+        if (size.x >= size.y && size.x >= size.z) {
+            return 0; // X-axis
+        } else if (size.y >= size.x && size.y >= size.z) {
+            return 1; // Y-axis
+        } else {
+            return 2; // Z-axis
+        }
+    }
+
     public Vector3f getMax() {
         return max;
     }

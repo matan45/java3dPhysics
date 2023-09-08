@@ -3,8 +3,12 @@ package collisionDetection.broadPhase;
 import collisionDetection.primitive.Ray;
 
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-public class SAP {
+import static math.Const.BP_MARGIN;
+
+public class SAP implements BroadPhase {
     private final List<BPBox> xAxis;
     private final List<BPBox> yAxis;
     private final List<BPBox> zAxis;
@@ -16,6 +20,7 @@ public class SAP {
         zAxis = new ArrayList<>();
     }
 
+    @Override
     public void insert(BPBox obj) {
         xAxis.add(obj);
         yAxis.add(obj);
@@ -27,17 +32,20 @@ public class SAP {
         zAxis.sort(Comparator.comparing(o -> o.getMin().z));
     }
 
+    @Override
     public void remove(BPBox obj) {
         xAxis.remove(obj);
         yAxis.remove(obj);
         zAxis.remove(obj);
     }
 
+    @Override
     public void update(BPBox obj) {
         remove(obj);
         insert(obj);
     }
 
+    @Override
     public Set<BPPairs> query() {
         Set<BPPairs> pairsSet = new HashSet<>();
         pairsSet.addAll(getFromList(xAxis));
@@ -47,6 +55,7 @@ public class SAP {
         return pairsSet;
     }
 
+    @Override
     public Set<BPBox> query(Ray ray) {
         Set<BPBox> bpBoxes = new HashSet<>();
         bpBoxes.addAll(getForRay(xAxis, ray));
@@ -56,15 +65,38 @@ public class SAP {
         return bpBoxes;
     }
 
+    @Override
+    public Set<BPBox> query(BPBox obj) {
+        Set<BPBox> bpBoxes = new HashSet<>();
+        bpBoxes.addAll(getCloseBoxes(xAxis, obj));
+        bpBoxes.addAll(getCloseBoxes(yAxis, obj));
+        bpBoxes.addAll(getCloseBoxes(zAxis, obj));
+
+        return bpBoxes;
+    }
+
+    private Set<BPBox> getCloseBoxes(List<BPBox> bpBoxes, BPBox obj) {
+        Predicate<BPBox> min = box -> box.getMin().x - obj.getMin().x < BP_MARGIN;
+        return bpBoxes.stream().filter(min).collect(Collectors.toSet());
+    }
+
+    @Override
     public void removeAll() {
         xAxis.clear();
         yAxis.clear();
         zAxis.clear();
     }
 
+    @Override
     public void addAll(List<BPBox> boxes) {
         for (BPBox bpBox : boxes)
             insert(bpBox);
+    }
+
+    @Override
+    public void updateAll(List<BPBox> boxes) {
+        for (BPBox bpBox : boxes)
+            update(bpBox);
     }
 
     private Set<BPPairs> getFromList(List<BPBox> bpBoxes) {
