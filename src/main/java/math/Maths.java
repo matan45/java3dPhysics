@@ -18,14 +18,6 @@ public class Maths {
 
     }
 
-    public static Vector4f getRandomNumber(Vector4f min, Vector4f max) {
-        return new Vector4f((float) ((Math.random() * (max.x - min.x)) + min.x),
-                (float) ((Math.random() * (max.y - min.y)) + min.y),
-                (float) ((Math.random() * (max.z - min.z)) + min.z),
-                (float) ((Math.random() * (max.w - min.w)) + min.w));
-
-    }
-
     public static Vector2f getRandomNumber(Vector2f min, Vector2f max) {
         return new Vector2f((float) ((Math.random() * (max.x - min.x)) + min.x),
                 (float) ((Math.random() * (max.y - min.y)) + min.y));
