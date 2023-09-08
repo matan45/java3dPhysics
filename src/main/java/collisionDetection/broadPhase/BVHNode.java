@@ -9,7 +9,6 @@ public class BVHNode {
     private BPBox box;
     private BVHNode left;
     private BVHNode right;
-
     private static final int BALANCE_THRESHOLD = 2;
 
     public BVHNode(BPBox box) {

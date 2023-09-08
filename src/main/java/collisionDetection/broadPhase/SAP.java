@@ -3,10 +3,7 @@ package collisionDetection.broadPhase;
 import collisionDetection.primitive.Ray;
 
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static math.Const.BP_MARGIN;
 
 public class SAP implements BroadPhase {
     private final List<BPBox> xAxis;
@@ -57,27 +54,16 @@ public class SAP implements BroadPhase {
 
     @Override
     public Set<BPBox> query(Ray ray) {
-        Set<BPBox> bpBoxes = new HashSet<>();
-        bpBoxes.addAll(getForRay(xAxis, ray));
-        bpBoxes.addAll(getForRay(yAxis, ray));
-        bpBoxes.addAll(getForRay(zAxis, ray));
-
-        return bpBoxes;
+        return xAxis.stream()
+                .filter(box -> BPBox.isCollide(ray, box))
+                .collect(Collectors.toSet());
     }
 
     @Override
     public Set<BPBox> query(BPBox obj) {
-        Set<BPBox> bpBoxes = new HashSet<>();
-        bpBoxes.addAll(getCloseBoxes(xAxis, obj));
-        bpBoxes.addAll(getCloseBoxes(yAxis, obj));
-        bpBoxes.addAll(getCloseBoxes(zAxis, obj));
-
-        return bpBoxes;
-    }
-
-    private Set<BPBox> getCloseBoxes(List<BPBox> bpBoxes, BPBox obj) {
-        Predicate<BPBox> min = box -> box.getMin().x - obj.getMin().x < BP_MARGIN;
-        return bpBoxes.stream().filter(min).collect(Collectors.toSet());
+        return xAxis.stream()
+                .filter(box -> BPBox.isCollide(box, obj))
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -114,14 +100,5 @@ public class SAP implements BroadPhase {
             }
         }
         return pairsSet;
-    }
-
-    private Set<BPBox> getForRay(List<BPBox> boxes, Ray ray) {
-        Set<BPBox> bpBoxes = new HashSet<>();
-        for (BPBox bpBox : boxes) {
-            if (BPBox.isCollide(ray, bpBox))
-                bpBoxes.add(bpBox);
-        }
-        return bpBoxes;
     }
 }
