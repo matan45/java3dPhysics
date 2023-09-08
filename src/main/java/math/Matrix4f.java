@@ -2,6 +2,8 @@ package math;
 
 import java.util.Objects;
 
+import static math.Const.EPSILON;
+
 public class Matrix4f {
     float m00, m01, m02, m03;
     float m10, m11, m12, m13;
@@ -72,105 +74,111 @@ public class Matrix4f {
     }
 
     public Matrix4f add(Matrix4f right) {
-        Matrix4f dest = new Matrix4f();
 
-        dest.m00 = m00 + right.m00;
-        dest.m01 = m01 + right.m01;
-        dest.m02 = m02 + right.m02;
-        dest.m03 = m03 + right.m03;
-        dest.m10 = m10 + right.m10;
-        dest.m11 = m11 + right.m11;
-        dest.m12 = m12 + right.m12;
-        dest.m13 = m13 + right.m13;
-        dest.m20 = m20 + right.m20;
-        dest.m21 = m21 + right.m21;
-        dest.m22 = m22 + right.m22;
-        dest.m23 = m23 + right.m23;
-        dest.m30 = m30 + right.m30;
-        dest.m31 = m31 + right.m31;
-        dest.m32 = m32 + right.m32;
-        dest.m33 = m33 + right.m33;
+        m00 += right.m00;
+        m01 += right.m01;
+        m02 += right.m02;
+        m03 += right.m03;
+        m10 += right.m10;
+        m11 += right.m11;
+        m12 += right.m12;
+        m13 += right.m13;
+        m20 += right.m20;
+        m21 += right.m21;
+        m22 += right.m22;
+        m23 += right.m23;
+        m30 += right.m30;
+        m31 += right.m31;
+        m32 += right.m32;
+        m33 += right.m33;
 
-        return dest;
+        return this;
     }
 
     public Matrix4f sub(Matrix4f right) {
-        Matrix4f dest = new Matrix4f();
 
-        dest.m00 = m00 - right.m00;
-        dest.m01 = m01 - right.m01;
-        dest.m02 = m02 - right.m02;
-        dest.m03 = m03 - right.m03;
-        dest.m10 = m10 - right.m10;
-        dest.m11 = m11 - right.m11;
-        dest.m12 = m12 - right.m12;
-        dest.m13 = m13 - right.m13;
-        dest.m20 = m20 - right.m20;
-        dest.m21 = m21 - right.m21;
-        dest.m22 = m22 - right.m22;
-        dest.m23 = m23 - right.m23;
-        dest.m30 = m30 - right.m30;
-        dest.m31 = m31 - right.m31;
-        dest.m32 = m32 - right.m32;
-        dest.m33 = m33 - right.m33;
+        m00 -= right.m00;
+        m01 -= right.m01;
+        m02 -= right.m02;
+        m03 -= right.m03;
+        m10 -= right.m10;
+        m11 -= right.m11;
+        m12 -= right.m12;
+        m13 -= right.m13;
+        m20 -= right.m20;
+        m21 -= right.m21;
+        m22 -= right.m22;
+        m23 -= right.m23;
+        m30 -= right.m30;
+        m31 -= right.m31;
+        m32 -= right.m32;
+        m33 -= right.m33;
 
-        return dest;
+        return this;
     }
 
     public Matrix4f mul(Matrix4f right) {
-        Matrix4f dest = new Matrix4f();
 
-        dest.m00 = m00 * right.m00 + m10 * right.m01 + m20 * right.m02 + m30 * right.m03;
-        dest.m01 = m01 * right.m00 + m11 * right.m01 + m21 * right.m02 + m31 * right.m03;
-        dest.m02 = m02 * right.m00 + m12 * right.m01 + m22 * right.m02 + m32 * right.m03;
-        dest.m03 = m03 * right.m00 + m13 * right.m01 + m23 * right.m02 + m33 * right.m03;
-        dest.m10 = m00 * right.m10 + m10 * right.m11 + m20 * right.m12 + m30 * right.m13;
-        dest.m11 = m01 * right.m10 + m11 * right.m11 + m21 * right.m12 + m31 * right.m13;
-        dest.m12 = m02 * right.m10 + m12 * right.m11 + m22 * right.m12 + m32 * right.m13;
-        dest.m13 = m03 * right.m10 + m13 * right.m11 + m23 * right.m12 + m33 * right.m13;
-        dest.m20 = m00 * right.m20 + m10 * right.m21 + m20 * right.m22 + m30 * right.m23;
-        dest.m21 = m01 * right.m20 + m11 * right.m21 + m21 * right.m22 + m31 * right.m23;
-        dest.m22 = m02 * right.m20 + m12 * right.m21 + m22 * right.m22 + m32 * right.m23;
-        dest.m23 = m03 * right.m20 + m13 * right.m21 + m23 * right.m22 + m33 * right.m23;
-        dest.m30 = m00 * right.m30 + m10 * right.m31 + m20 * right.m32 + m30 * right.m33;
-        dest.m31 = m01 * right.m30 + m11 * right.m31 + m21 * right.m32 + m31 * right.m33;
-        dest.m32 = m02 * right.m30 + m12 * right.m31 + m22 * right.m32 + m32 * right.m33;
-        dest.m33 = m03 * right.m30 + m13 * right.m31 + m23 * right.m32 + m33 * right.m33;
+        m00 = m00 * right.m00 + m10 * right.m01 + m20 * right.m02 + m30 * right.m03;
+        m01 = m01 * right.m00 + m11 * right.m01 + m21 * right.m02 + m31 * right.m03;
+        m02 = m02 * right.m00 + m12 * right.m01 + m22 * right.m02 + m32 * right.m03;
+        m03 = m03 * right.m00 + m13 * right.m01 + m23 * right.m02 + m33 * right.m03;
+        m10 = m00 * right.m10 + m10 * right.m11 + m20 * right.m12 + m30 * right.m13;
+        m11 = m01 * right.m10 + m11 * right.m11 + m21 * right.m12 + m31 * right.m13;
+        m12 = m02 * right.m10 + m12 * right.m11 + m22 * right.m12 + m32 * right.m13;
+        m13 = m03 * right.m10 + m13 * right.m11 + m23 * right.m12 + m33 * right.m13;
+        m20 = m00 * right.m20 + m10 * right.m21 + m20 * right.m22 + m30 * right.m23;
+        m21 = m01 * right.m20 + m11 * right.m21 + m21 * right.m22 + m31 * right.m23;
+        m22 = m02 * right.m20 + m12 * right.m21 + m22 * right.m22 + m32 * right.m23;
+        m23 = m03 * right.m20 + m13 * right.m21 + m23 * right.m22 + m33 * right.m23;
+        m30 = m00 * right.m30 + m10 * right.m31 + m20 * right.m32 + m30 * right.m33;
+        m31 = m01 * right.m30 + m11 * right.m31 + m21 * right.m32 + m31 * right.m33;
+        m32 = m02 * right.m30 + m12 * right.m31 + m22 * right.m32 + m32 * right.m33;
+        m33 = m03 * right.m30 + m13 * right.m31 + m23 * right.m32 + m33 * right.m33;
 
-        return dest;
+        return this;
     }
 
     public Matrix4f translate(Vector3f vec) {
-        Matrix4f dest = new Matrix4f();
 
-        dest.m30 += m00 * vec.x + m10 * vec.y + m20 * vec.z;
-        dest.m31 += m01 * vec.x + m11 * vec.y + m21 * vec.z;
-        dest.m32 += m02 * vec.x + m12 * vec.y + m22 * vec.z;
-        dest.m33 += m03 * vec.x + m13 * vec.y + m23 * vec.z;
+        m30 += m00 * vec.x + m10 * vec.y + m20 * vec.z;
+        m31 += m01 * vec.x + m11 * vec.y + m21 * vec.z;
+        m32 += m02 * vec.x + m12 * vec.y + m22 * vec.z;
+        m33 += m03 * vec.x + m13 * vec.y + m23 * vec.z;
 
-        return dest;
+        return this;
     }
 
     public Matrix4f transpose() {
-        Matrix4f dest = new Matrix4f();
-        dest.m00 = m00;
-        dest.m01 = m01;
-        dest.m02 = m20;
-        dest.m03 = m30;
-        dest.m10 = m10;
-        dest.m11 = m11;
-        dest.m12 = m21;
-        dest.m13 = m31;
-        dest.m20 = m02;
-        dest.m21 = m12;
-        dest.m22 = m22;
-        dest.m23 = m32;
-        dest.m30 = m03;
-        dest.m31 = m13;
-        dest.m32 = m23;
-        dest.m33 = m33;
 
-        return dest;
+        float temp;
+
+        // Swap elements across the main diagonal
+        temp = m01;
+        m01 = m10;
+        m10 = temp;
+
+        temp = m02;
+        m02 = m20;
+        m20 = temp;
+
+        temp = m03;
+        m03 = m30;
+        m30 = temp;
+
+        temp = m12;
+        m12 = m21;
+        m21 = temp;
+
+        temp = m13;
+        m13 = m31;
+        m31 = temp;
+
+        temp = m23;
+        m23 = m32;
+        m32 = temp;
+
+        return this;
     }
 
     public float determinant() {
@@ -198,53 +206,89 @@ public class Matrix4f {
         return f;
     }
 
-    public Matrix4f scale(Vector3f vec) {
-        Matrix4f dest = new Matrix4f();
+    public Vector3f getScale() {
+        float scaleX = (float) Math.sqrt(m00 * m00 + m01 * m01 + m02 * m02);
+        float scaleY = (float) Math.sqrt(m10 * m10 + m11 * m11 + m12 * m12);
+        float scaleZ = (float) Math.sqrt(m20 * m20 + m21 * m21 + m22 * m22);
 
-        dest.m00 = m00 * vec.x;
-        dest.m01 = m01 * vec.x;
-        dest.m02 = m02 * vec.x;
-        dest.m03 = m03 * vec.x;
-        dest.m10 = m10 * vec.y;
-        dest.m11 = m11 * vec.y;
-        dest.m12 = m12 * vec.y;
-        dest.m13 = m13 * vec.y;
-        dest.m20 = m20 * vec.z;
-        dest.m21 = m21 * vec.z;
-        dest.m22 = m22 * vec.z;
-        dest.m23 = m23 * vec.z;
-        return dest;
+        return new Vector3f(scaleX, scaleY, scaleZ);
+    }
+
+    public Vector3f getTranslation() {
+        return new Vector3f(m30, m31, m32);
+    }
+
+    public Quaternion getRotation() {
+        float trace = m00 + m11 + m22;
+
+        float qw, qx, qy, qz;
+
+        if (trace > 0) {
+            float s = 0.5f / (float) Math.sqrt(trace + 1.0);
+            qw = 0.25f / s;
+            qx = (m21 - m12) * s;
+            qy = (m02 - m20) * s;
+            qz = (m10 - m01) * s;
+        } else if (m00 > m11 && m00 > m22) {
+            float s = 2.0f * (float) Math.sqrt(1.0 + m00 - m11 - m22);
+            qw = (m21 - m12) / s;
+            qx = 0.25f * s;
+            qy = (m01 + m10) / s;
+            qz = (m02 + m20) / s;
+        } else if (m11 > m22) {
+            float s = 2.0f * (float) Math.sqrt(1.0 + m11 - m00 - m22);
+            qw = (m02 - m20) / s;
+            qx = (m01 + m10) / s;
+            qy = 0.25f * s;
+            qz = (m12 + m21) / s;
+        } else {
+            float s = 2.0f * (float) Math.sqrt(1.0 + m22 - m00 - m11);
+            qw = (m10 - m01) / s;
+            qx = (m02 + m20) / s;
+            qy = (m12 + m21) / s;
+            qz = 0.25f * s;
+        }
+
+        return new Quaternion(qx, qy, qz, qw);
+    }
+
+    public Matrix4f scale(Vector3f vec) {
+        m00 *= vec.x;
+        m11 *= vec.y;
+        m22 *= vec.z;
+
+        return this;
     }
 
     //create view matrix
     public Matrix4f lookAt(Vector3f eye, Vector3f center, Vector3f up) {
-        Matrix4f dest = new Matrix4f();
         Vector3f f = center.sub(eye).normalize(); // Calculate the forward vector
         Vector3f r = f.cross(up).normalize(); // Calculate the right vector
         Vector3f u = r.cross(f); // Calculate the up vector
 
         // Set the rotation part of the matrix
-        dest.m00 = r.x;
-        dest.m01 = r.y;
-        dest.m02 = r.z;
-        dest.m03 = 0.0f;
-        dest.m10 = u.x;
-        dest.m11 = u.y;
-        dest.m12 = u.z;
-        dest.m13 = 0.0f;
-        dest.m20 = -f.x;
-        dest.m21 = -f.y;
-        dest.m22 = -f.z;
-        dest.m23 = 0.0f;
+        m00 = r.x;
+        m01 = r.y;
+        m02 = r.z;
+        m03 = 0.0f;
+        m10 = u.x;
+        m11 = u.y;
+        m12 = u.z;
+        m13 = 0.0f;
+        m20 = -f.x;
+        m21 = -f.y;
+        m22 = -f.z;
+        m23 = 0.0f;
 
         // Set the translation part of the matrix
-        dest.m30 = -r.dot(eye);
-        dest.m31 = -u.dot(eye);
-        dest.m32 = f.dot(eye);
-        dest.m33 = 1.0f;
+        m30 = -r.dot(eye);
+        m31 = -u.dot(eye);
+        m32 = f.dot(eye);
+        m33 = 1.0f;
 
-        return dest;
+        return this;
     }
+
 
     public Matrix4f createPerspectiveMatrix(float fov, float aspectRatio, float near, float far) {
         Matrix4f dest = new Matrix4f();
@@ -276,138 +320,152 @@ public class Matrix4f {
 
 
     public Matrix4f invert() {
-        float determinant = determinant();
-        Matrix4f dest = new Matrix4f();
+        float det = determinant();
 
-        if (determinant != 0) {
-            /*
-             * m00 m01 m02 m03
-             * m10 m11 m12 m13
-             * m20 m21 m22 m23
-             * m30 m31 m32 m33
-             */
-            float determinant_inv = 1f / determinant;
-
-            // first row
-            float t00 = determinant3x3(m11, m12, m13, m21, m22, m23, m31, m32, m33);
-            float t01 = -determinant3x3(m10, m12, m13, m20, m22, m23, m30, m32, m33);
-            float t02 = determinant3x3(m10, m11, m13, m20, m21, m23, m30, m31, m33);
-            float t03 = -determinant3x3(m10, m11, m12, m20, m21, m22, m30, m31, m32);
-            // second row
-            float t10 = -determinant3x3(m01, m02, m03, m21, m22, m23, m31, m32, m33);
-            float t11 = determinant3x3(m00, m02, m03, m20, m22, m23, m30, m32, m33);
-            float t12 = -determinant3x3(m00, m01, m03, m20, m21, m23, m30, m31, m33);
-            float t13 = determinant3x3(m00, m01, m02, m20, m21, m22, m30, m31, m32);
-            // third row
-            float t20 = determinant3x3(m01, m02, m03, m11, m12, m13, m31, m32, m33);
-            float t21 = -determinant3x3(m00, m02, m03, m10, m12, m13, m30, m32, m33);
-            float t22 = determinant3x3(m00, m01, m03, m10, m11, m13, m30, m31, m33);
-            float t23 = -determinant3x3(m00, m01, m02, m10, m11, m12, m30, m31, m32);
-            // fourth row
-            float t30 = -determinant3x3(m01, m02, m03, m11, m12, m13, m21, m22, m23);
-            float t31 = determinant3x3(m00, m02, m03, m10, m12, m13, m20, m22, m23);
-            float t32 = -determinant3x3(m00, m01, m03, m10, m11, m13, m20, m21, m23);
-            float t33 = determinant3x3(m00, m01, m02, m10, m11, m12, m20, m21, m22);
-
-            // transpose and divide by the determinant
-            dest.m00 = t00 * determinant_inv;
-            dest.m11 = t11 * determinant_inv;
-            dest.m22 = t22 * determinant_inv;
-            dest.m33 = t33 * determinant_inv;
-            dest.m01 = t10 * determinant_inv;
-            dest.m10 = t01 * determinant_inv;
-            dest.m20 = t02 * determinant_inv;
-            dest.m02 = t20 * determinant_inv;
-            dest.m12 = t21 * determinant_inv;
-            dest.m21 = t12 * determinant_inv;
-            dest.m03 = t30 * determinant_inv;
-            dest.m30 = t03 * determinant_inv;
-            dest.m13 = t31 * determinant_inv;
-            dest.m31 = t13 * determinant_inv;
-            dest.m32 = t23 * determinant_inv;
-            dest.m23 = t32 * determinant_inv;
-            return dest;
+        if (Math.abs(det) <= EPSILON) {
+            // The matrix is not invertible (determinant is too close to 0)
+            // Handle this case as needed in your application, e.g., throw an exception
+            throw new UnsupportedOperationException("Matrix is not invertible.");
         }
-        return dest;
+
+        float invDet = 1.0f / det;
+
+        float t00 = (m11 * m22 * m33 + m12 * m23 * m31 + m13 * m21 * m32 - m13 * m22 * m31 - m11 * m23 * m32 - m12 * m21 * m33) * invDet;
+        float t01 = (m01 * m22 * m33 + m02 * m23 * m31 + m03 * m21 * m32 - m03 * m22 * m31 - m01 * m23 * m32 - m02 * m21 * m33) * invDet;
+        float t02 = (m01 * m12 * m33 + m02 * m13 * m31 + m03 * m11 * m32 - m03 * m12 * m31 - m01 * m13 * m32 - m02 * m11 * m33) * invDet;
+        float t03 = (m01 * m12 * m23 + m02 * m13 * m21 + m03 * m11 * m22 - m03 * m12 * m21 - m01 * m13 * m22 - m02 * m11 * m23) * invDet;
+
+        float t10 = (m10 * m22 * m33 + m12 * m23 * m30 + m13 * m20 * m32 - m13 * m22 * m30 - m10 * m23 * m32 - m12 * m20 * m33) * invDet;
+        float t11 = (m00 * m22 * m33 + m02 * m23 * m30 + m03 * m20 * m32 - m03 * m22 * m30 - m00 * m23 * m32 - m02 * m20 * m33) * invDet;
+        float t12 = (m00 * m12 * m33 + m02 * m13 * m30 + m03 * m10 * m32 - m03 * m12 * m30 - m00 * m13 * m32 - m02 * m10 * m33) * invDet;
+        float t13 = (m00 * m12 * m23 + m02 * m13 * m20 + m03 * m10 * m22 - m03 * m12 * m20 - m00 * m13 * m22 - m02 * m10 * m23) * invDet;
+
+        float t20 = (m10 * m21 * m33 + m11 * m23 * m30 + m13 * m20 * m31 - m13 * m21 * m30 - m10 * m23 * m31 - m11 * m20 * m33) * invDet;
+        float t21 = (m00 * m21 * m33 + m01 * m23 * m30 + m03 * m20 * m31 - m03 * m21 * m30 - m00 * m23 * m31 - m01 * m20 * m33) * invDet;
+        float t22 = (m00 * m11 * m33 + m01 * m13 * m30 + m03 * m10 * m31 - m03 * m11 * m30 - m00 * m13 * m31 - m01 * m10 * m33) * invDet;
+        float t23 = (m00 * m11 * m23 + m01 * m13 * m20 + m03 * m10 * m21 - m03 * m11 * m20 - m00 * m13 * m21 - m01 * m10 * m23) * invDet;
+
+        float t30 = (m10 * m21 * m32 + m11 * m22 * m30 + m12 * m20 * m31 - m12 * m21 * m30 - m10 * m22 * m31 - m11 * m20 * m32) * invDet;
+        float t31 = (m00 * m21 * m32 + m01 * m22 * m30 + m02 * m20 * m31 - m02 * m21 * m30 - m00 * m22 * m31 - m01 * m20 * m32) * invDet;
+        float t32 = (m00 * m11 * m32 + m01 * m12 * m30 + m02 * m10 * m31 - m02 * m11 * m30 - m00 * m12 * m31 - m01 * m10 * m32) * invDet;
+        float t33 = (m00 * m11 * m22 + m01 * m12 * m20 + m02 * m10 * m21 - m02 * m11 * m20 - m00 * m12 * m21 - m01 * m10 * m22) * invDet;
+
+        // Set the matrix values to the inverted values
+        this.m00 = t00;
+        this.m01 = t01;
+        this.m02 = t02;
+        this.m03 = t03;
+
+        this.m10 = t10;
+        this.m11 = t11;
+        this.m12 = t12;
+        this.m13 = t13;
+
+        this.m20 = t20;
+        this.m21 = t21;
+        this.m22 = t22;
+        this.m23 = t23;
+
+        this.m30 = t30;
+        this.m31 = t31;
+        this.m32 = t32;
+        this.m33 = t33;
+
+        return this;
+
     }
 
     public Matrix4f negate() {
-        Matrix4f dest = new Matrix4f();
+        m00 = -m00;
+        m01 = -m01;
+        m02 = -m02;
+        m03 = -m03;
+        m10 = -m10;
+        m11 = -m11;
+        m12 = -m12;
+        m13 = -m13;
+        m20 = -m20;
+        m21 = -m21;
+        m22 = -m22;
+        m23 = -m23;
+        m30 = -m30;
+        m31 = -m31;
+        m32 = -m32;
+        m33 = -m33;
 
-        dest.m00 = -m00;
-        dest.m01 = -m01;
-        dest.m02 = -m02;
-        dest.m03 = -m03;
-        dest.m10 = -m10;
-        dest.m11 = -m11;
-        dest.m12 = -m12;
-        dest.m13 = -m13;
-        dest.m20 = -m20;
-        dest.m21 = -m21;
-        dest.m22 = -m22;
-        dest.m23 = -m23;
-        dest.m30 = -m30;
-        dest.m31 = -m31;
-        dest.m32 = -m32;
-        dest.m33 = -m33;
-
-        return dest;
+        return this;
     }
 
     public Matrix4f rotateGeneric(Quaternion quaternion) {
-        Matrix4f dest = new Matrix4f();
-        float w2 = quaternion.w * quaternion.w;
-        float x2 = quaternion.x * quaternion.x;
-        float y2 = quaternion.y * quaternion.y;
-        float z2 = quaternion.z * quaternion.z;
-        float zw = quaternion.z * quaternion.w;
-        float xy = quaternion.x * quaternion.y;
-        float xz = quaternion.x * quaternion.z;
-        float yw = quaternion.y * quaternion.w;
-        float yz = quaternion.y * quaternion.z;
-        float xw = quaternion.x * quaternion.w;
-        float rm00 = w2 + x2 - z2 - y2;
-        float rm01 = xy + zw + zw + xy;
-        float rm02 = xz - yw + xz - yw;
-        float rm10 = -zw + xy - zw + xy;
-        float rm11 = y2 - z2 + w2 - x2;
-        float rm12 = yz + yz + xw + xw;
-        float rm20 = yw + xz + xz + yw;
-        float rm21 = yz + yz - xw - xw;
-        float rm22 = z2 - y2 - x2 + w2;
-        float nm00 = m00 * rm00 + m10 * rm01 + m20 * rm02;
-        float nm01 = m01 * rm00 + m11 * rm01 + m21 * rm02;
-        float nm02 = m02 * rm00 + m12 * rm01 + m22 * rm02;
-        float nm03 = m03 * rm00 + m13 * rm01 + m23 * rm02;
-        float nm10 = m00 * rm10 + m10 * rm11 + m20 * rm12;
-        float nm11 = m01 * rm10 + m11 * rm11 + m21 * rm12;
-        float nm12 = m02 * rm10 + m12 * rm11 + m22 * rm12;
-        float nm13 = m03 * rm10 + m13 * rm11 + m23 * rm12;
-        dest.m20 = m00 * rm20 + m10 * rm21 + m20 * rm22;
-        dest.m21 = m01 * rm20 + m11 * rm21 + m21 * rm22;
-        dest.m22 = m02 * rm20 + m12 * rm21 + m22 * rm22;
-        dest.m23 = m03 * rm20 + m13 * rm21 + m23 * rm22;
-        dest.m00 = nm00;
-        dest.m01 = nm01;
-        dest.m02 = nm02;
-        dest.m03 = nm03;
-        dest.m10 = nm10;
-        dest.m11 = nm11;
-        dest.m12 = nm12;
-        dest.m13 = nm13;
-        dest.m30 = m30;
-        dest.m31 = m31;
-        dest.m32 = m32;
-        dest.m33 = m33;
-        return dest;
-    }
+        // Normalize the quaternion if it's not already normalized
+        Quaternion quaternionNorm =quaternion.normalize();
 
-    private static float determinant3x3(float t00, float t01, float t02,
-                                        float t10, float t11, float t12,
-                                        float t20, float t21, float t22) {
-        return t00 * (t11 * t22 - t12 * t21)
-                + t01 * (t12 * t20 - t10 * t22)
-                + t02 * (t10 * t21 - t11 * t20);
+        float qx = quaternionNorm.x;
+        float qy = quaternionNorm.y;
+        float qz = quaternionNorm.z;
+        float qw = quaternionNorm.w;
+
+        float xx = qx * qx;
+        float yy = qy * qy;
+        float zz = qz * qz;
+        float xy = qx * qy;
+        float xz = qx * qz;
+        float yz = qy * qz;
+        float wx = qw * qx;
+        float wy = qw * qy;
+        float wz = qw * qz;
+
+        float m00 = 1.0f - 2.0f * (yy + zz);
+        float m01 = 2.0f * (xy - wz);
+        float m02 = 2.0f * (xz + wy);
+        float m03 = 0.0f;
+
+        float m10 = 2.0f * (xy + wz);
+        float m11 = 1.0f - 2.0f * (xx + zz);
+        float m12 = 2.0f * (yz - wx);
+        float m13 = 0.0f;
+
+        float m20 = 2.0f * (xz - wy);
+        float m21 = 2.0f * (yz + wx);
+        float m22 = 1.0f - 2.0f * (xx + yy);
+        float m23 = 0.0f;
+
+        // Apply the rotation to the current matrix
+        float tempM00 = this.m00 * m00 + this.m01 * m10 + this.m02 * m20;
+        float tempM01 = this.m00 * m01 + this.m01 * m11 + this.m02 * m21;
+        float tempM02 = this.m00 * m02 + this.m01 * m12 + this.m02 * m22;
+        float tempM03 = this.m00 * m03 + this.m01 * m13 + this.m02 * m23 + this.m03;
+
+        float tempM10 = this.m10 * m00 + this.m11 * m10 + this.m12 * m20;
+        float tempM11 = this.m10 * m01 + this.m11 * m11 + this.m12 * m21;
+        float tempM12 = this.m10 * m02 + this.m11 * m12 + this.m12 * m22;
+        float tempM13 = this.m10 * m03 + this.m11 * m13 + this.m12 * m23 + this.m13;
+
+        float tempM20 = this.m20 * m00 + this.m21 * m10 + this.m22 * m20;
+        float tempM21 = this.m20 * m01 + this.m21 * m11 + this.m22 * m21;
+        float tempM22 = this.m20 * m02 + this.m21 * m12 + this.m22 * m22;
+        float tempM23 = this.m20 * m03 + this.m21 * m13 + this.m22 * m23 + this.m23;
+
+        this.m00 = tempM00;
+        this.m01 = tempM01;
+        this.m02 = tempM02;
+        this.m03 = tempM03;
+
+        this.m10 = tempM10;
+        this.m11 = tempM11;
+        this.m12 = tempM12;
+        this.m13 = tempM13;
+
+        this.m20 = tempM20;
+        this.m21 = tempM21;
+        this.m22 = tempM22;
+        this.m23 = tempM23;
+
+        this.m30 = 0.0f;
+        this.m31 = 0.0f;
+        this.m32 = 0.0f;
+        this.m33 = 1.0f;
+        return this;
     }
 
     public static Vector3f localToWorldDirection(Vector3f local, Matrix4f transform) {
