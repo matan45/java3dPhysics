@@ -81,7 +81,7 @@ public class SAP implements BroadPhase {
     }
 
     @Override
-    public void removeAll() {
+    public void clear() {
         xAxis.clear();
         yAxis.clear();
         zAxis.clear();
@@ -97,6 +97,12 @@ public class SAP implements BroadPhase {
     public void updateAll(List<BPBox> boxes) {
         for (BPBox bpBox : boxes)
             update(bpBox);
+    }
+
+    @Override
+    public void removeAll(List<BPBox> boxes) {
+        for (BPBox bpBox : boxes)
+            remove(bpBox);
     }
 
     private Set<BPPairs> getFromList(List<BPBox> bpBoxes) {

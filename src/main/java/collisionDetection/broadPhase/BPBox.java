@@ -17,17 +17,6 @@ public class BPBox {
         this.shape = shape;
     }
 
-    public int getLongestAxis() {
-        Vector3f size = max.sub(min);
-        if (size.x >= size.y && size.x >= size.z) {
-            return 0; // X-axis
-        } else if (size.y >= size.x && size.y >= size.z) {
-            return 1; // Y-axis
-        } else {
-            return 2; // Z-axis
-        }
-    }
-
     public Vector3f getMax() {
         return max;
     }
@@ -50,6 +39,14 @@ public class BPBox {
 
     public void setMin(Vector3f min) {
         this.min = min;
+    }
+
+    public Vector3f getCenter() {
+        float centerX = (min.x + max.x) / 2.0f;
+        float centerY = (min.y + max.y) / 2.0f;
+        float centerZ = (min.z + max.z) / 2.0f;
+
+        return new Vector3f(centerX, centerY, centerZ);
     }
 
     public static boolean isCollide(BPBox box1, BPBox box2) {

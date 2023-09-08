@@ -41,6 +41,20 @@ public class Vector2f {
         this.y = y;
     }
 
+    public static Vector2f min(Vector2f v1, Vector2f v2) {
+        float minX = Math.min(v1.x, v2.x);
+        float minY = Math.min(v1.y, v2.y);
+
+        return new Vector2f(minX, minY);
+    }
+
+    public static Vector2f max(Vector2f v1, Vector2f v2) {
+        float maxX = Math.max(v1.x, v2.x);
+        float maxY = Math.max(v1.y, v2.y);
+
+        return new Vector2f(maxX, maxY);
+    }
+
     public float dot(Vector2f other) {
         return x * other.x + y * other.y;
     }

@@ -30,6 +30,22 @@ public class Vector3f {
         this.z = other.z;
     }
 
+    public static Vector3f min(Vector3f v1, Vector3f v2) {
+        float minX = Math.min(v1.x, v2.x);
+        float minY = Math.min(v1.y, v2.y);
+        float minZ = Math.min(v1.z, v2.z);
+
+        return new Vector3f(minX, minY, minZ);
+    }
+
+    public static Vector3f max(Vector3f v1, Vector3f v2) {
+        float maxX = Math.max(v1.x, v2.x);
+        float maxY = Math.max(v1.y, v2.y);
+        float maxZ = Math.max(v1.z, v2.z);
+
+        return new Vector3f(maxX, maxY, maxZ);
+    }
+
     public float get(int index) {
         if (index == 0)
             return x;

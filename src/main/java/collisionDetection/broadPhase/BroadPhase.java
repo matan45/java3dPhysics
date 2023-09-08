@@ -18,9 +18,10 @@ public interface BroadPhase {
 
     Set<BPBox> query(BPBox obj);
 
-    void removeAll();
+    void clear();
 
     void addAll(List<BPBox> boxes);
 
     void updateAll(List<BPBox> boxes);
+    void removeAll(List<BPBox> boxes);
 }
