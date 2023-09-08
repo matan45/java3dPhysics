@@ -1,6 +1,7 @@
 package collisionDetection.primitive.terrain;
 
-import collisionDetection.narrowPhase.RayCast;
+import collisionDetection.narrowPhase.CollisionDetection;
+import collisionDetection.narrowPhase.rc.RayCast;
 import collisionDetection.primitive.AABB;
 import collisionDetection.primitive.Line;
 import collisionDetection.primitive.Ray;
@@ -10,8 +11,6 @@ import math.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import collisionDetection.narrowPhase.CollisionDetection;
 
 import static math.Const.EPSILON;
 

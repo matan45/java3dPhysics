@@ -1,12 +1,14 @@
 package collisionDetection.primitive;
 
 import collisionDetection.narrowPhase.Shape;
+import collisionDetection.narrowPhase.gjk.GJKSupport;
 import math.Vector3f;
 
 import java.util.Objects;
 
-public class Cylinder implements Shape {
+public class Cylinder implements Shape, GJKSupport {
     private Vector3f center;
+    private Vector3f upAxis;
     private float radius;
     private float height;
 
@@ -14,6 +16,15 @@ public class Cylinder implements Shape {
         this.center = center;
         this.radius = radius;
         this.height = height;
+        this.upAxis = Vector3f.YAxis;
+    }
+
+    public Vector3f getUpAxis() {
+        return upAxis;
+    }
+
+    public void setUpAxis(Vector3f upAxis) {
+        this.upAxis = upAxis;
     }
 
     public Vector3f getCenter() {
@@ -69,6 +80,26 @@ public class Cylinder implements Shape {
         float clampedY = Math.max(center.y, Math.min(center.y + height, point.y)); // Clamp y-coordinate
 
         return new Vector3f(closestPointOnAxis.x, clampedY, closestPointOnAxis.z);
+    }
+
+    @Override
+    public Vector3f support(Vector3f direction) {
+        // Calculate the support point based on the cylinder's geometry and direction.
+
+        // First, calculate the direction's projection on the cylinder's axis.
+        Vector3f axis = upAxis; // Assuming the cylinder is aligned with the Y-axis.
+        float projection = direction.dot(axis);
+
+        // Calculate the support point on the cylinder's surface along the axis.
+        float halfHeight = height / 2.0f;
+        float clampedProjection = Math.min(halfHeight, Math.max(-halfHeight, projection));
+        Vector3f supportOnAxis = axis.mul(clampedProjection);
+
+        // Calculate the support point on the cylinder's circular top/bottom surface.
+        Vector3f supportOnCircle = direction.sub(supportOnAxis).normalize().mul(radius);
+
+        // Calculate the final support point by adding the components together.
+        return center.add(supportOnAxis).add(supportOnCircle);
     }
 
     @Override

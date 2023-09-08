@@ -25,9 +25,9 @@ public class Vector3f {
     }
 
     public Vector3f(Vector3f other) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.x = other.x;
+        this.y = other.y;
+        this.z = other.z;
     }
 
     public float get(int index) {

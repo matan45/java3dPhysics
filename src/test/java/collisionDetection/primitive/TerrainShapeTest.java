@@ -64,7 +64,7 @@ class TerrainShapeTest {
     @Test
     public void testRayTerrainIntersection() {
         // Create a test ray
-        Ray testRay = new Ray(new Vector3f(0, 5, 0), new Vector3f(0, -1, 0));
+        Ray testRay = new Ray(new Vector3f(0, 10, 0), new Vector3f(0, -1, 0));
 
         // Perform the ray-terrain intersection
         Vector3f intersection = terrain.rayTerrainIntersection(testRay);

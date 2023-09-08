@@ -1,4 +1,4 @@
-package collisionDetection.narrowPhase.collision_result;
+package collisionDetection.narrowPhase.collisionResult;
 
 import math.Vector3f;
 

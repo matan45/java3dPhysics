@@ -1,5 +1,6 @@
 package collisionDetection.narrowPhase;
 
+import collisionDetection.narrowPhase.rc.RayCast;
 import collisionDetection.primitive.*;
 import math.Vector3f;
 import org.junit.jupiter.api.Test;
