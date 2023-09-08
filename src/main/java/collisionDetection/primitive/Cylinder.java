@@ -8,6 +8,7 @@ import java.util.Objects;
 
 public class Cylinder implements Shape, GJKSupport {
     private Vector3f center;
+    private Vector3f upAxis;
     private float radius;
     private float height;
 
@@ -15,6 +16,15 @@ public class Cylinder implements Shape, GJKSupport {
         this.center = center;
         this.radius = radius;
         this.height = height;
+        this.upAxis = Vector3f.YAxis;
+    }
+
+    public Vector3f getUpAxis() {
+        return upAxis;
+    }
+
+    public void setUpAxis(Vector3f upAxis) {
+        this.upAxis = upAxis;
     }
 
     public Vector3f getCenter() {
@@ -77,7 +87,7 @@ public class Cylinder implements Shape, GJKSupport {
         // Calculate the support point based on the cylinder's geometry and direction.
 
         // First, calculate the direction's projection on the cylinder's axis.
-        Vector3f axis = Vector3f.YAxis; // Assuming the cylinder is aligned with the Y-axis.
+        Vector3f axis = upAxis; // Assuming the cylinder is aligned with the Y-axis.
         float projection = direction.dot(axis);
 
         // Calculate the support point on the cylinder's surface along the axis.

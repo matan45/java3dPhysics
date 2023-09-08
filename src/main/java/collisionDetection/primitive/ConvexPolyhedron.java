@@ -84,7 +84,7 @@ public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
         for (int i = 0; i < vertices.size(); i++) {
             Vector3f edgeStart = vertices.get(i);
             Vector3f edgeEnd = vertices.get((i + 1) % vertices.size());
-            axis.add(edgeEnd.sub(edgeStart));
+            axis.add(edgeEnd.sub(edgeStart).normalize());
         }
         return axis;
     }

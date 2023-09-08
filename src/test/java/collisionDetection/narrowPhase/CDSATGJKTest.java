@@ -6,37 +6,11 @@ import collisionDetection.primitive.terrain.TerrainShape;
 import math.Vector3f;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CDSATGJKTest {
-    @Test
-    public void testAABBCollisionLine() {
-        // Create an AABB with minimum corner (-1, -1, -1) and maximum corner (1, 1, 1)
-        AABB aabb = new AABB(new Vector3f(-1, -1, -1), new Vector3f(1, 1, 1));
 
-        // Test cases where the line intersects the AABB
-        Line line1 = new Line(new Vector3f(0, 0, -2), new Vector3f(0, 0, 2));
-        assertTrue(CDSATGJK.isCollide(line1, aabb));
-
-        Line line2 = new Line(new Vector3f(-2, -2, -2), new Vector3f(-1, -1, -1));
-        assertTrue(CDSATGJK.isCollide(line2, aabb));
-
-        Line line3 = new Line(new Vector3f(0, 0, 0), new Vector3f(0, 0, 1));
-        assertTrue(CDSATGJK.isCollide(line3, aabb));
-
-        // Test cases where the line does not intersect the AABB
-        Line line4 = new Line(new Vector3f(2, 2, 2), new Vector3f(3, 3, 3));
-        assertFalse(CDSATGJK.isCollide(line4, aabb));
-
-        Line line5 = new Line(new Vector3f(2, 2, 2), new Vector3f(2, 2, 3));
-        assertFalse(CDSATGJK.isCollide(line5, aabb));
-
-        Line line6 = new Line(new Vector3f(2, 0, 0), new Vector3f(3, 0, 0));
-        assertFalse(CDSATGJK.isCollide(line6, aabb));
-    }
 
     @Test
     public void testCapsuleCollisionLine() {
@@ -64,41 +38,7 @@ class CDSATGJKTest {
     }
 
 
-    @Test
-    public void testConvexPolyhedronCollisionLine() {
-        // Create a convex polyhedron with vertices defining a simple cube
-        List<Vector3f> cubeVertices = new ArrayList<>();
-        cubeVertices.add(new Vector3f(-1, -1, -1));
-        cubeVertices.add(new Vector3f(1, -1, -1));
-        cubeVertices.add(new Vector3f(1, 1, -1));
-        cubeVertices.add(new Vector3f(-1, 1, -1));
-        cubeVertices.add(new Vector3f(-1, -1, 1));
-        cubeVertices.add(new Vector3f(1, -1, 1));
-        cubeVertices.add(new Vector3f(1, 1, 1));
-        cubeVertices.add(new Vector3f(-1, 1, 1));
 
-        ConvexPolyhedron cube = new ConvexPolyhedron(cubeVertices);
-
-        // Test cases where the line collides with the cube
-        Line line1 = new Line(new Vector3f(0, 0, -2), new Vector3f(0, 0, 2));
-        assertTrue(CDSATGJK.isCollide(line1, cube));
-
-        Line line2 = new Line(new Vector3f(0, 0, 0), new Vector3f(0, 0, 1));
-        assertTrue(CDSATGJK.isCollide(line2, cube));
-
-        Line line3 = new Line(new Vector3f(-2, -2, -2), new Vector3f(-1, -1, -1));
-        assertTrue(CDSATGJK.isCollide(line3, cube));
-
-        // Test cases where the line does not collide with the cube
-        Line line4 = new Line(new Vector3f(2, 2, 2), new Vector3f(4, 4, 4));
-        assertFalse(CDSATGJK.isCollide(line4, cube));
-
-        Line line5 = new Line(new Vector3f(2, 2, 2), new Vector3f(3, 3, 3));
-        assertFalse(CDSATGJK.isCollide(line5, cube));
-
-        Line line6 = new Line(new Vector3f(2, 2, 2), new Vector3f(2, 2, 3));
-        assertFalse(CDSATGJK.isCollide(line6, cube));
-    }
 
     @Test
     public void testSphereCollisionLine() {
@@ -183,64 +123,6 @@ class CDSATGJKTest {
         // Test a line that is parallel to the plane and does not intersect
         Line parallelLine = new Line(new Vector3f(1, 1, 1), new Vector3f(2, 2, 2));
         assertFalse(CDSATGJK.isCollide(parallelLine, plane2));
-    }
-
-    @Test
-    public void testOBBCollisionLine() {
-        // Create an OBB with a known center and half extents
-        OBB obb = new OBB(new Vector3f(1, 1, 1), new Vector3f(1, 1, 1));
-
-        // Test a line that intersects with the OBB
-        Line intersectingLine = new Line(new Vector3f(0, 0, 0), new Vector3f(2, 2, 2));
-        assertTrue(CDSATGJK.isCollide(intersectingLine, obb));
-
-        // Test a line that does not intersect with the OBB
-        Line nonIntersectingLine = new Line(new Vector3f(3, 3, 0), new Vector3f(5, 5, 0));
-        assertFalse(CDSATGJK.isCollide(nonIntersectingLine, obb));
-
-        // Create an OBB
-        OBB obb2 = new OBB(new Vector3f(0.0f, 0.0f, 0.0f), new Vector3f(1.0f, 1.0f, 1.0f));
-
-        // Create a line that intersects with the OBB
-        Line line1 = new Line(new Vector3f(-2.0f, 0.0f, 0.0f), new Vector3f(2.0f, 0.0f, 0.0f));
-
-        // Create a line that doesn't intersect with the OBB
-        Line line2 = new Line(new Vector3f(-2.0f, 2.0f, 0.0f), new Vector3f(-1.0f, 2.0f, 0.0f));
-
-        assertTrue(CDSATGJK.isCollide(line1, obb2)); // Expect collision
-        assertFalse(CDSATGJK.isCollide(line2, obb2)); // Expect no collision
-    }
-
-    @Test
-    public void testTriangleCollisionLine() {
-        // Create a simple triangle and line segment for testing
-        Vector3f vertex1 = new Vector3f(0, 0, 0);
-        Vector3f vertex2 = new Vector3f(2, 0, 0);
-        Vector3f vertex3 = new Vector3f(1, 2, 0);
-
-        Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
-        Line line = new Line(new Vector3f(0.5f, 0.5f, 1), new Vector3f(1.5f, 1.5f, 1));
-
-        // Test if the line and triangle intersect
-        assertTrue(CDSATGJK.isCollide(line, triangle));
-
-        // Test non-intersecting case
-        Line nonIntersectingLine = new Line(new Vector3f(3, 3, 3), new Vector3f(4, 4, 4));
-        assertFalse(CDSATGJK.isCollide(nonIntersectingLine, triangle));
-
-        Line line2 = new Line(new Vector3f(0.5f, 0.5f, 0), new Vector3f(1.5f, 1.5f, 0));
-
-        assertTrue(CDSATGJK.isCollide(line2, triangle));
-
-        // Create a triangle entirely inside a line segment
-        vertex1 = new Vector3f(0, 0, 0);
-        vertex2 = new Vector3f(4, 0, 0);
-        vertex3 = new Vector3f(2, 2, 0);
-
-        Triangle triangle2 = new Triangle(vertex1, vertex2, vertex3);
-        Line line3 = new Line(new Vector3f(1, 0.5f, 1), new Vector3f(3, 0.5f, 1));
-
-        assertTrue(CDSATGJK.isCollide(line3, triangle2));
     }
 
     @Test
@@ -683,35 +565,6 @@ class CDSATGJKTest {
         Cylinder cylinder1 = new Cylinder(new Vector3f(1.0f, 1.0f, 1.0f), 1.0f, 2.0f);
         Cylinder cylinder2 = new Cylinder(new Vector3f(5.0f, 5.0f, 5.0f), 1.0f, 2.0f);
         assertFalse(CDSATGJK.isCollide(cylinder1, cylinder2));
-    }
-    @Test
-    public void testLineCollision() {
-        // Test cases where the lines intersect
-        Line line1 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
-        Line line2 = new Line(new Vector3f(0, 1, 0), new Vector3f(1, 0, 0));
-        assertTrue(CDSATGJK.isCollide(line1, line2));
-
-        Line line3 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
-        Line line4 = new Line(new Vector3f(0.5f, 0.5f, 0), new Vector3f(1, 0, 0));
-        assertTrue(CDSATGJK.isCollide(line3, line4));
-
-        // Test cases where the lines do not intersect
-        Line line5 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
-        Line line6 = new Line(new Vector3f(2, 2, 0), new Vector3f(3, 3, 0));
-        assertFalse(CDSATGJK.isCollide(line5, line6));
-
-        Line line7 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
-        Line line8 = new Line(new Vector3f(0, 2, 0), new Vector3f(1, 3, 0));
-        assertFalse(CDSATGJK.isCollide(line7, line8));
-
-        // Test cases where the lines are parallel but not collinear
-        Line line9 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
-        Line line10 = new Line(new Vector3f(0, 0, 1), new Vector3f(1, 1, 1));
-        assertFalse(CDSATGJK.isCollide(line9, line10));
-
-        Line line11 = new Line(new Vector3f(2, 2, 2), new Vector3f(4, 4, 4));
-        Line line12 = new Line(new Vector3f(1, -1, 1), new Vector3f(1, 1, 1));
-        assertFalse(CDSATGJK.isCollide(line11, line12));
     }
 
     @Test

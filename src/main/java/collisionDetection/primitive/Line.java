@@ -2,11 +2,15 @@ package collisionDetection.primitive;
 
 import collisionDetection.narrowPhase.Shape;
 import collisionDetection.narrowPhase.gjk.GJKSupport;
+import collisionDetection.narrowPhase.sat.Interval;
+import collisionDetection.narrowPhase.sat.SATSupport;
 import math.Vector3f;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-public class Line implements Shape, GJKSupport {
+public class Line implements Shape, GJKSupport, SATSupport {
     private Vector3f start;
     private Vector3f end;
 
@@ -94,5 +98,39 @@ public class Line implements Shape, GJKSupport {
         if (o == null || getClass() != o.getClass()) return false;
         Line line = (Line) o;
         return Objects.equals(start, line.start) && Objects.equals(end, line.end);
+    }
+
+    @Override
+    public Interval getInterval(Vector3f axis) {
+        // Project the line onto the axis
+        float dotStart = start.dot(axis);
+        float dotEnd = end.dot(axis);
+
+        // Calculate the minimum and maximum values along the axis
+        float min = Math.min(dotStart, dotEnd);
+        float max = Math.max(dotStart, dotEnd);
+
+        return new Interval(min, max);
+    }
+
+    @Override
+    public List<Vector3f> getAxis() {
+        // For a line segment, there are three unique axes: the direction of the line,
+        // the perpendicular axis, and the z-axis.
+        Vector3f lineDirection = end.sub(start).normalize();
+
+        // Create two arbitrary vectors that are not collinear with the line segment.
+        // Calculate two perpendicular axes using the cross product.
+        Vector3f perpendicularAxis1 = lineDirection.cross(Vector3f.XAxis).normalize();
+        Vector3f perpendicularAxis2 = lineDirection.cross(Vector3f.YAxis).normalize();
+        Vector3f perpendicularAxis3 = lineDirection.cross(Vector3f.ZAxis).normalize();
+
+        List<Vector3f> axes = new ArrayList<>();
+        axes.add(lineDirection);
+        axes.add(perpendicularAxis1);
+        axes.add(perpendicularAxis2);
+        axes.add(perpendicularAxis3);
+
+        return axes;
     }
 }

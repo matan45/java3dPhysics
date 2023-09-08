@@ -1,10 +1,7 @@
 package collisionDetection.narrowPhase;
 
 import collisionDetection.narrowPhase.sat.Interval;
-import collisionDetection.primitive.AABB;
-import collisionDetection.primitive.ConvexPolyhedron;
-import collisionDetection.primitive.OBB;
-import collisionDetection.primitive.Triangle;
+import collisionDetection.primitive.*;
 import math.Vector3f;
 
 import java.util.List;
@@ -12,6 +9,131 @@ import java.util.List;
 import static math.Const.EPSILON;
 
 public class CollisionDetection {
+
+    public static boolean isCollide(Line line, AABB aabb) {
+        // Check if any of the line's endpoints are inside the AABB.
+        if (aabb.isPointInside(line.getStart()) || aabb.isPointInside(line.getEnd())) {
+            return true;
+        }
+
+        // Check if any of the AABB's corner points are inside the line.
+        Vector3f[] aabbCorners = new Vector3f[]{
+                new Vector3f(aabb.getMin().x, aabb.getMin().y, aabb.getMin().z),
+                new Vector3f(aabb.getMin().x, aabb.getMin().y, aabb.getMax().z),
+                new Vector3f(aabb.getMin().x, aabb.getMax().y, aabb.getMin().z),
+                new Vector3f(aabb.getMin().x, aabb.getMax().y, aabb.getMax().z),
+                new Vector3f(aabb.getMax().x, aabb.getMin().y, aabb.getMin().z),
+                new Vector3f(aabb.getMax().x, aabb.getMin().y, aabb.getMax().z),
+                new Vector3f(aabb.getMax().x, aabb.getMax().y, aabb.getMin().z),
+                new Vector3f(aabb.getMax().x, aabb.getMax().y, aabb.getMax().z)
+        };
+
+        for (Vector3f corner : aabbCorners) {
+            if (line.isPointInside(corner)) {
+                return true;
+            }
+        }
+
+        // Check if the line intersects any of the AABB's faces.
+        // You can do this by checking if the closest point on the line to the center of the AABB
+        // is inside the AABB, and if it is, check if it lies between the endpoints of the line.
+        Vector3f closestPointOnLine = line.closestPoint(aabb.getCenter());
+        if (aabb.isPointInside(closestPointOnLine)) {
+            return closestPointOnLine.isBetween(line.getStart(), line.getEnd());
+        }
+
+        return false;
+    }
+
+    public static boolean isCollide(Line line, OBB obb) {
+        // First, find the closest point on the line to the OBB
+        Vector3f closestPointOnLine = line.closestPoint(obb.getCenter());
+
+        // Next, check if the closest point on the line is inside the OBB
+        return obb.isPointInside(closestPointOnLine);
+    }
+
+    public static boolean isCollide(Line line, ConvexPolyhedron convexPolyhedron) {
+        // Check if any of the polyhedron's vertices are inside the line.
+        for (Vector3f vertex : convexPolyhedron.getVertices()) {
+            if (line.isPointInside(vertex)) {
+                return true;
+            }
+        }
+
+        // Check if any of the line's endpoints are inside the polyhedron.
+        if (convexPolyhedron.isPointInside(line.getStart()) || convexPolyhedron.isPointInside(line.getEnd())) {
+            return true;
+        }
+
+        // Check if the line intersects any of the polyhedron's edges.
+        for (int i = 0; i < convexPolyhedron.getVertices().size(); i++) {
+            Vector3f v0 = convexPolyhedron.getVertices().get(i);
+            Vector3f v1 = convexPolyhedron.getVertices().get((i + 1) % convexPolyhedron.getVertices().size());
+            Line polyhedronEdge = new Line(v0, v1);
+
+            if (isCollide(line, polyhedronEdge)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean isCollide(Line line, Triangle triangle) {
+        // First, check if any of the line's endpoints are inside the triangle.
+        if (triangle.isPointInside(line.getStart()) || triangle.isPointInside(line.getEnd())) {
+            return true;
+        }
+
+        // Next, check if any of the triangle's vertices are inside the line segment.
+        if (line.isPointInside(triangle.getVertex1()) ||
+                line.isPointInside(triangle.getVertex2()) ||
+                line.isPointInside(triangle.getVertex3())) {
+            return true;
+        }
+
+        // Finally, check for intersection between the line and the triangle's edges.
+        Vector3f[] triangleVertices = new Vector3f[]{
+                triangle.getVertex1(), triangle.getVertex2(), triangle.getVertex3()
+        };
+
+        Line[] triangleEdges = new Line[]{
+                new Line(triangleVertices[0], triangleVertices[1]),
+                new Line(triangleVertices[1], triangleVertices[2]),
+                new Line(triangleVertices[2], triangleVertices[0])
+        };
+
+        for (Line edge : triangleEdges) {
+            if (isCollide(line, edge)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean isCollide(Line line1, Line line2) {
+        // Get the direction vectors of both lines.
+        Vector3f dir1 = line1.getEnd().sub(line1.getStart());
+        Vector3f dir2 = line2.getEnd().sub(line2.getStart());
+
+        // Calculate the determinant of the direction vectors.
+        float determinant = dir1.x * dir2.y - dir1.y * dir2.x;
+
+        // If the determinant is close to zero, the lines are parallel and may not intersect.
+        if (Math.abs(determinant) < EPSILON) {
+            return false;
+        }
+
+        // Calculate parameters for the lines' parametric equations.
+        Vector3f toStart2 = line2.getStart().sub(line1.getStart());
+        float t1 = (toStart2.x * dir2.y - toStart2.y * dir2.x) / determinant;
+        float t2 = (toStart2.x * dir1.y - toStart2.y * dir1.x) / determinant;
+
+        // Check if the intersection points are within the valid range [0, 1] for both lines.
+        return t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1;  // Lines intersect within their segments.
+    }
 
     public static boolean isCollide(AABB aabb, OBB obb) {
         // Combine axes from OBB and aabb
