@@ -2,6 +2,7 @@ package collisionDetection.broadPhase;
 
 import collisionDetection.primitive.Ray;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -227,10 +228,14 @@ public class BVH implements BroadPhase {
         }
 
         if (node.isLeaf() && node.getObjects().size() > 1) {
-            for (int i = 0; i < node.getObjects().size() - 1; i++) {
-                if (BPBox.isCollide(node.getObjects().get(i), node.getObjects().get(i + 1)))
-                    pairs.add(new BPPairs(node.getObjects().get(i), node.getObjects().get(i + 1)));
-            }
+            // Check for potential collisions between objects in the leaf node
+            List<BPBox> objects = node.getObjects();
+            objects.sort(Comparator.comparing(o -> o.getCenter().x));
+            addPairs(pairs, objects);
+            objects.sort(Comparator.comparing(o -> o.getCenter().y));
+            addPairs(pairs, objects);
+            objects.sort(Comparator.comparing(o -> o.getCenter().z));
+            addPairs(pairs, objects);
         }
 
         if (!node.isLeaf()) {
@@ -249,6 +254,13 @@ public class BVH implements BroadPhase {
         // Recursively check for collisions in the left and right child subtrees
         queryRecursive(node.getLeftChild(), pairs);
         queryRecursive(node.getRightChild(), pairs);
+    }
+
+    private void addPairs(Set<BPPairs> pairs, List<BPBox> objects) {
+        for (int i = 0; i < objects.size() - 1; i++) {
+            if (BPBox.isCollide(objects.get(i), objects.get(i + 1)))
+                pairs.add(new BPPairs(objects.get(i), objects.get(i + 1)));
+        }
     }
 
     // Recursive method to perform the query

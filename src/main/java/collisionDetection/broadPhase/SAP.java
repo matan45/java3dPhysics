@@ -24,9 +24,9 @@ public class SAP implements BroadPhase {
         zAxis.add(obj);
 
         // Sort the lists based on the object's positions along each axis
-        xAxis.sort(Comparator.comparing(o -> o.getMin().x));
-        yAxis.sort(Comparator.comparing(o -> o.getMin().y));
-        zAxis.sort(Comparator.comparing(o -> o.getMin().z));
+        xAxis.sort(Comparator.comparing(o -> o.getCenter().x));
+        yAxis.sort(Comparator.comparing(o -> o.getCenter().y));
+        zAxis.sort(Comparator.comparing(o -> o.getCenter().z));
     }
 
     @Override

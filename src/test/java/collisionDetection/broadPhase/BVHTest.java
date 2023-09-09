@@ -76,7 +76,7 @@ class BVHTest {
         bvh.addAll(bpBoxes);
         bvh.update(bpBox1);
         Set<BPPairs> pairsSet = bvh.query();
-        assertEquals(1, pairsSet.size());
+        assertEquals(3, pairsSet.size());
     }
 
 }

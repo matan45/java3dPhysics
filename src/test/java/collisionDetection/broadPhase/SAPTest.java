@@ -77,7 +77,7 @@ class SAPTest {
         sap.addAll(bpBoxes);
         sap.update(bpBox1);
         Set<BPPairs> pairsSet = sap.query();
-        assertEquals(2, pairsSet.size());
+        assertEquals(3, pairsSet.size());
     }
 
 }
