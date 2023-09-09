@@ -62,6 +62,7 @@ public class SAP implements BroadPhase {
     @Override
     public Set<BPBox> query(BPBox obj) {
         return xAxis.stream()
+                .filter(b -> !b.getShape().equals(obj.getShape()))
                 .filter(box -> BPBox.isCollide(box, obj))
                 .collect(Collectors.toSet());
     }

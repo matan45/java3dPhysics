@@ -41,6 +41,25 @@ public class BPBox {
         this.min = min;
     }
 
+    public int getLongestAxis() {
+        // Calculate the differences between maximum and minimum values along each axis
+        float deltaX = max.x - min.x;
+        float deltaY = max.y - min.y;
+        float deltaZ = max.z - min.z;
+
+        // Compare the differences and determine the longest axis
+        if (deltaX >= deltaY && deltaX >= deltaZ) {
+            // X-axis has the greatest extent
+            return 0; // 0 represents X-axis
+        } else if (deltaY >= deltaZ) {
+            // Y-axis has the greatest extent
+            return 1; // 1 represents Y-axis
+        } else {
+            // Z-axis has the greatest extent
+            return 2; // 2 represents Z-axis
+        }
+    }
+
     public Vector3f getCenter() {
         float centerX = (min.x + max.x) / 2.0f;
         float centerY = (min.y + max.y) / 2.0f;
