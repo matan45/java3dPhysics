@@ -72,8 +72,8 @@ class BVHTest {
 
     @Test
     public void testUpdate(){
-        bpBox1.setMax(new Vector3f(3, 5, 0));
         bvh.addAll(bpBoxes);
+        bpBox1.setMax(new Vector3f(3, 5, 0));
         bvh.update(bpBox1);
         Set<BPPairs> pairsSet = bvh.query();
         assertEquals(3, pairsSet.size());

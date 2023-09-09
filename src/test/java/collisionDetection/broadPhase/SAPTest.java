@@ -73,8 +73,8 @@ class SAPTest {
 
     @Test
     public void testUpdate() {
-        bpBox1.setMax(new Vector3f(3, 5, 0));
         sap.addAll(bpBoxes);
+        bpBox1.setMax(new Vector3f(3, 5, 0));
         sap.update(bpBox1);
         Set<BPPairs> pairsSet = sap.query();
         assertEquals(3, pairsSet.size());
