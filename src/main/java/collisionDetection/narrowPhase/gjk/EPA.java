@@ -53,7 +53,7 @@ public class EPA {
 
     public static Face findClosestFace(Simplex simplex) {
         // Initialize variables to store the closest face and its distance
-        Face closestFace = null;
+        Face closestFace = new Face();
         float closestDistance = Float.MAX_VALUE;
 
         // Iterate through the faces of the simplex

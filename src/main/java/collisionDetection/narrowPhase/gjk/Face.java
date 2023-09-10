@@ -12,6 +12,10 @@ public class Face {
         computeNormalAndDistance();
     }
 
+    public Face() {
+        this.vertices = new Vector3f[3];
+    }
+
     private void computeNormalAndDistance() {
         // Ensure that the face has at least three vertices to compute a normal vector.
         if (vertices.length < 3) {
