@@ -2,6 +2,7 @@ package collisionDetection.narrowPhase.collisionResult;
 
 import math.Vector3f;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CollisionResult {
@@ -9,6 +10,13 @@ public class CollisionResult {
     private Vector3f normal;
     private float depth;
     private List<Vector3f> contacts;
+
+    public CollisionResult() {
+        this.colliding = false;
+        this.normal = new Vector3f(0, 0, 0);
+        this.depth = 0;
+        this.contacts = new ArrayList<>();
+    }
 
     public CollisionResult(boolean colliding, Vector3f normal, float depth, List<Vector3f> contacts) {
         this.colliding = colliding;

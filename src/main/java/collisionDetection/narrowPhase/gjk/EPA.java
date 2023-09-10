@@ -12,43 +12,43 @@ import static math.Const.GJK_EPA_MAX_ITERATORS;
 
 public class EPA {
 
-    public static CollisionResult epaCollisionResult(GJKSupport shape1, GJKSupport shape2, Simplex simplex, boolean isCollide) {
-        if (isCollide) {
-            simplex.createFacesFromSimplex();
+    public static CollisionResult epaCollisionResult(GJKSupport shape1, GJKSupport shape2, Simplex simplex) {
 
-            for (int iteration = 0; iteration < GJK_EPA_MAX_ITERATORS; iteration++) {
-                // Find the closest face to the origin within the simplex.
-                Face closestFace = findClosestFace(simplex);
+        simplex.createFacesFromSimplex();
 
-                // Find the support point in the direction of the closest face normal
-                Vector3f supportPoint = CollisionUtil.support(shape1, shape2, closestFace.getNormal());
+        for (int iteration = 0; iteration < GJK_EPA_MAX_ITERATORS; iteration++) {
+            // Find the closest face to the origin within the simplex.
+            Face closestFace = findClosestFace(simplex);
 
-                // Calculate the signed distance from the support point to the closest face
-                float distance = closestFace.getNormal().dot(supportPoint);
+            // Find the support point in the direction of the closest face normal
+            Vector3f supportPoint = CollisionUtil.support(shape1, shape2, closestFace.getNormal());
 
-                // If the distance is very close to zero, we have a collision
-                if (Math.abs(distance) < EPSILON) {
-                    // Calculate collision normal (invert it if pointing inwards)
-                    Vector3f collisionNormal = closestFace.getNormal();
-                    if (distance < 0) {
-                        collisionNormal.negate();
-                    }
+            // Calculate the signed distance from the support point to the closest face
+            float distance = closestFace.getNormal().dot(supportPoint);
 
-                    // Calculate penetration depth (absolute value of distance)
-                    float penetrationDepth = Math.abs(distance);
-
-                    // Calculate contact points by projecting the support point onto the face
-                    List<Vector3f> contactPoints = calculateContactPointsOnFace(closestFace, simplex);
-
-                    // Create and return the collision result
-                    return new CollisionResult(true, collisionNormal, penetrationDepth, contactPoints);
+            // If the distance is very close to zero, we have a collision
+            if (Math.abs(distance) < EPSILON) {
+                // Calculate collision normal (invert it if pointing inwards)
+                Vector3f collisionNormal = closestFace.getNormal();
+                if (distance < 0) {
+                    collisionNormal.negate();
                 }
-                // Expand the simplex by adding the support point.
-                simplex.pushFront(supportPoint);
+
+                // Calculate penetration depth (absolute value of distance)
+                float penetrationDepth = Math.abs(distance);
+
+                // Calculate contact points by projecting the support point onto the face
+                List<Vector3f> contactPoints = calculateContactPointsOnFace(closestFace, simplex);
+
+                // Create and return the collision result
+                return new CollisionResult(true, collisionNormal, penetrationDepth, contactPoints);
             }
+            // Expand the simplex by adding the support point.
+            simplex.pushFront(supportPoint);
         }
 
-        return new CollisionResult(false, new Vector3f(), 0, null);// No collision
+
+        return new CollisionResult();// No collision
     }
 
     public static Face findClosestFace(Simplex simplex) {
@@ -60,7 +60,7 @@ public class EPA {
         for (Face currentFace : simplex.getFaces()) {
 
             // Calculate the signed distance from the origin to the face
-            float distance = currentFace.getDistanceToOrigin();
+            float distance = currentFace.getNormal().dot(simplex.getPoint(0)) - currentFace.getDistanceToOrigin();
 
             // Check if this face is closer than the closest one found so far
             if (distance < closestDistance) {
