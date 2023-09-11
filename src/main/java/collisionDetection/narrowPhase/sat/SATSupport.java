@@ -9,4 +9,6 @@ public interface SATSupport {
     Interval getInterval(Vector3f axis);
 
     List<Vector3f> getAxis();
+
+    List<Vector3f> getVertices();
 }

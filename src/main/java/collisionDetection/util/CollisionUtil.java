@@ -1,8 +1,13 @@
 package collisionDetection.util;
 
 import collisionDetection.narrowPhase.gjk.GJKSupport;
+import collisionDetection.narrowPhase.sat.SATSupport;
 import collisionDetection.primitive.*;
 import math.Vector3f;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class CollisionUtil {
 
@@ -102,6 +107,22 @@ public class CollisionUtil {
         float c = 1.0f - (v.dot(cp) / v.dot(ca));
 
         return new Vector3f(a, b, c);
+    }
+
+    public static Set<Vector3f> combineAxis(SATSupport shape1, SATSupport shape2) {
+        Set<Vector3f> allAxis = new HashSet<>();
+        List<Vector3f> shape1Axis = shape1.getAxis();
+        List<Vector3f> shape2Axis = shape2.getAxis();
+
+        for (Vector3f axis1 : shape1Axis) {
+            for (Vector3f axis2 : shape2Axis) {
+                allAxis.add(axis1.cross(axis2).normalize());
+            }
+        }
+        allAxis.addAll(shape1Axis);
+        allAxis.addAll(shape2Axis);
+
+        return allAxis;
     }
 
 }

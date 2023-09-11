@@ -1,38 +1,41 @@
 package collisionDetection.narrowPhase.sat;
 
+import collisionDetection.narrowPhase.collisionResult.CollisionResult;
+import collisionDetection.util.CollisionUtil;
+import math.Vector3f;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 public class SATSolver {
-/*
-    public CollisionResult SATCollisionResult(SATSupport shape1, SATSupport shape2,boolean isCollide) {
 
-        if (colliding) {
-            // Calculate collision normal and penetration depth
-            Vector3f normal = calculateCollisionNormal(objectA, objectB);
-            float depth = calculatePenetrationDepth(objectA, objectB, normal);
+    public CollisionResult satCollisionResult(SATSupport shape1, SATSupport shape2) {
 
-            // Calculate and add contact points
-            List<Vector3f> contacts = calculateContactPoints(objectA, objectB, normal, depth);
+        // Calculate collision normal and penetration depth
+        Vector3f normal = calculateCollisionNormal(shape1, shape2);
+        float depth = calculatePenetrationDepth(shape1, shape2, normal);
 
-            // Create and return a CollisionResult
-            return new CollisionResult(colliding, normal, depth, contacts);
-        } else {
-            // No collision
-            return new CollisionResult(false, null, 0.0f, null);
-        }
+        // Calculate and add contact points
+        List<Vector3f> contacts = calculateContactPoints(shape1, shape2, normal, depth);
+
+        // Create and return a CollisionResult
+        return new CollisionResult(true, normal, depth, contacts);
+
     }
 
-    public Vector3f calculateCollisionNormal(SATCollisionObject3D objectA, SATCollisionObject3D objectB) {
+    public Vector3f calculateCollisionNormal(SATSupport shape1, SATSupport shape2) {
         Vector3f smallestOverlapAxis = new Vector3f();
         float smallestOverlap = Float.MAX_VALUE;
 
-        List<Vector3f> axesA = objectA.getCollisionAxes();
-        List<Vector3f> axesB = objectB.getCollisionAxes();
+        Set<Vector3f> allAxis = CollisionUtil.combineAxis(shape1, shape2);
 
-        for (Vector3f axis : axesA) {
-            float overlap = calculateOverlapOnAxis(objectA, objectB, axis);
+        for (Vector3f axis : allAxis) {
+            float overlap = calculateOverlapOnAxis(shape1, shape2, axis);
 
             if (overlap < 0) {
                 // The objects are not colliding on this axis; early exit.
-                return null;
+                return new Vector3f();
             }
 
             if (overlap < smallestOverlap) {
@@ -41,71 +44,76 @@ public class SATSolver {
             }
         }
 
-        for (Vector3f axis : axesB) {
-            float overlap = calculateOverlapOnAxis(objectA, objectB, axis);
-
-            if (overlap < 0) {
-                // The objects are not colliding on this axis; early exit.
-                return null;
-            }
-
-            if (overlap < smallestOverlap) {
-                smallestOverlap = overlap;
-                smallestOverlapAxis = axis;
-            }
-        }
 
         return smallestOverlapAxis.normalize();
     }
-    public float calculatePenetrationDepth(SATCollisionObject3D objectA, SATCollisionObject3D objectB, Vector3f normal) {
-        // Calculate the projection of the objects' vertices onto the collision normal.
-        float minA = calculateProjection(objectA, normal);
-        float maxA = minA + objectA.getSizeOnAxis(normal);
-        float minB = calculateProjection(objectB, normal);
-        float maxB = minB + objectB.getSizeOnAxis(normal);
 
-        // Calculate the penetration depth as the overlap between the projections.
-        return Math.min(maxA, maxB) - Math.max(minA, minB);
+    private float calculatePenetrationDepth(SATSupport shape1, SATSupport shape2, Vector3f normal) {
+        // Calculate the projection of shapes onto the collision normal
+        float projection1 = calculateProjection(shape1, normal);
+        float projection2 = calculateProjection(shape2, normal);
+
+        // Calculate the penetration depth as the overlap of projections
+        return projection1 + projection2;
     }
-    public List<Vector3f> calculateContactPoints(SATCollisionObject3D objectA, SATCollisionObject3D objectB, Vector3f normal, float depth) {
+
+    private float calculateProjection(SATSupport shape, Vector3f axis) {
+        List<Vector3f> vertices = shape.getVertices();
+
+        float minProjection = Float.MAX_VALUE;
+        float maxProjection = -Float.MAX_VALUE;
+
+        for (Vector3f vertex : vertices) {
+            // Project each vertex onto the axis and update min and max projections
+            float projection = vertex.dot(axis);
+            if (projection < minProjection) {
+                minProjection = projection;
+            }
+            if (projection > maxProjection) {
+                maxProjection = projection;
+            }
+        }
+
+        // Calculate and return the projection length
+        return maxProjection - minProjection;
+    }
+
+    private List<Vector3f> calculateContactPoints(SATSupport shape1, SATSupport shape2, Vector3f normal, float depth) {
         List<Vector3f> contacts = new ArrayList<>();
 
-        if (depth > 0) {
-            // Calculate contact points based on the penetration depth and normal.
-            Vector3f contactPointA = objectA.getCenter().add(normal.scale(depth / 2.0f));
-            Vector3f contactPointB = objectB.getCenter().subtract(normal.scale(depth / 2.0f));
+        // Calculate the contact points using the collision normal and depth
+        Vector3f contactPoint1 = new Vector3f(normal).mul(depth / 2);
+        Vector3f contactPoint2 = new Vector3f(normal).mul(-depth / 2);
 
-            contacts.add(contactPointA);
-            contacts.add(contactPointB);
-        }
+        // Translate the contact points to the center of the shapes
+        Vector3f center1 = calculateCenter(shape1);
+        Vector3f center2 = calculateCenter(shape2);
+
+        contactPoint1.add(center1);
+        contactPoint2.add(center2);
+
+        contacts.add(contactPoint1);
+        contacts.add(contactPoint2);
 
         return contacts;
     }
-    public float calculateOverlapOnAxis(SATCollisionObject3D objectA, SATCollisionObject3D objectB, Vector3f axis) {
-        // Project the vertices of objectA onto the axis.
-        float minA = Float.POSITIVE_INFINITY;
-        float maxA = Float.NEGATIVE_INFINITY;
 
-        for (Vector3f vertex : objectA.getVertices()) {
-            float projection = vertex.dot(axis);
-            minA = Math.min(minA, projection);
-            maxA = Math.max(maxA, projection);
+    private Vector3f calculateCenter(SATSupport shape) {
+        List<Vector3f> vertices = shape.getVertices();
+        Vector3f center = new Vector3f();
+        for (Vector3f vertex : vertices) {
+            center.add(vertex);
         }
+        center.div(vertices.size());
+        return center;
+    }
 
-        // Project the vertices of objectB onto the axis.
-        float minB = Float.POSITIVE_INFINITY;
-        float maxB = Float.NEGATIVE_INFINITY;
-
-        for (Vector3f vertex : objectB.getVertices()) {
-            float projection = vertex.dot(axis);
-            minB = Math.min(minB, projection);
-            maxB = Math.max(maxB, projection);
-        }
+    public float calculateOverlapOnAxis(SATSupport shape1, SATSupport shape2, Vector3f axis) {
+        Interval interval1 = shape1.getInterval(axis);
+        Interval interval2 = shape2.getInterval(axis);
 
         // Calculate the overlap between the projections.
-        float overlap = Math.min(maxA, maxB) - Math.max(minA, minB);
-
-        return overlap;
+        return Math.min(interval1.getMax(), interval2.getMax()) - Math.max(interval1.getMin(), interval2.getMin());
     }
-*/
+
 }

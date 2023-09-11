@@ -21,6 +21,7 @@ public class Triangle implements Shape, SATSupport, GJKSupport {
         this.vertex3 = vertex3;
     }
 
+    @Override
     public List<Vector3f> getVertices() {
         List<Vector3f> vertices = new ArrayList<>();
         vertices.add(vertex1);

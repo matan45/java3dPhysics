@@ -17,6 +17,7 @@ public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
         this.vertices = vertices;
     }
 
+    @Override
     public List<Vector3f> getVertices() {
         return vertices;
     }

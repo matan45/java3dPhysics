@@ -133,4 +133,9 @@ public class Line implements Shape, GJKSupport, SATSupport {
 
         return axes;
     }
+
+    @Override
+    public List<Vector3f> getVertices() {
+        return List.of(start, end);
+    }
 }
