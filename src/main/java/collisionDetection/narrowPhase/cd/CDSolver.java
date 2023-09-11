@@ -13,29 +13,33 @@ public class CDSolver {
     public static CollisionResult solve(Line line, Capsule capsule) {
         CollisionResult result = new CollisionResult();
 
-        // Calculate the closest points on the line and the capsule
-        Vector3f closestPointOnLine = line.closestPoint(capsule.getStart());
-        Vector3f closestPointOnCapsule = capsule.closestPoint(closestPointOnLine);
+        // First, calculate the closest point on the line to the capsule's axis.
+        Vector3f axis = capsule.getEnd().sub(capsule.getStart());
+        Vector3f vecToLineStart = line.getStart().sub(capsule.getStart());
 
-        // Calculate the vector between the two closest points
-        Vector3f collisionVector = closestPointOnLine.sub(closestPointOnCapsule);
-        float distanceSquared = collisionVector.lengthSquared();
+        float t = vecToLineStart.dot(axis) / axis.dot(axis);
+        t = Math.max(0, Math.min(1, t)); // Clamp t to [0, 1]
 
-        // Check if there's a collision by comparing the distance to the capsule's radius
-        float radiusSquared = capsule.getRadius() * capsule.getRadius();
-        if (distanceSquared <= radiusSquared) {
-            // There is a collision
+        Vector3f closestPointOnAxis = capsule.getStart().add(axis.mul(t));
+
+        // Then, calculate the closest point on the line to the closest point on the capsule's axis.
+        Vector3f closestPointOnLine = line.closestPoint(closestPointOnAxis);
+
+        // Calculate the collision normal as the normalized vector between the two closest points.
+        Vector3f collisionNormal = closestPointOnLine.sub(closestPointOnAxis).normalize();
+
+        // Calculate the depth of penetration as the difference between the capsule's radius and the distance between the two closest points.
+        float depth = capsule.getRadius() - closestPointOnLine.distance(closestPointOnAxis);
+
+        // Check if the depth is positive, indicating a collision.
+        if (depth > 0) {
             result.setColliding(true);
-            result.setDepth((float) Math.sqrt(radiusSquared - distanceSquared));
-
-            // Calculate the collision normal
-            Vector3f normal = collisionVector.normalize();
-            result.setNormal(normal);
-
-            // Calculate the contact points
+            result.setNormal(collisionNormal);
+            result.setDepth(depth);
             List<Vector3f> contacts = new ArrayList<>();
-            Vector3f contactPoint1 = closestPointOnCapsule.add(normal.mul(result.getDepth() * 0.5f));
-            Vector3f contactPoint2 = closestPointOnCapsule.sub(normal.mul(result.getDepth() * 0.5f));
+            // Calculate the contact points (one on each side of the capsule's axis).
+            Vector3f contactPoint1 = closestPointOnAxis.add(collisionNormal.mul(capsule.getRadius()));
+            Vector3f contactPoint2 = closestPointOnAxis.sub(collisionNormal.mul(capsule.getRadius()));
             contacts.add(contactPoint1);
             contacts.add(contactPoint2);
             result.setContacts(contacts);
@@ -43,6 +47,7 @@ public class CDSolver {
 
         return result;
     }
+
 
     public static CollisionResult solve(Line line, Cylinder cylinder) {
         // Initialize the CollisionResult with default values
