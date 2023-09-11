@@ -9,7 +9,7 @@ import java.util.List;
 
 import static math.Const.EPSILON;
 
-public class CDSATGJK {
+public class CDSatGjk {
 
     public static boolean isCollide(Line line, Capsule capsule) {
         // First, calculate the closest point on the line to the capsule's axis.
@@ -56,7 +56,6 @@ public class CDSATGJK {
         return sphere.isPointInside(closestPoint) && line.isPointInside(closestPoint);
     }
 
-
     public static boolean isCollide(Line line, Plane plane) {
         // Calculate the direction vector of the line
         Vector3f lineDirection = line.getEnd().sub(line.getStart());
@@ -80,6 +79,7 @@ public class CDSATGJK {
         return t >= 0 && t <= 1; // Line intersects with the plane within the line segment
 
     }
+
     public static boolean isCollide(Sphere sphere, AABB aabb) {
         Vector3f closestPoint = aabb.closestPoint(sphere.getCenter());
         float distSq = sphere.getCenter().sub(closestPoint).lengthSquared();
@@ -181,7 +181,6 @@ public class CDSATGJK {
         // compared to the plane's distance
         return Math.abs(distanceToPlane) <= projection;
     }
-
 
     public static boolean isCollide(Capsule capsule, AABB aabb) {
         // Calculate squared radius for efficient distance comparison

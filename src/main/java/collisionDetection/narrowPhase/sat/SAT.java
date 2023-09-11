@@ -11,7 +11,7 @@ public class SAT {
 
     public static boolean isCollide(SATSupport shape1, SATSupport shape2) {
 
-        Set<Vector3f> allAxis = CollisionUtil.combineAxis(shape1, shape2);
+        Set<Vector3f> allAxis = combineAxis(shape1, shape2);
 
         // Check for separation along each axis
         for (Vector3f axis : allAxis) {
@@ -30,5 +30,21 @@ public class SAT {
 
         // Check for separation between the intervals
         return projection1.getMax() < projection2.getMin() || projection2.getMax() < projection1.getMin();
+    }
+
+    private static Set<Vector3f> combineAxis(SATSupport shape1, SATSupport shape2) {
+        Set<Vector3f> allAxis = new HashSet<>();
+        List<Vector3f> shape1Axis = shape1.getAxis();
+        List<Vector3f> shape2Axis = shape2.getAxis();
+
+        for (Vector3f axis1 : shape1Axis) {
+            for (Vector3f axis2 : shape2Axis) {
+                allAxis.add(axis1.cross(axis2).normalize());
+            }
+        }
+        allAxis.addAll(shape1Axis);
+        allAxis.addAll(shape2Axis);
+
+        return allAxis;
     }
 }

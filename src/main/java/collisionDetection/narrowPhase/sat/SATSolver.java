@@ -1,7 +1,6 @@
 package collisionDetection.narrowPhase.sat;
 
 import collisionDetection.narrowPhase.collisionResult.CollisionResult;
-import collisionDetection.util.CollisionUtil;
 import math.Vector3f;
 
 import java.util.ArrayList;
@@ -10,10 +9,10 @@ import java.util.Set;
 
 public class SATSolver {
 
-    public CollisionResult satCollisionResult(SATSupport shape1, SATSupport shape2) {
+    public CollisionResult satCollisionResult(SATSupport shape1, SATSupport shape2, Set<Vector3f> allAxis) {
 
         // Calculate collision normal and penetration depth
-        Vector3f normal = calculateCollisionNormal(shape1, shape2);
+        Vector3f normal = calculateCollisionNormal(shape1, shape2, allAxis);
         float depth = calculatePenetrationDepth(shape1, shape2, normal);
 
         // Calculate and add contact points
@@ -24,11 +23,9 @@ public class SATSolver {
 
     }
 
-    public Vector3f calculateCollisionNormal(SATSupport shape1, SATSupport shape2) {
+    public Vector3f calculateCollisionNormal(SATSupport shape1, SATSupport shape2, Set<Vector3f> allAxis) {
         Vector3f smallestOverlapAxis = new Vector3f();
         float smallestOverlap = Float.MAX_VALUE;
-
-        Set<Vector3f> allAxis = CollisionUtil.combineAxis(shape1, shape2);
 
         for (Vector3f axis : allAxis) {
             float overlap = calculateOverlapOnAxis(shape1, shape2, axis);
