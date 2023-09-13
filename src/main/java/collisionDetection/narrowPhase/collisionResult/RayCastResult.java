@@ -2,11 +2,20 @@ package collisionDetection.narrowPhase.collisionResult;
 
 import math.Vector3f;
 
+import java.util.ArrayList;
+
 public class RayCastResult {
     private Vector3f point;
     private Vector3f normal;
     private float t;
     private boolean hit;
+
+    public RayCastResult() {
+        this.hit = false;
+        this.point = new Vector3f();
+        this.normal = new Vector3f();
+        this.t = 0;
+    }
 
     public RayCastResult(Vector3f point, Vector3f normal, float t, boolean hit) {
         this.point = point;

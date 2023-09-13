@@ -13,7 +13,7 @@ public class CollisionResult {
 
     public CollisionResult() {
         this.colliding = false;
-        this.normal = new Vector3f(0, 0, 0);
+        this.normal = new Vector3f();
         this.depth = 0;
         this.contacts = new ArrayList<>();
     }
