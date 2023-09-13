@@ -340,7 +340,7 @@ public class CDSatGjk {
     }
 
     private static boolean cylinderOBBIntersect(Cylinder cylinder, OBB obb) {
-        Vector3f cylinderAxis = new Vector3f(0, 1, 0); // Assuming the cylinder's axis is along the y-axis
+        Vector3f cylinderAxis = cylinder.getUpAxis(); // Assuming the cylinder's axis is along the y-axis
         Vector3f cylinderToOBB = obb.getCenter().sub(cylinder.getCenter());
 
         // Project the distance vector onto the cylinder's axis
