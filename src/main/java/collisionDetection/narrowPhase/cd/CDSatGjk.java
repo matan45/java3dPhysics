@@ -1,5 +1,6 @@
 package collisionDetection.narrowPhase.cd;
 
+import collisionDetection.narrowPhase.sat.SATSupport;
 import collisionDetection.primitive.*;
 import collisionDetection.primitive.terrain.TerrainShape;
 import collisionDetection.util.CollisionUtil;
@@ -162,7 +163,12 @@ public class CDSatGjk {
 
         return false;
     }
-
+/*
+    public static boolean isCollide(Plane plane, SATSupport satSupport);
+    public static boolean isCollide(Sphere sphere, SATSupport satSupport);
+    public static boolean isCollide(Cylinder cylinder, SATSupport satSupport);
+    public static boolean isCollide(Capsule capsule, SATSupport satSupport);
+*/
     public static boolean isCollide(Plane plane, AABB aabb) {
         // Calculate the half-extents of the AABB
         Vector3f halfExtents = aabb.getMax().sub(aabb.getMin()).div(2.0f);
