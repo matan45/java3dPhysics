@@ -1,6 +1,5 @@
 package collisionDetection.narrowPhase.cd;
 
-import collisionDetection.narrowPhase.collisionResult.CollisionResult;
 import collisionDetection.primitive.*;
 import collisionDetection.primitive.terrain.TerrainShape;
 import collisionDetection.util.CollisionUtil;
@@ -182,6 +181,19 @@ public class CDSatGjk {
         // Check if the AABB is on the opposite side of the plane's normal
         // compared to the plane's distance
         return Math.abs(distanceToPlane) <= projection;
+    }
+
+    public static boolean isCollide(Plane plane, ConvexPolyhedron convexPolyhedron) {
+        // Iterate through the vertices of the convex polyhedron
+        for (Vector3f vertex : convexPolyhedron.getVertices()) {
+            // Check if the vertex is inside the plane
+            if (plane.isPointInside(vertex)) {
+                return true; // Collision detected
+            }
+        }
+
+        // No vertices of the polyhedron are inside the plane, so there's no collision
+        return false;
     }
 
     public static boolean isCollide(Capsule capsule, AABB aabb) {
