@@ -176,5 +176,113 @@ public class CDSolver {
         return new CollisionResult(true, normal, penetrationDepth, contacts);
     }
 
+    public static CollisionResult solve(Sphere sphere, Triangle triangle) {
+
+        // Calculate collision details
+        List<Vector3f> contactPoints = new ArrayList<>();
+
+        // Calculate the closest point on the triangle to the sphere's center
+        Vector3f closestPointOnTriangle = triangle.closestPoint(sphere.getCenter());
+
+        // Calculate the collision normal (from sphere center to the closest point on triangle)
+        Vector3f collisionNormal = closestPointOnTriangle.sub(sphere.getCenter()).normalize();
+
+        // Calculate the penetration depth (distance from sphere center to the closest point on triangle minus sphere radius)
+        float penetrationDepth = closestPointOnTriangle.distance(sphere.getCenter()) - sphere.getRadius();
+
+        // Add the closest point on the triangle to the contact points list
+        contactPoints.add(closestPointOnTriangle);
+
+        // Find the second-closest point on the triangle to the sphere's center
+        Vector3f secondClosestPointOnTriangle = triangle.closestPoint(
+                sphere.getCenter().add(collisionNormal.mul(sphere.getRadius())));
+
+        // Add the second-closest point on the triangle to the contact points list
+        contactPoints.add(secondClosestPointOnTriangle);
+
+        // Create and return a CollisionResult object
+        return new CollisionResult(true, collisionNormal, penetrationDepth, contactPoints);
+    }
+
+    public static CollisionResult solve(Sphere sphere, OBB obb) {
+
+        // Calculate the closest point on the OBB to the sphere's center
+        Vector3f closestPoint = obb.closestPoint(sphere.getCenter());
+
+        // Calculate the vector from the sphere's center to the closest point
+        Vector3f sphereToClosest = closestPoint.sub(sphere.getCenter());
+
+        // Calculate the distance between the sphere's center and the closest point
+        float distance = sphereToClosest.length();
+
+        List<Vector3f> contactPoints = new ArrayList<>();
+
+        // Calculate the collision normal (from the OBB center to the sphere center)
+        Vector3f collisionNormal = sphereToClosest.normalize();
+
+        // Calculate the penetration depth
+        float penetrationDepth = sphere.getRadius() - distance;
+
+        // Calculate the first contact point on the sphere's surface
+        Vector3f contactPoint1 = sphere.getCenter().add(collisionNormal.mul(sphere.getRadius()));
+        contactPoints.add(contactPoint1);
+
+        // Calculate the second contact point on the sphere's surface (opposite side)
+        Vector3f contactPoint2 = sphere.getCenter().sub(collisionNormal.mul(sphere.getRadius()));
+        contactPoints.add(contactPoint2);
+
+        return new CollisionResult(true, collisionNormal, penetrationDepth, contactPoints);
+
+    }
+
+    public static CollisionResult solve(Sphere sphere, Capsule capsule) {
+
+        List<Vector3f> contactPoints = new ArrayList<>();
+
+        // Compute the collision normal as the normalized vector from the sphere center to the capsule's closest point
+        Vector3f closestPoint = capsule.closestPoint(sphere.getCenter());
+        Vector3f collisionNormal = closestPoint.sub(sphere.getCenter()).normalize();
+
+        // Compute the penetration depth (distance from sphere center to capsule's surface)
+        float depth = sphere.getRadius() - sphere.getCenter().distance(closestPoint);
+
+        // Compute the first contact point (the closest point on the sphere's surface)
+        Vector3f contactPoint1 = sphere.getCenter().add(collisionNormal.mul(sphere.getRadius()));
+        contactPoints.add(contactPoint1);
+
+        // To compute the second contact point, we reflect the first contact point across the collision normal
+        Vector3f reflection = collisionNormal.mul(2.0f * depth); // Reflect by twice the penetration depth
+        Vector3f contactPoint2 = contactPoint1.add(reflection);
+        contactPoints.add(contactPoint2);
+
+        return new CollisionResult(true, collisionNormal, depth, contactPoints);
+    }
+
+    public static CollisionResult solve(Sphere sphere, Cylinder cylinder) {
+
+        List<Vector3f> contactPoints = new ArrayList<>();
+        // Calculate the closest point on the cylinder to the sphere's center
+        Vector3f closestPointOnCylinder = cylinder.closestPoint(sphere.getCenter());
+
+        // Calculate the vector from the sphere's center to the closest point on the cylinder
+        Vector3f collisionVector = closestPointOnCylinder.sub(sphere.getCenter());
+
+        // Calculate the distance between the sphere's center and the closest point on the cylinder
+        float distance = collisionVector.length();
+
+        // Calculate the collision normal (points from cylinder to sphere)
+        Vector3f collisionNormal = collisionVector.normalize();
+
+        // Calculate the penetration depth
+        float penetrationDepth = sphere.getRadius() - distance;
+
+        // Calculate two contact points on the sphere's surface
+        Vector3f contactPoint1 = sphere.getCenter().add(collisionNormal.mul(sphere.getRadius() - penetrationDepth));
+        Vector3f contactPoint2 = sphere.getCenter().add(collisionNormal.mul(sphere.getRadius()));
+        contactPoints.add(contactPoint1);
+        contactPoints.add(contactPoint2);
+
+        return new CollisionResult(true, collisionNormal, penetrationDepth, contactPoints);
+    }
 
 }

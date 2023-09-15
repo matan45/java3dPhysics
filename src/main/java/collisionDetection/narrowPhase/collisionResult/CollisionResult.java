@@ -9,20 +9,20 @@ public class CollisionResult {
     private boolean colliding;
     private Vector3f normal;
     private float depth;
-    private List<Vector3f> contacts;
+    private List<Vector3f> contactPoints;
 
     public CollisionResult() {
         this.colliding = false;
         this.normal = new Vector3f();
         this.depth = 0;
-        this.contacts = new ArrayList<>();
+        this.contactPoints = new ArrayList<>();
     }
 
     public CollisionResult(boolean colliding, Vector3f normal, float depth, List<Vector3f> contacts) {
         this.colliding = colliding;
         this.normal = normal;
         this.depth = depth;
-        this.contacts = contacts;
+        this.contactPoints = contacts;
     }
 
     public boolean isColliding() {
@@ -49,12 +49,12 @@ public class CollisionResult {
         this.depth = depth;
     }
 
-    public List<Vector3f> getContacts() {
-        return contacts;
+    public List<Vector3f> getContactPoints() {
+        return contactPoints;
     }
 
-    public void setContacts(List<Vector3f> contacts) {
-        this.contacts = contacts;
+    public void setContactPoints(List<Vector3f> contactPoints) {
+        this.contactPoints = contactPoints;
     }
 
     @Override
@@ -63,7 +63,7 @@ public class CollisionResult {
                 "colliding=" + colliding +
                 ", normal=" + normal +
                 ", depth=" + depth +
-                ", contacts=" + contacts +
+                ", contacts=" + contactPoints +
                 '}';
     }
 }
