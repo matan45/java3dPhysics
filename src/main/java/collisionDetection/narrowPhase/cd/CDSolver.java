@@ -194,8 +194,7 @@ public class CDSolver {
         contactPoints.add(closestPointOnTriangle);
 
         // Find the second-closest point on the triangle to the sphere's center
-        Vector3f secondClosestPointOnTriangle = triangle.closestPoint(
-                sphere.getCenter().add(collisionNormal.mul(sphere.getRadius())));
+        Vector3f secondClosestPointOnTriangle = triangle.closestPoint(sphere.getCenter().add(collisionNormal.mul(sphere.getRadius())));
 
         // Add the second-closest point on the triangle to the contact points list
         contactPoints.add(secondClosestPointOnTriangle);
@@ -283,6 +282,99 @@ public class CDSolver {
         contactPoints.add(contactPoint2);
 
         return new CollisionResult(true, collisionNormal, penetrationDepth, contactPoints);
+    }
+
+    public static CollisionResult solve(Sphere sphere, ConvexPolyhedron convexPolyhedron) {
+
+        List<Vector3f> contactPoints = new ArrayList<>();
+        // Calculate the normal vector from the sphere's center to the closest point on the polyhedron
+        Vector3f closestPoint = convexPolyhedron.closestPoint(sphere.getCenter());
+        Vector3f collisionNormal = sphere.getCenter().sub(closestPoint).normalize();
+
+        // Calculate the depth (penetration distance)
+        float depth = sphere.getRadius() - sphere.getCenter().distance(closestPoint);
+
+        // Find two contact points by moving along and away from the normal
+        Vector3f contactPoint1 = closestPoint.add(collisionNormal.mul(sphere.getRadius()));
+        Vector3f contactPoint2 = closestPoint.sub(collisionNormal.mul(sphere.getRadius()));
+
+        // Add both contact points to the result
+        contactPoints.add(contactPoint1);
+        contactPoints.add(contactPoint2);
+        return new CollisionResult(true, collisionNormal, depth, contactPoints);
+    }
+
+    public static CollisionResult solve(Cylinder cylinder, ConvexPolyhedron convexPolyhedron) {
+        // Initialize collision result variables
+        boolean colliding = false;
+        Vector3f collisionNormal = new Vector3f();
+        float penetrationDepth = 0.0f;
+        List<Vector3f> contactPoints = new ArrayList<>();
+
+        // Check if any point on the cylinder's surface is inside the polyhedron
+        for (float angle = 0.0f; angle < 360.0f; angle += 10.0f) {
+            // Calculate a point on the cylinder's surface at the given angle
+            float x = cylinder.getRadius() * (float) Math.cos(Math.toRadians(angle)) + cylinder.getCenter().getX();
+            float z = cylinder.getRadius() * (float) Math.sin(Math.toRadians(angle)) + cylinder.getCenter().getZ();
+            Vector3f cylinderSurfacePoint = new Vector3f(x, cylinder.getCenter().getY(), z);
+
+            // Check if the cylinder's surface point is inside the polyhedron
+            if (convexPolyhedron.isPointInside(cylinderSurfacePoint)) {
+                colliding = true;
+
+                // Calculate the collision normal (pointing from the polyhedron to the cylinder)
+                collisionNormal = cylinderSurfacePoint.sub(convexPolyhedron.closestPoint(cylinderSurfacePoint)).normalize();
+
+                // Calculate the penetration depth (distance from the cylinder's surface to the polyhedron)
+                penetrationDepth = cylinder.getRadius() - cylinder.getCenter().distance(cylinderSurfacePoint);
+
+                // Add the contact point to the list
+                contactPoints.add(cylinderSurfacePoint);
+            }
+        }
+
+        // Check if any point on the polyhedron is inside the cylinder
+        for (Vector3f vertex : convexPolyhedron.getVertices()) {
+            if (cylinder.isPointInside(vertex)) {
+                colliding = true;
+
+                // Calculate the collision normal (pointing from the cylinder to the polyhedron)
+                collisionNormal = vertex.sub(cylinder.closestPoint(vertex)).normalize();
+
+                // Calculate the penetration depth (distance from the polyhedron's surface to the cylinder)
+                penetrationDepth = cylinder.getRadius() - cylinder.getCenter().distance(vertex);
+
+                // Add the contact point to the list
+                contactPoints.add(vertex);
+            }
+        }
+
+        // Create and return the collision result
+        return new CollisionResult(colliding, collisionNormal, penetrationDepth, contactPoints);
+    }
+
+    public static CollisionResult solve(Capsule capsule, ConvexPolyhedron convexPolyhedron) {
+        // Find the closest points between the capsule and the polyhedron
+        Vector3f closestPointOnCapsule = capsule.closestPoint(convexPolyhedron.closestPoint(capsule.getStart()));
+        Vector3f closestPointOnPolyhedron = convexPolyhedron.closestPoint(capsule.getStart());
+
+        // Calculate the collision normal
+        Vector3f normal = closestPointOnPolyhedron.sub(closestPointOnCapsule).normalize();
+
+        // Calculate the depth of the collision
+        float depth = normal.dot(closestPointOnCapsule.sub(capsule.getStart()));
+
+        // Collect all the contact points
+        List<Vector3f> contactPoints = new ArrayList<>();
+        for (int i = 0; i < convexPolyhedron.getVertices().size(); i++) {
+            Vector3f vertex = convexPolyhedron.getVertices().get(i);
+            Vector3f contactPoint = capsule.closestPoint(vertex);
+            if (capsule.isPointInside(contactPoint)) {
+                contactPoints.add(contactPoint);
+            }
+        }
+
+        return new CollisionResult(true, normal, depth, contactPoints);
     }
 
 }

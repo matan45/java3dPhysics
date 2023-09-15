@@ -1,10 +1,12 @@
 package collisionDetection.narrowPhase.cd;
 
+import collisionDetection.narrowPhase.collisionResult.CollisionResult;
 import collisionDetection.primitive.*;
 import collisionDetection.primitive.terrain.TerrainShape;
 import collisionDetection.util.CollisionUtil;
 import math.Vector3f;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static math.Const.EPSILON;
@@ -307,7 +309,7 @@ public class CDSatGjk {
         boolean endColliding = isPointCollidingWithCylinderCap(capsule.getEnd(), cylinder);
 
         // Check if the capsule's body is colliding with the cylinder's body
-        boolean bodyColliding = CollisionUtil.isLineCollidingWithCylinderBody(new Line(capsule.getStart(), capsule.getEnd()),cylinder);
+        boolean bodyColliding = CollisionUtil.isLineCollidingWithCylinderBody(new Line(capsule.getStart(), capsule.getEnd()), cylinder);
 
         // If any of the capsule's ends are colliding with the cylinder's caps or the capsule's body
         // is colliding with the cylinder's body, they are colliding
@@ -498,6 +500,125 @@ public class CDSatGjk {
         // Check for collision by comparing the squared distances
         return distanceSq <= (sumOfRadii * sumOfRadii) && distanceSq <= (sumOfHeights * sumOfHeights);
     }
+
+    public static boolean isCollide(Sphere sphere, ConvexPolyhedron convexPolyhedron) {
+        // Check if the sphere is inside the polyhedron
+        if (convexPolyhedron.isPointInside(sphere.getCenter())) {
+            return true;
+        }
+
+        // Check if any of the polyhedron's vertices are inside the sphere
+        for (Vector3f vertex : convexPolyhedron.getVertices()) {
+            if (sphere.isPointInside(vertex)) {
+                return true;
+            }
+        }
+
+        // Check for edge-sphere intersection
+        for (int i = 0; i < convexPolyhedron.getVertices().size(); i++) {
+            Vector3f v0 = convexPolyhedron.getVertices().get(i);
+            Vector3f v1 = convexPolyhedron.getVertices().get((i + 1) % convexPolyhedron.getVertices().size());
+            Vector3f edge = v1.sub(v0);
+
+            // Check if the closest point on the edge is inside the sphere
+            if (sphere.isPointInside(edge)) {
+                return true;
+            }
+        }
+
+        // If none of the above conditions are met, there is no collision
+        return false;
+    }
+
+    public static boolean isCollide(Capsule capsule, ConvexPolyhedron convexPolyhedron) {
+        // Check if any point on the capsule is inside the convex polyhedron
+        Vector3f start = capsule.getStart();
+        Vector3f end = capsule.getEnd();
+
+        if (convexPolyhedron.isPointInside(start) || convexPolyhedron.isPointInside(end)) {
+            return true;
+        }
+
+        // Check if any point on the convex polyhedron is inside the capsule
+        List<Vector3f> vertices = convexPolyhedron.getVertices();
+        for (Vector3f vertex : vertices) {
+            if (capsule.isPointInside(vertex)) {
+                return true;
+            }
+        }
+
+        // Check for edge-edge intersection (not implemented here)
+        return isEdgeEdgeIntersection(capsule, convexPolyhedron);
+    }
+
+    private static boolean isEdgeEdgeIntersection(Capsule capsule, ConvexPolyhedron convexPolyhedron) {
+        List<Vector3f> capsuleVertices = new ArrayList<>();
+        capsuleVertices.add(capsule.getStart());
+        capsuleVertices.add(capsule.getEnd());
+
+        List<Vector3f> polyhedronVertices = convexPolyhedron.getVertices();
+        List<Vector3f> polyhedronEdges = new ArrayList<>();
+
+        // Create a list of edges for the polyhedron
+        for (int i = 0; i < polyhedronVertices.size(); i++) {
+            Vector3f v1 = polyhedronVertices.get(i);
+            Vector3f v2 = polyhedronVertices.get((i + 1) % polyhedronVertices.size());
+            polyhedronEdges.add(v1);
+            polyhedronEdges.add(v2);
+        }
+
+        // Iterate over each edge of the capsule
+        for (int i = 0; i < capsuleVertices.size(); i++) {
+            Vector3f capsuleStart = capsuleVertices.get(i);
+            Vector3f capsuleEnd = capsuleVertices.get((i + 1) % capsuleVertices.size());
+
+            // Iterate over each edge of the polyhedron
+            for (int j = 0; j < polyhedronEdges.size(); j += 2) {
+                Vector3f polyhedronEdgeStart = polyhedronEdges.get(j);
+                Vector3f polyhedronEdgeEnd = polyhedronEdges.get(j + 1);
+
+                // Check for intersection between the two line segments
+                if (doLineSegmentsIntersect(capsuleStart, capsuleEnd, polyhedronEdgeStart, polyhedronEdgeEnd)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static boolean doLineSegmentsIntersect(Vector3f p1, Vector3f q1, Vector3f p2, Vector3f q2) {
+        Vector3f e1 = q1.sub(p1);
+        Vector3f e2 = q2.sub(p2);
+        Vector3f h = e2.cross(e1);
+        float f = h.dot(e1);
+
+        // Check if the line segments are parallel (no intersection)
+        if (f > -1e-6f && f < 1e-6f) {
+            return false;
+        }
+
+        float s = h.dot(p1.sub(p2)) / f;
+        if (s < 0.0f || s > 1.0f) {
+            return false;
+        }
+
+        float t = h.dot(p2.sub(p1)) / f;
+        return !(t < 0.0f) && !(t > 1.0f);
+    }
+
+
+    public static boolean isCollide(Cylinder cylinder, ConvexPolyhedron convexPolyhedron) {
+        // Check if the cylinder's closest point to the polyhedron is inside the polyhedron
+        Vector3f closestPointToPolyhedron = convexPolyhedron.closestPoint(cylinder.getCenter());
+        if (!convexPolyhedron.isPointInside(closestPointToPolyhedron)) {
+            return false; // The closest point is outside the polyhedron, no collision.
+        }
+
+        // Check if the closest point on the cylinder to the polyhedron is inside the cylinder
+        return cylinder.isPointInside(closestPointToPolyhedron);
+    }
+
 
     public static boolean isCollide(Plane plane1, Plane plane2) {
         Vector3f normal1 = plane1.getNormal();

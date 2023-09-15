@@ -1,10 +1,14 @@
 package collisionDetection.narrowPhase;
 
 import collisionDetection.narrowPhase.cd.CDSatGjk;
+import collisionDetection.narrowPhase.gjk.GJK;
 import collisionDetection.primitive.*;
 import collisionDetection.primitive.terrain.TerrainShape;
 import math.Vector3f;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -599,6 +603,133 @@ class CDSATGJKTest {
         boolean result = CDSatGjk.isCollide(sphere1, sphere2);
 
         assertFalse(result, "Spheres should not be colliding");
+    }
+
+    @Test
+    void testNonCollidingPolyhedraSphere() {
+        ConvexPolyhedron polyhedron = createNonCollidingPolyhedron1();
+        Sphere sphere = new Sphere(new Vector3f(7, 7, 7), 1.0f);
+
+        assertFalse(CDSatGjk.isCollide(sphere,polyhedron));
+    }
+
+    @Test
+    void testCollidingPolyhedraSphere() {
+        ConvexPolyhedron polyhedron = createNonCollidingPolyhedron2();
+        Sphere sphere = new Sphere(new Vector3f(0, 0, 0), 1.0f);
+
+        assertTrue(CDSatGjk.isCollide(sphere,polyhedron));
+    }
+
+    private ConvexPolyhedron createNonCollidingPolyhedron1() {
+        List<Vector3f> vertices = new ArrayList<>();
+        vertices.add(new Vector3f(0, 0, 0));
+        vertices.add(new Vector3f(1, 0, 0));
+        vertices.add(new Vector3f(1, 1, 0));
+        vertices.add(new Vector3f(0, 1, 0));
+
+        return new ConvexPolyhedron(vertices);
+    }
+
+    private ConvexPolyhedron createNonCollidingPolyhedron2() {
+        List<Vector3f> vertices = new ArrayList<>();
+        vertices.add(new Vector3f(2, 2, 0));
+        vertices.add(new Vector3f(3, 2, 0));
+        vertices.add(new Vector3f(3, 3, 0));
+        vertices.add(new Vector3f(2, 3, 0));
+
+        return new ConvexPolyhedron(vertices);
+    }
+
+    @Test
+    public void CollidingPolyhedronCapsule() {
+        // Create a capsule
+        Vector3f capsuleStart = new Vector3f(0, 0, 0);
+        Vector3f capsuleEnd = new Vector3f(0, 2, 0);
+        float capsuleRadius = 1.0f;
+        Capsule capsule = new Capsule(capsuleStart, capsuleEnd, capsuleRadius);
+
+        // Create a convex polyhedron (e.g., a cube)
+        List<Vector3f> vertices = new ArrayList<>();
+        vertices.add(new Vector3f(0, 0, 0));
+        vertices.add(new Vector3f(1, 0, 0));
+        vertices.add(new Vector3f(1, 1, 0));
+        vertices.add(new Vector3f(0, 1, 0));
+        ConvexPolyhedron polyhedron = new ConvexPolyhedron(vertices);
+
+        // Check for collision
+        boolean collision = CDSatGjk.isCollide(capsule, polyhedron);
+
+        // Assert that collision is detected
+        assertTrue(collision);
+    }
+
+    @Test
+    public void NonCollidingPolyhedronCapsule() {
+        // Create a capsule
+        Vector3f capsuleStart = new Vector3f(0, 0, 0);
+        Vector3f capsuleEnd = new Vector3f(0, 4, 0);
+        float capsuleRadius = 1.0f;
+        Capsule capsule = new Capsule(capsuleStart, capsuleEnd, capsuleRadius);
+
+        // Create a convex polyhedron (e.g., a cube)
+        List<Vector3f> polyhedronVertices = new ArrayList<>();
+        polyhedronVertices.add(new Vector3f(-2, -2, -2));
+        polyhedronVertices.add(new Vector3f(2, -2, -2));
+        polyhedronVertices.add(new Vector3f(2, 2, -2));
+        polyhedronVertices.add(new Vector3f(-2, 2, -2));
+        polyhedronVertices.add(new Vector3f(-2, -2, 2));
+        polyhedronVertices.add(new Vector3f(2, -2, 2));
+        polyhedronVertices.add(new Vector3f(2, 2, 2));
+        polyhedronVertices.add(new Vector3f(-2, 2, 2));
+        ConvexPolyhedron polyhedron = new ConvexPolyhedron(polyhedronVertices);
+
+        // Check for collision
+        boolean collision = CDSatGjk.isCollide(capsule, polyhedron);
+
+        // Assert that no collision is detected
+        assertFalse(collision);
+    }
+
+
+    @Test
+    public void CollidingPolyhedronCylinder() {
+
+        Cylinder cylinder = new Cylinder(new Vector3f(0, 0, 0), 1.0f, 2.0f);
+
+        // Create a convex polyhedron (e.g., a cube)
+        List<Vector3f> vertices = new ArrayList<>();
+        vertices.add(new Vector3f(0, 0, 0));
+        vertices.add(new Vector3f(1, 0, 0));
+        vertices.add(new Vector3f(1, 1, 0));
+        vertices.add(new Vector3f(0, 1, 0));
+        ConvexPolyhedron polyhedron = new ConvexPolyhedron(vertices);
+
+        // Check for collision
+        boolean collision = CDSatGjk.isCollide(cylinder, polyhedron);
+
+        // Assert that collision is detected
+        assertTrue(collision);
+    }
+
+    @Test
+    public void NonCollidingPolyhedronCylinder() {
+
+        Cylinder cylinder = new Cylinder(new Vector3f(5, 5, 0), 1.0f, 2.0f);
+
+        // Create a convex polyhedron (e.g., a cube)
+        List<Vector3f> vertices = new ArrayList<>();
+        vertices.add(new Vector3f(0, 0, 0));
+        vertices.add(new Vector3f(1, 0, 0));
+        vertices.add(new Vector3f(1, 1, 0));
+        vertices.add(new Vector3f(0, 1, 0));
+        ConvexPolyhedron polyhedron = new ConvexPolyhedron(vertices);
+
+        // Check for collision
+        boolean collision = CDSatGjk.isCollide(cylinder, polyhedron);
+
+        // Assert that collision is detected
+        assertFalse(collision);
     }
 
 
