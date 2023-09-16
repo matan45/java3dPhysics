@@ -334,7 +334,7 @@ class CDSATGJKTest {
 
     @Test
     void testCollidingPolyhedraSphere() {
-        ConvexPolyhedron polyhedron = createNonCollidingPolyhedron2();
+        ConvexPolyhedron polyhedron = createNonCollidingPolyhedron1();
         Sphere sphere = new Sphere(new Vector3f(0, 0, 0), 1.0f);
 
         assertTrue(CDSatGjk.isCollide(sphere, polyhedron));

@@ -1,7 +1,7 @@
 package collisionDetection.primitive.terrain;
 
-import collisionDetection.narrowPhase.CollisionDetection;
 import collisionDetection.narrowPhase.rc.RayCast;
+import collisionDetection.narrowPhase.sat.SAT;
 import collisionDetection.primitive.AABB;
 import collisionDetection.primitive.Line;
 import collisionDetection.primitive.Ray;
@@ -206,7 +206,7 @@ public class TerrainShape {
     }
 
     public boolean isCollide(Line line) {
-        if (!CollisionDetection.isCollide(line, borders))
+        if (!SAT.isCollide(line, borders))
             return false;
 
         // Get the start and end points of the line
@@ -218,7 +218,7 @@ public class TerrainShape {
             return true;
 
         for (TerrainTriangle triangle : triangles) {
-            if (CollisionDetection.isCollide(line, triangle.toTriangle()))
+            if (SAT.isCollide(line, triangle.toTriangle()))
                 return true;
         }
 

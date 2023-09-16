@@ -4,6 +4,7 @@ import collisionDetection.narrowPhase.Shape;
 import collisionDetection.narrowPhase.gjk.GJKSupport;
 import collisionDetection.narrowPhase.sat.Interval;
 import collisionDetection.narrowPhase.sat.SATSupport;
+import collisionDetection.util.CollisionUtil;
 import math.Vector3f;
 
 import java.util.ArrayList;
@@ -12,9 +13,20 @@ import java.util.Objects;
 
 public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
     private List<Vector3f> vertices;
+    private List<Line> edges;
 
     public ConvexPolyhedron(List<Vector3f> vertices) {
         this.vertices = vertices;
+        createEdges();
+    }
+
+    private void createEdges() {
+        edges = new ArrayList<>();
+        for (int i = 0; i < vertices.size(); i++) {
+            Vector3f edgeStart = vertices.get(i);
+            Vector3f edgeEnd = vertices.get((i + 1) % vertices.size());
+            edges.add(new Line(edgeStart, edgeEnd));
+        }
     }
 
     @Override
@@ -24,20 +36,28 @@ public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
 
     public void setVertices(List<Vector3f> vertices) {
         this.vertices = vertices;
+        createEdges();
+    }
+
+    public List<Line> getEdges() {
+        return edges;
     }
 
     @Override
     public boolean isPointInside(Vector3f point) {
-        // Iterate through the vertices of the polyhedron.
-        for (Vector3f vertex : vertices) {
-            // Calculate the vector from the current vertex to the test point.
-            Vector3f vectorToVertex = vertex.sub(point);
+        if (vertices.size() < 3)
+            return false;
+        // Initialize a ray from the point to a distant point outside the polyhedron
+        Vector3f rayEndpoint = new Vector3f(point.x + 9999, point.y, point.z); // Adjust the distance as needed
+        Line ray = new Line(point, rayEndpoint);
 
-            if (vectorToVertex.dot(vertex) < 0) {
-                return false;
+        int intersectionCount = 0;
+        for (Line edge : edges) {
+            if (isIntersect(ray, edge)) {
+                intersectionCount++;
             }
         }
-        return true;
+        return intersectionCount % 2 == 1;
     }
 
 
@@ -55,6 +75,33 @@ public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
         }
 
         return closestPoint;
+    }
+
+    private boolean isIntersect(Line l1, Line l2) {
+        // Four direction for two lines and points of other
+        // line
+        int dir1 = CollisionUtil.direction(l1.getStart(), l1.getEnd(), l2.getStart());
+        int dir2 = CollisionUtil.direction(l1.getStart(), l1.getEnd(), l2.getEnd());
+        int dir3 = CollisionUtil.direction(l2.getStart(), l2.getEnd(), l1.getStart());
+        int dir4 = CollisionUtil.direction(l2.getStart(), l2.getEnd(), l1.getEnd());
+
+        // When intersecting
+        if (dir1 != dir2 && dir3 != dir4)
+            return true;
+
+        // When p2 of line2 are on the line1
+        if (dir1 == 0 && l1.isPointInside(l2.getStart()))
+            return true;
+
+        // When p1 of line2 are on the line1
+        if (dir2 == 0 && l1.isPointInside(l2.getEnd()))
+            return true;
+
+        // When p2 of line1 are on the line2
+        if (dir3 == 0 && l2.isPointInside(l1.getStart()))
+            return true;
+        // When p1 of line1 are on the line2
+        return dir4 == 0 && l2.isPointInside(l1.getEnd());
     }
 
     @Override

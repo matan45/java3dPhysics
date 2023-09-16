@@ -6,6 +6,8 @@ import math.Vector3f;
 
 import java.util.List;
 
+import static math.Const.EPSILON;
+
 public class CollisionUtil {
 
     public static Vector3f support(GJKSupport shape1, GJKSupport shape2, Vector3f direction) {
@@ -104,6 +106,25 @@ public class CollisionUtil {
         float c = 1.0f - (v.dot(cp) / v.dot(ca));
 
         return new Vector3f(a, b, c);
+    }
+
+    public static int direction(Vector3f a, Vector3f b, Vector3f c) {
+        // Compute the cross product of vectors (b - a) and (c - b)
+        double crossProductX = (b.y - a.y) * (c.z - b.z) - (b.z - a.z) * (c.y - b.y);
+        double crossProductY = (b.z - a.z) * (c.x - b.x) - (b.x - a.x) * (c.z - b.z);
+        double crossProductZ = (b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x);
+
+        // Determine the direction based on the sign of the cross product components
+        if (Math.abs(crossProductX) < EPSILON && Math.abs(crossProductY) < EPSILON && Math.abs(crossProductZ) < EPSILON) {
+            // Collinear
+            return 0;
+        } else if (crossProductX > 0 || (Math.abs(crossProductX) < EPSILON && crossProductY > 0) || (Math.abs(crossProductX) < EPSILON && Math.abs(crossProductY) < EPSILON && crossProductZ > 0)) {
+            // Counterclockwise direction (or non-collinear)
+            return 1;
+        } else {
+            // Clockwise direction
+            return -1;
+        }
     }
 
     public static boolean isPointInsideFace(Vector3f v0, Vector3f v1, List<Vector3f> vertices) {
