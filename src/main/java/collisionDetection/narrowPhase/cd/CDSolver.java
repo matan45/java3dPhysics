@@ -153,7 +153,6 @@ public class CDSolver {
             float distanceToPlane = faceNormal.dot(cylinder.getCenter().sub(v0));
             if (Math.abs(distanceToPlane) <= cylinder.getRadius()) {
 
-
                 // Check if the intersection point is inside the face's boundaries
                 if (CollisionUtil.isPointInsideFace(v0, v1, convexPolyhedron.getVertices())) {
                     // Calculate the intersection point on the plane

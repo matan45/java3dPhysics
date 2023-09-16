@@ -13,10 +13,6 @@ import static math.Const.EPSILON;
 public class CDSatGjk {
 
 
-    public static boolean isCollide(Line line, TerrainShape terrainShape) {
-        return terrainShape.isCollide(line);
-    }
-
     public static boolean isCollide(Plane plane, SATSupport convexPolyhedron) {
         // Check if any vertex of the polyhedron is in front of the plane
         for (Vector3f vertex : convexPolyhedron.getVertices()) {
@@ -158,7 +154,6 @@ public class CDSatGjk {
         return (!(distanceToStart < 0) || !(distanceToEnd < 0)) && (!(distanceToStart > 1) || !(distanceToEnd > 1));
     }
 
-
     public static boolean isCollide(Plane plane, AABB aabb) {
         // Calculate the half-extents of the AABB
         Vector3f halfExtents = aabb.getMax().sub(aabb.getMin()).div(2.0f);
@@ -199,7 +194,6 @@ public class CDSatGjk {
         } else return !(signedDistance < -projectionRadius); // OBB is entirely behind the plane
     }
 
-
     public static boolean isCollide(Plane plane, Line line) {
         // Calculate the direction vector of the line
         Vector3f lineDirection = line.getEnd().sub(line.getStart());
@@ -222,7 +216,6 @@ public class CDSatGjk {
         // Line intersects with the plane, but not within the line segment
         return t >= 0 && t <= 1; // Line intersects with the plane within the line segment
     }
-
 
     public static boolean isCollide(Plane plane, Triangle triangle) {
         List<Vector3f> vertices = triangle.getVertices();
@@ -249,6 +242,10 @@ public class CDSatGjk {
         }
 
         return false;
+    }
+
+    public static boolean isCollide(Line line, TerrainShape terrainShape) {
+        return terrainShape.isCollide(line);
     }
 
 }
