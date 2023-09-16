@@ -28,19 +28,16 @@ public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
 
     @Override
     public boolean isPointInside(Vector3f point) {
-        boolean isInside = true;
         // Iterate through the vertices of the polyhedron.
         for (Vector3f vertex : vertices) {
             // Calculate the vector from the current vertex to the test point.
             Vector3f vectorToVertex = vertex.sub(point);
 
-            // Check if the dot product between the vector and the vertex normal
-            // is positive for all vertices. If it is, the point is inside.
             if (vectorToVertex.dot(vertex) < 0) {
-                isInside = false;
+                return false;
             }
         }
-        return isInside;
+        return true;
     }
 
 

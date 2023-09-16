@@ -24,7 +24,7 @@ class ConvexPolyhedronTest {
 
         // Test points
         Vector3f insidePoint = new Vector3f(2, 2, 0);
-        Vector3f outsidePoint = new Vector3f(6, 6, 6);
+        Vector3f outsidePoint = new Vector3f(6, 6, 0);
 
         assertTrue(polyhedron.isPointInside(insidePoint));
         assertFalse(polyhedron.isPointInside(outsidePoint));

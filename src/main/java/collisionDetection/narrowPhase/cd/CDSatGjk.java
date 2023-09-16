@@ -34,11 +34,6 @@ public class CDSatGjk {
             return false;
         }
 
-        // Check if the sphere is completely inside the polyhedron
-        if (sphere.isPointInside(convexPolyhedron.closestPoint(sphere.getCenter()))) {
-            return true;
-        }
-
         // Handle the case where the sphere intersects with the polyhedron boundary
         // Iterate through the polyhedron's faces (triangles) and check for intersections
         for (int i = 0; i < convexPolyhedron.getVertices().size(); i++) {
