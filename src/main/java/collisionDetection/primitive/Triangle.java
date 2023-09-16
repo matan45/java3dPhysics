@@ -4,6 +4,7 @@ import collisionDetection.narrowPhase.Shape;
 import collisionDetection.narrowPhase.gjk.GJKSupport;
 import collisionDetection.narrowPhase.sat.Interval;
 import collisionDetection.narrowPhase.sat.SATSupport;
+import math.Quaternion;
 import math.Vector3f;
 
 import java.util.ArrayList;
@@ -165,6 +166,37 @@ public class Triangle implements Shape, SATSupport, GJKSupport {
         }
         return vertex3;
     }
+
+    @Override
+    public void translate(Vector3f position) {
+        vertex1.add(position);
+        vertex2.add(position);
+        vertex3.add(position);
+    }
+
+    @Override
+    public void scale(Vector3f scale) {
+        vertex1.x *= scale.x;
+        vertex1.y *= scale.y;
+        vertex1.z *= scale.z;
+
+        vertex2.x *= scale.x;
+        vertex2.y *= scale.y;
+        vertex2.z *= scale.z;
+
+        vertex3.x *= scale.x;
+        vertex3.y *= scale.y;
+        vertex3.z *= scale.z;
+    }
+
+    @Override
+    public void rotate(Quaternion rotate) {
+        vertex1.set(vertex1.rotate(rotate));
+        vertex2.set(vertex2.rotate(rotate));
+        vertex3.set(vertex3.rotate(rotate));
+
+    }
+
 
     @Override
     public String toString() {

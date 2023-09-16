@@ -140,6 +140,17 @@ public class Vector3f {
         return (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 
+    public Vector3f rotate(Quaternion rotation) {
+        // Convert the Vector3f to a Quaternion4f for the rotation
+        Quaternion vectorQuaternion = new Quaternion(x, y, z, 0);
+
+        // Perform the rotation by multiplying the rotation quaternion
+        Quaternion result = rotation.mul(vectorQuaternion).mul(rotation.conjugate());
+
+        // Update the Vector3f with the rotated values
+        return new Vector3f(result.x,result.y,result.z);
+    }
+
     public void set(Vector3f point) {
         this.x = point.x;
         this.y = point.y;

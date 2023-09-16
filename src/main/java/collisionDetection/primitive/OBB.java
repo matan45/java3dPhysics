@@ -4,6 +4,7 @@ import collisionDetection.narrowPhase.Shape;
 import collisionDetection.narrowPhase.gjk.GJKSupport;
 import collisionDetection.narrowPhase.sat.Interval;
 import collisionDetection.narrowPhase.sat.SATSupport;
+import math.Quaternion;
 import math.Vector3f;
 
 import java.util.ArrayList;
@@ -166,6 +167,23 @@ public class OBB implements Shape, SATSupport, GJKSupport {
 
         // Return the support vertex
         return supportVertex;
+    }
+
+    public void translate(Vector3f translation) {
+        center.set(center.add(translation));
+    }
+
+    public void scale(Vector3f scaleFactor) {
+        halfExtents.x *= scaleFactor.x;
+        halfExtents.y *= scaleFactor.y;
+        halfExtents.z *= scaleFactor.z;
+    }
+
+    public void rotate(Quaternion rotation) {
+        // Rotate each axis by the given quaternion
+        for (int i = 0; i < axis.length; i++) {
+            axis[i] = axis[i].rotate(rotation);
+        }
     }
 
     @Override

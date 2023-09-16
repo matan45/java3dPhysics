@@ -50,6 +50,18 @@ public class Sphere implements Shape, GJKSupport {
     }
 
     @Override
+    public void translate(Vector3f position) {
+        center.set(center.add(position));
+    }
+
+    @Override
+    public void scale(Vector3f scale) {
+        // Scale the radius of the sphere
+        radius *= Math.max(scale.x, Math.max(scale.y, scale.z));
+    }
+
+
+    @Override
     public String toString() {
         return "Sphere{" +
                 "center=" + center +

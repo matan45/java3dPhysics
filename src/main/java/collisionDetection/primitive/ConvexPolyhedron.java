@@ -5,6 +5,7 @@ import collisionDetection.narrowPhase.gjk.GJKSupport;
 import collisionDetection.narrowPhase.sat.Interval;
 import collisionDetection.narrowPhase.sat.SATSupport;
 import collisionDetection.util.CollisionUtil;
+import math.Quaternion;
 import math.Vector3f;
 
 import java.util.ArrayList;
@@ -78,8 +79,7 @@ public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
     }
 
     private boolean isIntersect(Line l1, Line l2) {
-        // Four direction for two lines and points of other
-        // line
+        // Four direction for two lines and points of other line
         int dir1 = CollisionUtil.direction(l1.getStart(), l1.getEnd(), l2.getStart());
         int dir2 = CollisionUtil.direction(l1.getStart(), l1.getEnd(), l2.getEnd());
         int dir3 = CollisionUtil.direction(l2.getStart(), l2.getEnd(), l1.getStart());
@@ -143,6 +143,26 @@ public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
         }
 
         return supportPoint;
+    }
+    @Override
+    public void translate(Vector3f translation) {
+        for (Vector3f vertex : vertices) {
+            vertex.set(vertex.add(translation));
+        }
+    }
+    @Override
+    public void scale(Vector3f scaleFactor) {
+        for (Vector3f vertex : vertices) {
+            vertex.x *= scaleFactor.x;
+            vertex.y *= scaleFactor.y;
+            vertex.z *= scaleFactor.z;
+        }
+    }
+    @Override
+    public void rotate(Quaternion rotation) {
+        for (Vector3f vertex : vertices) {
+            vertex.set(vertex.rotate(rotation));
+        }
     }
 
     @Override

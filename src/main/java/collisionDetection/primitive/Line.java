@@ -4,6 +4,7 @@ import collisionDetection.narrowPhase.Shape;
 import collisionDetection.narrowPhase.gjk.GJKSupport;
 import collisionDetection.narrowPhase.sat.Interval;
 import collisionDetection.narrowPhase.sat.SATSupport;
+import math.Quaternion;
 import math.Vector3f;
 
 import java.util.ArrayList;
@@ -58,6 +59,18 @@ public class Line implements Shape, GJKSupport, SATSupport {
 
         // Calculate the closest point by adding the scaled direction to the start point.
         return start.add(direction.mul(t));
+    }
+
+    @Override
+    public void translate(Vector3f position) {
+        start.set(start.add(position));
+        end.set(end.add(position));
+    }
+
+    @Override
+    public void rotate(Quaternion rotate) {
+        start.set(start.rotate(rotate));
+        end.set(end.rotate(rotate));
     }
 
     @Override

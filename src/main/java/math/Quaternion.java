@@ -80,6 +80,10 @@ public class Quaternion {
         return this.x * other.x + this.y * other.y + this.z * other.z + this.w * other.w;
     }
 
+    public Quaternion conjugate() {
+        return new Quaternion(-x, -y, -z, w);
+    }
+
     public Quaternion negate() {
         return new Quaternion(-x, -y, -z, -w);
     }

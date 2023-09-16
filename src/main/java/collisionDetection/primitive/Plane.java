@@ -1,8 +1,6 @@
 package collisionDetection.primitive;
 
 import collisionDetection.narrowPhase.Shape;
-import collisionDetection.narrowPhase.gjk.GJK;
-import collisionDetection.narrowPhase.gjk.GJKSupport;
 import math.Vector3f;
 
 import java.util.Objects;
@@ -54,6 +52,10 @@ public class Plane implements Shape {
         return point.sub(normal.mul(dis));
     }
 
+    @Override
+    public void translate(Vector3f position) {
+        distance += position.dot(normal);
+    }
 
     @Override
     public String toString() {

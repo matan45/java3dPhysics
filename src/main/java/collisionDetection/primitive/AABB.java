@@ -62,6 +62,23 @@ public class AABB implements Shape, SATSupport, GJKSupport {
     }
 
     @Override
+    public void translate(Vector3f position) {
+        min.set(min.add(position));
+        max.set(max.add(position));
+    }
+
+    @Override
+    public void scale(Vector3f scale) {
+        min.x *= scale.x;
+        min.y *= scale.y;
+        min.z *= scale.z;
+
+        max.x *= scale.x;
+        max.y *= scale.y;
+        max.z *= scale.z;
+    }
+
+    @Override
     public Interval getInterval(Vector3f axis) {
         float minProjection = axis.dot(getMin());
         float maxProjection = axis.dot(getMax());

@@ -2,6 +2,7 @@ package collisionDetection.primitive;
 
 import collisionDetection.narrowPhase.Shape;
 import collisionDetection.narrowPhase.gjk.GJKSupport;
+import math.Quaternion;
 import math.Vector3f;
 
 import java.util.Objects;
@@ -80,6 +81,23 @@ public class Cylinder implements Shape, GJKSupport {
         float clampedY = Math.max(center.y, Math.min(center.y + height, point.y)); // Clamp y-coordinate
 
         return new Vector3f(closestPointOnAxis.x, clampedY, closestPointOnAxis.z);
+    }
+
+    @Override
+    public void translate(Vector3f position) {
+        center.set(center.add(position));
+    }
+
+    @Override
+    public void scale(Vector3f scale) {
+        radius *= Math.max(scale.x, scale.z); // Scale the radius in X and Z axes
+        height *= scale.y; // Scale the height along the Y axis
+    }
+
+    @Override
+    public void rotate(Quaternion rotate) {
+        // Rotate the upAxis
+        upAxis.set(upAxis.rotate(rotate));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package collisionDetection.primitive;
 
 import collisionDetection.narrowPhase.Shape;
+import math.Quaternion;
 import math.Vector3f;
 
 import java.util.Objects;
