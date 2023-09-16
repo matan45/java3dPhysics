@@ -176,17 +176,9 @@ public class Triangle implements Shape, SATSupport, GJKSupport {
 
     @Override
     public void scale(Vector3f scale) {
-        vertex1.x *= scale.x;
-        vertex1.y *= scale.y;
-        vertex1.z *= scale.z;
-
-        vertex2.x *= scale.x;
-        vertex2.y *= scale.y;
-        vertex2.z *= scale.z;
-
-        vertex3.x *= scale.x;
-        vertex3.y *= scale.y;
-        vertex3.z *= scale.z;
+        vertex1.set(vertex1.mul(scale));
+        vertex2.set(vertex2.mul(scale));
+        vertex3.set(vertex3.mul(scale));
     }
 
     @Override

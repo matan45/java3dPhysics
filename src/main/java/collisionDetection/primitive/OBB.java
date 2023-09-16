@@ -79,18 +79,6 @@ public class OBB implements Shape, SATSupport, GJKSupport {
         this.halfExtents = halfExtents;
     }
 
-    public Vector3f getEdge(int edgeIndex) {
-        // Calculate the endpoints of the edge
-        Vector3f startPoint = new Vector3f(center);
-        startPoint.add(axis[edgeIndex]);
-
-        Vector3f endPoint = new Vector3f(center);
-        endPoint.add(axis[edgeIndex].mul(halfExtents.get(edgeIndex)));
-
-        // Calculate the edge vector
-        return endPoint.sub(startPoint);
-    }
-
     @Override
     public Interval getInterval(Vector3f axis) {
         float centerProjection = axis.x * getCenter().x + axis.y * getCenter().y + axis.z * getCenter().z;
@@ -173,10 +161,8 @@ public class OBB implements Shape, SATSupport, GJKSupport {
         center.set(center.add(translation));
     }
 
-    public void scale(Vector3f scaleFactor) {
-        halfExtents.x *= scaleFactor.x;
-        halfExtents.y *= scaleFactor.y;
-        halfExtents.z *= scaleFactor.z;
+    public void scale(Vector3f scale) {
+        halfExtents.set(halfExtents.mul(scale));
     }
 
     public void rotate(Quaternion rotation) {

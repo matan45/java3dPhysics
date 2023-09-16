@@ -151,11 +151,9 @@ public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
         }
     }
     @Override
-    public void scale(Vector3f scaleFactor) {
+    public void scale(Vector3f scale) {
         for (Vector3f vertex : vertices) {
-            vertex.x *= scaleFactor.x;
-            vertex.y *= scaleFactor.y;
-            vertex.z *= scaleFactor.z;
+            vertex.set(vertex.mul(scale));
         }
     }
     @Override

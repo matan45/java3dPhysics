@@ -69,13 +69,8 @@ public class AABB implements Shape, SATSupport, GJKSupport {
 
     @Override
     public void scale(Vector3f scale) {
-        min.x *= scale.x;
-        min.y *= scale.y;
-        min.z *= scale.z;
-
-        max.x *= scale.x;
-        max.y *= scale.y;
-        max.z *= scale.z;
+        min.set(min.mul(scale));
+        max.set(max.mul(scale));
     }
 
     @Override

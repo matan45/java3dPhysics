@@ -104,6 +104,10 @@ public class Vector3f {
         return new Vector3f(x * s, y * s, z * s);
     }
 
+    public Vector3f mul(Vector3f other) {
+        return new Vector3f(x * other.x, y * other.y, z * other.z);
+    }
+
     public Vector3f cross(Vector3f other) {
         return new Vector3f(y * other.z - z * other.y, other.x * z - other.z * x,
                 x * other.y - y * other.x);
