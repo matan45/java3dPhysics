@@ -11,35 +11,35 @@ import java.util.List;
 
 public class CDSolver {
 
-    public static CollisionResult solve(Plane plane, Cylinder cylinder) {
+    public CollisionResult solve(Plane plane, Cylinder cylinder) {
         return null;
     }
 
-    public static CollisionResult solve(Plane plane, Sphere sphere) {
+    public CollisionResult solve(Plane plane, Sphere sphere) {
         return null;
     }
 
-    public static CollisionResult solve(Plane plane, Capsule capsule) {
+    public CollisionResult solve(Plane plane, Capsule capsule) {
         return null;
     }
 
-    public static CollisionResult solve(Plane plane, AABB aabb) {
+    public CollisionResult solve(Plane plane, AABB aabb) {
         return null;
     }
 
-    public static CollisionResult solve(Plane plane, OBB obb) {
+    public CollisionResult solve(Plane plane, OBB obb) {
         return null;
     }
 
-    public static CollisionResult solve(Plane plane, Line line) {
+    public CollisionResult solve(Plane plane, Line line) {
         return null;
     }
 
-    public static CollisionResult solve(Plane plane, Triangle triangle) {
+    public CollisionResult solve(Plane plane, Triangle triangle) {
         return null;
     }
 
-    public static CollisionResult solve(Plane plane, ConvexPolyhedron convexPolyhedron) {
+    public CollisionResult solve(Plane plane, ConvexPolyhedron convexPolyhedron) {
         // Initialize collision result
         CollisionResult result = new CollisionResult();
         result.setColliding(true);
@@ -77,7 +77,7 @@ public class CDSolver {
         return result;
     }
 
-    public static CollisionResult solve(Sphere sphere, SATSupport convexPolyhedron) {
+    public CollisionResult solve(Sphere sphere, SATSupport convexPolyhedron) {
         // Check if the sphere is completely inside the polyhedron
         if (sphere.isPointInside(convexPolyhedron.closestPoint(sphere.getCenter()))) {
             // Calculate the collision normal (pointing from polyhedron to sphere)
@@ -117,7 +117,7 @@ public class CDSolver {
         return new CollisionResult(true, normal, depth, contactPoints);
     }
 
-    public static CollisionResult solve(Cylinder cylinder, SATSupport convexPolyhedron) {
+    public CollisionResult solve(Cylinder cylinder, SATSupport convexPolyhedron) {
         // Initialize collision result
         CollisionResult result = new CollisionResult();
 
@@ -167,7 +167,7 @@ public class CDSolver {
         return new CollisionResult(true, normal, depth, contactPoints);
     }
 
-    public static CollisionResult solve(Capsule capsule, SATSupport convexPolyhedron) {
+    public CollisionResult solve(Capsule capsule, SATSupport convexPolyhedron) {
 
         // Check if any part of the capsule is completely inside the polyhedron
         boolean capsuleInside = true;
@@ -215,7 +215,7 @@ public class CDSolver {
         return new CollisionResult(true, normal, depth, contactPoints);
     }
 
-    public static CollisionResult solve(Plane plane, SATSupport convexPolyhedron) {
+    public CollisionResult solve(Plane plane, SATSupport convexPolyhedron) {
         // Initialize collision result
         CollisionResult result = new CollisionResult();
         result.setColliding(true);

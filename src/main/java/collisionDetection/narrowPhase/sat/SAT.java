@@ -1,6 +1,5 @@
 package collisionDetection.narrowPhase.sat;
 
-import collisionDetection.util.CollisionUtil;
 import math.Vector3f;
 
 import java.util.HashSet;
@@ -9,7 +8,13 @@ import java.util.Set;
 
 public class SAT {
 
-    public static boolean isCollide(SATSupport shape1, SATSupport shape2) {
+    private final SATSolver satSolver;
+
+    public SAT() {
+        this.satSolver = new SATSolver();
+    }
+
+    public boolean isCollide(SATSupport shape1, SATSupport shape2) {
 
         Set<Vector3f> allAxis = combineAxis(shape1, shape2);
 

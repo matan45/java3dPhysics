@@ -12,7 +12,7 @@ import static math.Const.GJK_EPA_MAX_ITERATORS;
 
 public class EPA {
 
-    public static CollisionResult epaCollisionResult(GJKSupport shape1, GJKSupport shape2, Simplex simplex) {
+    public CollisionResult epaCollisionResult(GJKSupport shape1, GJKSupport shape2, Simplex simplex) {
 
         simplex.createFacesFromSimplex();
 
@@ -51,7 +51,7 @@ public class EPA {
         return new CollisionResult();// No collision
     }
 
-    public static Face findClosestFace(Simplex simplex) {
+    public Face findClosestFace(Simplex simplex) {
         // Initialize variables to store the closest face and its distance
         Face closestFace = new Face();
         float closestDistance = Float.MAX_VALUE;
@@ -73,7 +73,7 @@ public class EPA {
         return closestFace;
     }
 
-    private static List<Vector3f> calculateContactPointsOnFace(Face closestFace, Simplex simplex) {
+    private List<Vector3f> calculateContactPointsOnFace(Face closestFace, Simplex simplex) {
         List<Vector3f> contactPoints = new ArrayList<>();
 
         // Iterate through the vertices of the simplex
@@ -94,7 +94,7 @@ public class EPA {
         return contactPoints;
     }
 
-    private static boolean isPointInsideFace(Vector3f point, Face face) {
+    private boolean isPointInsideFace(Vector3f point, Face face) {
         // Check if the point is inside the face by checking if it is on the correct side
         // of all the face's edges using the cross product.
 

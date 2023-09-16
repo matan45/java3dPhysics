@@ -1,5 +1,7 @@
 package collisionDetection.narrowPhase.cd;
 
+import collisionDetection.CDEngine;
+import collisionDetection.broadPhase.SAP;
 import collisionDetection.primitive.*;
 import collisionDetection.primitive.terrain.TerrainShape;
 import math.Vector3f;
@@ -13,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CDSATGJKTest {
 
+    static CDSatGjk cdSatGjk=new CDSatGjk();
 
     @Test
     public void testPlaneCollisionLine() {
@@ -21,34 +24,35 @@ class CDSATGJKTest {
 
         // Test a line that collides with the plane.
         Line line1 = new Line(new Vector3f(0, 0, 0), new Vector3f(0, 3, 0));
-        assertTrue(CDSatGjk.isCollide(plane, line1));
+        assertTrue(cdSatGjk.isCollide(plane, line1));
 
         // Test a line that does collide with the plane.
         Line line2 = new Line(new Vector3f(1, 1, 1), new Vector3f(2, 2, 2));
-        assertTrue(CDSatGjk.isCollide(plane, line2));
+        assertTrue(cdSatGjk.isCollide(plane, line2));
 
         // Test a line that is parallel to the plane (no collision).
         Line line3 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 0, 1));
-        assertFalse(CDSatGjk.isCollide(plane, line3));
+        assertFalse(cdSatGjk.isCollide(plane, line3));
 
         // Test a line that intersects the plane at its endpoint.
         Line line4 = new Line(new Vector3f(0, 2, 0), new Vector3f(0, 3, 0));
-        assertTrue(CDSatGjk.isCollide(plane, line4));
+        assertTrue(cdSatGjk.isCollide(plane, line4));
 
         // Create a plane with a known normal and distance
         Plane plane2 = new Plane(new Vector3f(0, 0, 1), 0);
 
         // Test a line that intersects with the plane
         Line intersectingLine = new Line(new Vector3f(0, 0, -1), new Vector3f(0, 0, 1));
-        assertTrue(CDSatGjk.isCollide(plane2, intersectingLine));
+        assertTrue(cdSatGjk.isCollide(plane2, intersectingLine));
 
         // Test a line that is parallel to the plane and does not intersect
         Line parallelLine = new Line(new Vector3f(1, 1, 1), new Vector3f(2, 2, 2));
-        assertFalse(CDSatGjk.isCollide(plane2, parallelLine));
+        assertFalse(cdSatGjk.isCollide(plane2, parallelLine));
     }
 
     @Test
     public void testTerrainCollisionLine() {
+        CDEngine.init(new SAP());
         // Create a TerrainShape with height data, borders, width, and length for testing collision
         float[][] heightData = new float[5][5];
 
@@ -62,13 +66,13 @@ class CDSATGJKTest {
         Line line = new Line(new Vector3f(0, 5, 0), new Vector3f(0, -1, 0));
 
         // Assert that the result is true since the line should collide with the terrain
-        assertTrue(CDSatGjk.isCollide(line, terrainShape));
+        assertTrue(cdSatGjk.isCollide(line, terrainShape));
 
         // Create a Line object representing a line segment that does not collide with the terrain
         Line line2 = new Line(new Vector3f(3, 3, 3), new Vector3f(4, 4, 4));
 
         // Assert that the result is false since the line should not collide with the terrain
-        assertFalse(CDSatGjk.isCollide(line2, terrainShape));
+        assertFalse(cdSatGjk.isCollide(line2, terrainShape));
     }
 
 
@@ -77,7 +81,7 @@ class CDSATGJKTest {
         Sphere sphere = new Sphere(new Vector3f(0.0f, 4.0f, 0.0f), 2.0f);
         Plane plane = new Plane(new Vector3f(0.0f, 1.0f, 0.0f), 3.0f);
 
-        boolean result = CDSatGjk.isCollide(plane, sphere);
+        boolean result = cdSatGjk.isCollide(plane, sphere);
 
         assertTrue(result, "Sphere Plane should be colliding");
     }
@@ -87,7 +91,7 @@ class CDSATGJKTest {
         Sphere sphere = new Sphere(new Vector3f(0.0f, 5.0f, 0.0f), 2.0f);
         Plane plane = new Plane(new Vector3f(1.0f, 0.0f, 0.0f), 10.0f);
 
-        boolean result = CDSatGjk.isCollide(plane, sphere);
+        boolean result = cdSatGjk.isCollide(plane, sphere);
 
         assertFalse(result, "Sphere Plane should not be colliding");
     }
@@ -101,7 +105,7 @@ class CDSATGJKTest {
 
         Sphere sphere = new Sphere(new Vector3f(0, 0, 0), 1.0f);
 
-        boolean result = CDSatGjk.isCollide(sphere, obb);
+        boolean result = cdSatGjk.isCollide(sphere, obb);
 
         assertTrue(result, "OBB Sphere should be colliding");
     }
@@ -114,7 +118,7 @@ class CDSATGJKTest {
 
 
         Sphere sphere = new Sphere(new Vector3f(2, 2, 2), 0.5f);
-        boolean result = CDSatGjk.isCollide(sphere, obb);
+        boolean result = cdSatGjk.isCollide(sphere, obb);
 
         assertFalse(result, "OBB Sphere should not be colliding");
     }
@@ -125,7 +129,7 @@ class CDSATGJKTest {
         Plane plane = new Plane(new Vector3f(0, 1, 0), 0); // Plane with normal (0, 1, 0) and distance 0
         AABB aabb = new AABB(new Vector3f(-1, -1, -1), new Vector3f(1, 1, 1)); // AABB centered at (0, 0, 0)
 
-        boolean result = CDSatGjk.isCollide(plane, aabb);
+        boolean result = cdSatGjk.isCollide(plane, aabb);
         assertTrue(result, "AABB and plane should be colliding");
     }
 
@@ -134,7 +138,7 @@ class CDSATGJKTest {
         Plane plane = new Plane(new Vector3f(0, 1, 0), 0); // Plane with normal (0, 1, 0) and distance 0
         AABB aabb = new AABB(new Vector3f(-2, -2, -2), new Vector3f(-1, -1, -1)); // AABB above the plane
 
-        boolean result = CDSatGjk.isCollide(plane, aabb);
+        boolean result = cdSatGjk.isCollide(plane, aabb);
         assertFalse(result, "AABB and plane should not be colliding");
     }
 
@@ -143,7 +147,7 @@ class CDSATGJKTest {
         Capsule capsule = new Capsule(new Vector3f(0, 0, 0), new Vector3f(0, 2, 0), 1.0f);
         AABB aabb = new AABB(new Vector3f(-1, -1, -1), new Vector3f(1, 1, 1));
 
-        boolean result = CDSatGjk.isCollide(capsule, aabb);
+        boolean result = cdSatGjk.isCollide(capsule, aabb);
         assertTrue(result, "Capsule and AABB should be colliding");
     }
 
@@ -152,7 +156,7 @@ class CDSATGJKTest {
         Capsule capsule = new Capsule(new Vector3f(1, 1, 3), new Vector3f(1, 2, 3), 1.0f);
         AABB aabb = new AABB(new Vector3f(-1, -1, -1), new Vector3f(1, 1, 1));
 
-        boolean result = CDSatGjk.isCollide(capsule, aabb);
+        boolean result = cdSatGjk.isCollide(capsule, aabb);
         assertFalse(result, "Capsule and AABB should not be colliding");
     }
 
@@ -161,7 +165,7 @@ class CDSATGJKTest {
         Cylinder cylinder = new Cylinder(new Vector3f(0, 1, 0), 1.0f, 4.0f);
         AABB aabb = new AABB(new Vector3f(-1, 0, -1), new Vector3f(1, 3, 1));
 
-        boolean result = CDSatGjk.isCollide(cylinder, aabb);
+        boolean result = cdSatGjk.isCollide(cylinder, aabb);
         assertTrue(result, "Cylinder and AABB should be colliding");
     }
 
@@ -170,7 +174,7 @@ class CDSATGJKTest {
         Cylinder cylinder = new Cylinder(new Vector3f(5, 0, 0), 1.0f, 2.0f);
         AABB aabb = new AABB(new Vector3f(-1, 0, -1), new Vector3f(1, 3, 1));
 
-        boolean result = CDSatGjk.isCollide(cylinder, aabb);
+        boolean result = cdSatGjk.isCollide(cylinder, aabb);
         assertFalse(result, "Cylinder and AABB should not be colliding");
     }
 
@@ -179,7 +183,7 @@ class CDSATGJKTest {
         Cylinder cylinder = new Cylinder(new Vector3f(0, 1, 0), 1.0f, 2.0f);
         Plane plane = new Plane(new Vector3f(0, 1, 0), 0); // Plane with normal (0, 1, 0) and distance 0
 
-        boolean result = CDSatGjk.isCollide(plane, cylinder);
+        boolean result = cdSatGjk.isCollide(plane, cylinder);
         assertTrue(result, "Cylinder and Plane should be colliding");
     }
 
@@ -188,7 +192,7 @@ class CDSATGJKTest {
         Cylinder cylinder = new Cylinder(new Vector3f(0, 5, 0), 1.0f, 2.0f);
         Plane plane = new Plane(new Vector3f(0, 1, 0), 0); // Plane with normal (0, 1, 0) and distance 0
 
-        boolean result = CDSatGjk.isCollide(plane, cylinder);
+        boolean result = cdSatGjk.isCollide(plane, cylinder);
         assertFalse(result, "Cylinder and Plane should not be colliding");
     }
 
@@ -197,7 +201,7 @@ class CDSATGJKTest {
         Capsule capsule = new Capsule(new Vector3f(0, 1, 0), new Vector3f(0, 3, 0), 1f);
         Plane plane = new Plane(new Vector3f(0, 1, 0), 2); // Plane with normal (0, 1, 0) and distance 2
 
-        boolean result = CDSatGjk.isCollide(plane, capsule);
+        boolean result = cdSatGjk.isCollide(plane, capsule);
         assertTrue(result, "Capsule and Plane should be colliding");
     }
 
@@ -206,7 +210,7 @@ class CDSATGJKTest {
         Capsule capsule = new Capsule(new Vector3f(0, 5, 0), new Vector3f(0, 7, 0), 0.5f);
         Plane plane = new Plane(new Vector3f(0, 1, 0), 0); // Plane with normal (0, 1, 0) and distance 0
 
-        boolean result = CDSatGjk.isCollide(plane, capsule);
+        boolean result = cdSatGjk.isCollide(plane, capsule);
         assertFalse(result, "Capsule and Plane should not be colliding");
     }
 
@@ -216,7 +220,7 @@ class CDSATGJKTest {
 
         Triangle triangle = new Triangle(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0), new Vector3f(0, 1, 0));
 
-        boolean collision = CDSatGjk.isCollide(cylinder, triangle);
+        boolean collision = cdSatGjk.isCollide(cylinder, triangle);
         assertTrue(collision, "Expected collision between cylinder and triangle");
     }
 
@@ -226,7 +230,7 @@ class CDSATGJKTest {
 
         Triangle triangle = new Triangle(new Vector3f(-3, 0, 0), new Vector3f(-2, 0, 0), new Vector3f(-2, -1, 0));
 
-        boolean collision = CDSatGjk.isCollide(cylinder, triangle);
+        boolean collision = cdSatGjk.isCollide(cylinder, triangle);
         assertFalse(collision, "Expected no collision between cylinder and triangle");
     }
 
@@ -235,7 +239,7 @@ class CDSATGJKTest {
         Cylinder cylinder = new Cylinder(new Vector3f(0, 0, 0), 1.0f, 2.0f);
         OBB obb = new OBB(new Vector3f(1, 0, 0), new Vector3f(1, 1, 1));
 
-        boolean result = CDSatGjk.isCollide(cylinder, obb);
+        boolean result = cdSatGjk.isCollide(cylinder, obb);
         assertTrue(result, "Collision should be detected");
     }
 
@@ -244,7 +248,7 @@ class CDSATGJKTest {
         Cylinder cylinder = new Cylinder(new Vector3f(0, 0, 0), 1.0f, 2.0f);
         OBB obb = new OBB(new Vector3f(4, 4, 4), new Vector3f(1, 1, 1));
 
-        boolean result = CDSatGjk.isCollide(cylinder, obb);
+        boolean result = cdSatGjk.isCollide(cylinder, obb);
         assertFalse(result, "No collision should be detected");
     }
 
@@ -258,7 +262,7 @@ class CDSATGJKTest {
         Vector3f vertex3 = new Vector3f(0.5f, 1, 0);
         Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
 
-        assertTrue(CDSatGjk.isCollide(plane, triangle));
+        assertTrue(cdSatGjk.isCollide(plane, triangle));
     }
 
     @Test
@@ -271,7 +275,7 @@ class CDSATGJKTest {
         Vector3f vertex3 = new Vector3f(2, 0, 0);
         Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
 
-        assertFalse(CDSatGjk.isCollide(plane, triangle));
+        assertFalse(cdSatGjk.isCollide(plane, triangle));
     }
 
 
@@ -281,7 +285,7 @@ class CDSATGJKTest {
         Capsule capsule = new Capsule(new Vector3f(0, 0, 0), new Vector3f(0, 1, 0), 0.5f);
         OBB obb = new OBB(new Vector3f(0, 0.5f, 0), new Vector3f(0.5f, 0.5f, 0.5f));
 
-        assertTrue(CDSatGjk.isCollide(capsule, obb));
+        assertTrue(cdSatGjk.isCollide(capsule, obb));
     }
 
     @Test
@@ -290,7 +294,7 @@ class CDSATGJKTest {
         Capsule capsule = new Capsule(new Vector3f(3, 3, 0), new Vector3f(5, 5, 0), 0.5f);
         OBB obb = new OBB(new Vector3f(0, 0, 0), new Vector3f(0.5f, 0.5f, 0.5f));
 
-        assertFalse(CDSatGjk.isCollide(capsule, obb));
+        assertFalse(cdSatGjk.isCollide(capsule, obb));
     }
 
     @Test
@@ -305,7 +309,7 @@ class CDSATGJKTest {
         Vector3f vertex3 = new Vector3f(1, 1, 0);
         Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
 
-        assertTrue(CDSatGjk.isCollide(capsule, triangle));
+        assertTrue(cdSatGjk.isCollide(capsule, triangle));
     }
 
     @Test
@@ -320,7 +324,7 @@ class CDSATGJKTest {
         Vector3f vertex3 = new Vector3f(-3, -1, 0);
         Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
 
-        assertFalse(CDSatGjk.isCollide(capsule, triangle));
+        assertFalse(cdSatGjk.isCollide(capsule, triangle));
     }
 
 
@@ -329,7 +333,7 @@ class CDSATGJKTest {
         ConvexPolyhedron polyhedron = createNonCollidingPolyhedron1();
         Sphere sphere = new Sphere(new Vector3f(7, 7, 7), 1.0f);
 
-        assertFalse(CDSatGjk.isCollide(sphere, polyhedron));
+        assertFalse(cdSatGjk.isCollide(sphere, polyhedron));
     }
 
     @Test
@@ -337,7 +341,7 @@ class CDSATGJKTest {
         ConvexPolyhedron polyhedron = createNonCollidingPolyhedron1();
         Sphere sphere = new Sphere(new Vector3f(0, 0, 0), 1.0f);
 
-        assertTrue(CDSatGjk.isCollide(sphere, polyhedron));
+        assertTrue(cdSatGjk.isCollide(sphere, polyhedron));
     }
 
     private ConvexPolyhedron createNonCollidingPolyhedron1() {
@@ -346,16 +350,6 @@ class CDSATGJKTest {
         vertices.add(new Vector3f(1, 0, 0));
         vertices.add(new Vector3f(1, 1, 0));
         vertices.add(new Vector3f(0, 1, 0));
-
-        return new ConvexPolyhedron(vertices);
-    }
-
-    private ConvexPolyhedron createNonCollidingPolyhedron2() {
-        List<Vector3f> vertices = new ArrayList<>();
-        vertices.add(new Vector3f(2, 2, 0));
-        vertices.add(new Vector3f(3, 2, 0));
-        vertices.add(new Vector3f(3, 3, 0));
-        vertices.add(new Vector3f(2, 3, 0));
 
         return new ConvexPolyhedron(vertices);
     }
@@ -377,7 +371,7 @@ class CDSATGJKTest {
         ConvexPolyhedron polyhedron = new ConvexPolyhedron(vertices);
 
         // Check for collision
-        boolean collision = CDSatGjk.isCollide(capsule, polyhedron);
+        boolean collision = cdSatGjk.isCollide(capsule, polyhedron);
 
         // Assert that collision is detected
         assertTrue(collision);
@@ -404,7 +398,7 @@ class CDSATGJKTest {
         ConvexPolyhedron polyhedron = new ConvexPolyhedron(polyhedronVertices);
 
         // Check for collision
-        boolean collision = CDSatGjk.isCollide(capsule, polyhedron);
+        boolean collision = cdSatGjk.isCollide(capsule, polyhedron);
 
         // Assert that no collision is detected
         assertFalse(collision);
@@ -425,7 +419,7 @@ class CDSATGJKTest {
         ConvexPolyhedron polyhedron = new ConvexPolyhedron(vertices);
 
         // Check for collision
-        boolean collision = CDSatGjk.isCollide(cylinder, polyhedron);
+        boolean collision = cdSatGjk.isCollide(cylinder, polyhedron);
 
         // Assert that collision is detected
         assertTrue(collision);
@@ -445,7 +439,7 @@ class CDSATGJKTest {
         ConvexPolyhedron polyhedron = new ConvexPolyhedron(vertices);
 
         // Check for collision
-        boolean collision = CDSatGjk.isCollide(cylinder, polyhedron);
+        boolean collision = cdSatGjk.isCollide(cylinder, polyhedron);
 
         // Assert that collision is detected
         assertFalse(collision);

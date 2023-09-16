@@ -12,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-
 class SATTest {
+    static SAT sat = new SAT();
 
     @Test
     public void testOBBCollidingWithAABB() {
@@ -25,9 +25,9 @@ class SATTest {
         Vector3f halfExtents = new Vector3f(1.0f, 1.0f, 1.0f);
         OBB obb = new OBB(center, halfExtents);
 
-        boolean collision = SAT.isCollide(aabb, obb);
+        boolean collision = sat.isCollide(aabb, obb);
 
-        assertTrue(collision,"OBB AABB should be colliding");
+        assertTrue(collision, "OBB AABB should be colliding");
     }
 
     @Test
@@ -40,11 +40,10 @@ class SATTest {
         Vector3f halfExtents = new Vector3f(1.0f, 1.0f, 1.0f);
         OBB obb = new OBB(center, halfExtents);
 
-        boolean collision = SAT.isCollide(aabb, obb);
+        boolean collision = sat.isCollide(aabb, obb);
 
-        assertFalse(collision,"OBB AABB should not be colliding");
+        assertFalse(collision, "OBB AABB should not be colliding");
     }
-
 
 
     @Test
@@ -58,7 +57,7 @@ class SATTest {
         Vector3f vertex3 = new Vector3f(1, 3, 1);
         Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
 
-        assertTrue(SAT.isCollide(triangle, aabb));
+        assertTrue(sat.isCollide(triangle, aabb));
     }
 
     @Test
@@ -72,7 +71,7 @@ class SATTest {
         Vector3f vertex3 = new Vector3f(5, 5, 0);
         Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
 
-        assertFalse(SAT.isCollide(triangle, aabb));
+        assertFalse(sat.isCollide(triangle, aabb));
     }
 
 
@@ -81,7 +80,7 @@ class SATTest {
         ConvexPolyhedron polyhedron1 = createNonCollidingPolyhedron1();
         ConvexPolyhedron polyhedron2 = createNonCollidingPolyhedron2();
 
-        assertFalse(SAT.isCollide(polyhedron1, polyhedron2));
+        assertFalse(sat.isCollide(polyhedron1, polyhedron2));
     }
 
     @Test
@@ -89,7 +88,7 @@ class SATTest {
         ConvexPolyhedron polyhedron1 = createCollidingPolyhedron1();
         ConvexPolyhedron polyhedron2 = createCollidingPolyhedron2();
 
-        assertTrue(SAT.isCollide(polyhedron1, polyhedron2));
+        assertTrue(sat.isCollide(polyhedron1, polyhedron2));
     }
 
     private ConvexPolyhedron createNonCollidingPolyhedron1() {
@@ -144,7 +143,7 @@ class SATTest {
                 new Vector3f(2.0f, 2.0f, 2.0f)
         );
 
-        assertTrue(SAT.isCollide(obb1, obb2),"OBBs should be colliding");
+        assertTrue(sat.isCollide(obb1, obb2), "OBBs should be colliding");
     }
 
     @Test
@@ -157,7 +156,7 @@ class SATTest {
         Vector3f halfExtents2 = new Vector3f(1.0f, 1.0f, 1.0f);
         OBB obb2 = new OBB(center2, halfExtents2);
 
-        boolean collision = SAT.isCollide(obb1, obb2);
+        boolean collision = sat.isCollide(obb1, obb2);
 
         assertFalse(collision);
     }
@@ -165,10 +164,10 @@ class SATTest {
     @Test
     public void testNonParallelEdgesOBB() {
         // Create two non-parallel OBBs
-        OBB obb1 = new OBB(new Vector3f(0, 0, 0),new Vector3f(1, 1, 1));
-        OBB obb2 = new OBB(new Vector3f(4, 4, 4),new Vector3f(1, 1, 1));
+        OBB obb1 = new OBB(new Vector3f(0, 0, 0), new Vector3f(1, 1, 1));
+        OBB obb2 = new OBB(new Vector3f(4, 4, 4), new Vector3f(1, 1, 1));
 
-        assertFalse(SAT.isCollide(obb1, obb2), "Non-parallel OBBs should not be colliding");
+        assertFalse(sat.isCollide(obb1, obb2), "Non-parallel OBBs should not be colliding");
     }
 
     @Test
@@ -184,7 +183,7 @@ class SATTest {
                 new Vector3f(1.5f, 0.5f, 0),
                 new Vector3f(0.5f, 1.5f, 0)
         );
-        assertTrue(SAT.isCollide(triangle1, triangle2),"Triangles should be colliding");
+        assertTrue(sat.isCollide(triangle1, triangle2), "Triangles should be colliding");
     }
 
     @Test
@@ -201,15 +200,15 @@ class SATTest {
                 new Vector3f(2, 3, 0)
         );
 
-        assertFalse(SAT.isCollide(triangle1, triangle2),"Triangles should not be colliding");
+        assertFalse(sat.isCollide(triangle1, triangle2), "Triangles should not be colliding");
     }
 
     @Test
-    public void  parallelEdgesTriangle() {
+    public void parallelEdgesTriangle() {
         Triangle triangle1 = new Triangle(
-                new Vector3f(-2,-1,0),
+                new Vector3f(-2, -1, 0),
                 new Vector3f(-3, 0, 0),
-                new Vector3f(-1, 0,0)
+                new Vector3f(-1, 0, 0)
         );
 
         Triangle triangle2 = new Triangle(
@@ -218,7 +217,7 @@ class SATTest {
                 new Vector3f(1, 0, 0)
         );
 
-        assertFalse(SAT.isCollide(triangle1, triangle2),"Triangles not be colliding");
+        assertFalse(sat.isCollide(triangle1, triangle2), "Triangles not be colliding");
     }
 
     @Test
@@ -231,7 +230,7 @@ class SATTest {
         Vector3f max2 = new Vector3f(3, 3, 3);
         AABB aabb2 = new AABB(min2, max2);
 
-        boolean result = SAT.isCollide(aabb1, aabb2);
+        boolean result = sat.isCollide(aabb1, aabb2);
 
         assertTrue(result, "AABBs should be colliding");
 
@@ -247,7 +246,7 @@ class SATTest {
         Vector3f max2 = new Vector3f(5, 5, 5);
         AABB aabb2 = new AABB(min2, max2);
 
-        boolean result = SAT.isCollide(aabb1, aabb2);
+        boolean result = sat.isCollide(aabb1, aabb2);
 
         assertFalse(result, "AABBs should not be colliding");
     }
@@ -269,23 +268,23 @@ class SATTest {
 
         // Test cases where the line collides with the cube
         Line line1 = new Line(new Vector3f(0, 0, -2), new Vector3f(0, 0, 2));
-        assertTrue(SAT.isCollide(line1, cube));
+        assertTrue(sat.isCollide(line1, cube));
 
         Line line2 = new Line(new Vector3f(0, 0, 0), new Vector3f(0, 0, 1));
-        assertTrue(SAT.isCollide(line2, cube));
+        assertTrue(sat.isCollide(line2, cube));
 
         Line line3 = new Line(new Vector3f(-2, -2, -2), new Vector3f(1, 1, 1));
-        assertTrue(SAT.isCollide(line3, cube));
+        assertTrue(sat.isCollide(line3, cube));
 
         // Test cases where the line does not collide with the cube
         Line line4 = new Line(new Vector3f(2, 2, 2), new Vector3f(4, 4, 4));
-        assertFalse(SAT.isCollide(line4, cube));
+        assertFalse(sat.isCollide(line4, cube));
 
         Line line5 = new Line(new Vector3f(2, 2, 2), new Vector3f(3, 3, 3));
-        assertFalse(SAT.isCollide(line5, cube));
+        assertFalse(sat.isCollide(line5, cube));
 
         Line line6 = new Line(new Vector3f(2, 2, 2), new Vector3f(2, 2, 3));
-        assertFalse(SAT.isCollide(line6, cube));
+        assertFalse(sat.isCollide(line6, cube));
     }
 
     @Test
@@ -295,23 +294,23 @@ class SATTest {
 
         // Test cases where the line intersects the AABB
         Line line1 = new Line(new Vector3f(0, 0, -2), new Vector3f(0, 0, 2));
-        assertTrue(SAT.isCollide(line1, aabb));
+        assertTrue(sat.isCollide(line1, aabb));
 
         Line line2 = new Line(new Vector3f(-2, -2, -2), new Vector3f(-1, -1, -1));
-        assertTrue(SAT.isCollide(line2, aabb));
+        assertTrue(sat.isCollide(line2, aabb));
 
         Line line3 = new Line(new Vector3f(0, 0, 0), new Vector3f(0, 0, 1));
-        assertTrue(SAT.isCollide(line3, aabb));
+        assertTrue(sat.isCollide(line3, aabb));
 
         // Test cases where the line does not intersect the AABB
         Line line4 = new Line(new Vector3f(2, 2, 2), new Vector3f(3, 3, 3));
-        assertFalse(SAT.isCollide(line4, aabb));
+        assertFalse(sat.isCollide(line4, aabb));
 
         Line line5 = new Line(new Vector3f(2, 2, 2), new Vector3f(2, 2, 3));
-        assertFalse(SAT.isCollide(line5, aabb));
+        assertFalse(sat.isCollide(line5, aabb));
 
         Line line6 = new Line(new Vector3f(2, 0, 0), new Vector3f(3, 0, 0));
-        assertFalse(SAT.isCollide(line6, aabb));
+        assertFalse(sat.isCollide(line6, aabb));
     }
 
     @Test
@@ -325,15 +324,15 @@ class SATTest {
         Line line = new Line(new Vector3f(-1f, 0, 0), new Vector3f(3f, 0, 0));
 
         // Test if the line and triangle intersect
-        assertTrue(SAT.isCollide(line, triangle));
+        assertTrue(sat.isCollide(line, triangle));
 
         // Test non-intersecting case
         Line nonIntersectingLine = new Line(new Vector3f(3, 3, 3), new Vector3f(4, 4, 4));
-        assertFalse(SAT.isCollide(nonIntersectingLine, triangle));
+        assertFalse(sat.isCollide(nonIntersectingLine, triangle));
 
         Line line2 = new Line(new Vector3f(0.5f, 0.5f, 0), new Vector3f(1.5f, 1.5f, 0));
 
-        assertTrue(SAT.isCollide(line2, triangle));
+        assertTrue(sat.isCollide(line2, triangle));
 
         // Create a triangle entirely inside a line segment
         vertex1 = new Vector3f(0, 0, 0);
@@ -343,7 +342,7 @@ class SATTest {
         Triangle triangle2 = new Triangle(vertex1, vertex2, vertex3);
         Line line3 = new Line(new Vector3f(1, 1, 0), new Vector3f(5, 5, 0));
 
-        assertTrue(SAT.isCollide(line3, triangle2));
+        assertTrue(sat.isCollide(line3, triangle2));
     }
 
     @Test
@@ -353,11 +352,11 @@ class SATTest {
 
         // Test a line that intersects with the OBB
         Line intersectingLine = new Line(new Vector3f(0, 0, 0), new Vector3f(2, 2, 2));
-        assertTrue(SAT.isCollide(intersectingLine, obb));
+        assertTrue(sat.isCollide(intersectingLine, obb));
 
         // Test a line that does not intersect with the OBB
         Line nonIntersectingLine = new Line(new Vector3f(3, 3, 0), new Vector3f(5, 5, 0));
-        assertFalse(SAT.isCollide(nonIntersectingLine, obb));
+        assertFalse(sat.isCollide(nonIntersectingLine, obb));
 
         // Create an OBB
         OBB obb2 = new OBB(new Vector3f(0.0f, 0.0f, 0.0f), new Vector3f(1.0f, 1.0f, 1.0f));
@@ -368,8 +367,8 @@ class SATTest {
         // Create a line that doesn't intersect with the OBB
         Line line2 = new Line(new Vector3f(-2.0f, 2.0f, 0.0f), new Vector3f(-1.0f, 2.0f, 0.0f));
 
-        assertTrue(SAT.isCollide(line1, obb2)); // Expect collision
-        assertFalse(SAT.isCollide(line2, obb2)); // Expect no collision
+        assertTrue(sat.isCollide(line1, obb2)); // Expect collision
+        assertFalse(sat.isCollide(line2, obb2)); // Expect no collision
     }
 
     @Test
@@ -377,29 +376,29 @@ class SATTest {
         // Test cases where the lines intersect
         Line line1 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
         Line line2 = new Line(new Vector3f(0, 1, 0), new Vector3f(1, 0, 0));
-        assertTrue(SAT.isCollide(line1, line2));
+        assertTrue(sat.isCollide(line1, line2));
 
         Line line3 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
         Line line4 = new Line(new Vector3f(0.5f, 0.5f, 0), new Vector3f(1, 0, 0));
-        assertTrue(SAT.isCollide(line3, line4));
+        assertTrue(sat.isCollide(line3, line4));
 
         // Test cases where the lines do not intersect
         Line line5 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
         Line line6 = new Line(new Vector3f(2, 2, 0), new Vector3f(3, 3, 0));
-        assertFalse(SAT.isCollide(line5, line6));
+        assertFalse(sat.isCollide(line5, line6));
 
         Line line7 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
         Line line8 = new Line(new Vector3f(0, 2, 0), new Vector3f(1, 3, 0));
-        assertFalse(SAT.isCollide(line7, line8));
+        assertFalse(sat.isCollide(line7, line8));
 
         // Test cases where the lines are parallel but not collinear
         Line line9 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
         Line line10 = new Line(new Vector3f(0, 0, 1), new Vector3f(1, 1, 1));
-        assertFalse(SAT.isCollide(line9, line10));
+        assertFalse(sat.isCollide(line9, line10));
 
         Line line11 = new Line(new Vector3f(2, 2, 2), new Vector3f(4, 4, 4));
         Line line12 = new Line(new Vector3f(1, -1, 1), new Vector3f(1, 1, 1));
-        assertFalse(SAT.isCollide(line11, line12));
+        assertFalse(sat.isCollide(line11, line12));
     }
 
 

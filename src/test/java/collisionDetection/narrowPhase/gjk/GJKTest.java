@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-
 class GJKTest {
+    static GJK gjk = new GJK();
 
     @Test
     public void testOBBCollidingWithAABB() {
@@ -24,9 +24,9 @@ class GJKTest {
         Vector3f halfExtents = new Vector3f(1.0f, 1.0f, 1.0f);
         OBB obb = new OBB(center, halfExtents);
 
-        boolean collision = GJK.isCollide(aabb, obb);
+        boolean collision = gjk.isCollide(aabb, obb);
 
-        assertTrue(collision,"OBB AABB should be colliding");
+        assertTrue(collision, "OBB AABB should be colliding");
     }
 
     @Test
@@ -39,9 +39,9 @@ class GJKTest {
         Vector3f halfExtents = new Vector3f(1.0f, 1.0f, 1.0f);
         OBB obb = new OBB(center, halfExtents);
 
-        boolean collision = GJK.isCollide(aabb, obb);
+        boolean collision = gjk.isCollide(aabb, obb);
 
-        assertFalse(collision,"OBB AABB should not be colliding");
+        assertFalse(collision, "OBB AABB should not be colliding");
     }
 
 
@@ -56,7 +56,7 @@ class GJKTest {
         Vector3f vertex3 = new Vector3f(1, 3, 1);
         Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
 
-        assertTrue(GJK.isCollide(triangle, aabb));
+        assertTrue(gjk.isCollide(triangle, aabb));
     }
 
     @Test
@@ -70,7 +70,7 @@ class GJKTest {
         Vector3f vertex3 = new Vector3f(5, 5, 0);
         Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
 
-        assertFalse(GJK.isCollide(triangle, aabb));
+        assertFalse(gjk.isCollide(triangle, aabb));
     }
 
 
@@ -79,7 +79,7 @@ class GJKTest {
         ConvexPolyhedron polyhedron1 = createNonCollidingPolyhedron1();
         ConvexPolyhedron polyhedron2 = createNonCollidingPolyhedron2();
 
-        assertFalse(GJK.isCollide(polyhedron1, polyhedron2));
+        assertFalse(gjk.isCollide(polyhedron1, polyhedron2));
     }
 
     @Test
@@ -87,7 +87,7 @@ class GJKTest {
         ConvexPolyhedron polyhedron1 = createCollidingPolyhedron1();
         ConvexPolyhedron polyhedron2 = createCollidingPolyhedron2();
 
-        assertTrue(GJK.isCollide(polyhedron1, polyhedron2));
+        assertTrue(gjk.isCollide(polyhedron1, polyhedron2));
     }
 
     private ConvexPolyhedron createNonCollidingPolyhedron1() {
@@ -143,7 +143,7 @@ class GJKTest {
                 new Vector3f(2.0f, 2.0f, 2.0f)
         );
 
-        assertTrue(GJK.isCollide(obb1, obb2),"OBBs should be colliding");
+        assertTrue(gjk.isCollide(obb1, obb2), "OBBs should be colliding");
     }
 
     @Test
@@ -156,7 +156,7 @@ class GJKTest {
         Vector3f halfExtents2 = new Vector3f(1.0f, 1.0f, 1.0f);
         OBB obb2 = new OBB(center2, halfExtents2);
 
-        boolean collision = GJK.isCollide(obb1, obb2);
+        boolean collision = gjk.isCollide(obb1, obb2);
 
         assertFalse(collision);
     }
@@ -164,10 +164,10 @@ class GJKTest {
     @Test
     public void testNonParallelEdgesOBB() {
         // Create two non-parallel OBBs
-        OBB obb1 = new OBB(new Vector3f(0, 0, 0),new Vector3f(1, 1, 1));
-        OBB obb2 = new OBB(new Vector3f(4, 4, 4),new Vector3f(1, 1, 1));
+        OBB obb1 = new OBB(new Vector3f(0, 0, 0), new Vector3f(1, 1, 1));
+        OBB obb2 = new OBB(new Vector3f(4, 4, 4), new Vector3f(1, 1, 1));
 
-        assertFalse(GJK.isCollide(obb1, obb2), "Non-parallel OBBs should not be colliding");
+        assertFalse(gjk.isCollide(obb1, obb2), "Non-parallel OBBs should not be colliding");
     }
 
     @Test
@@ -183,7 +183,7 @@ class GJKTest {
                 new Vector3f(1.5f, 0.5f, 0),
                 new Vector3f(0.5f, 1.5f, 0)
         );
-        assertTrue(GJK.isCollide(triangle1, triangle2),"Triangles should be colliding");
+        assertTrue(gjk.isCollide(triangle1, triangle2), "Triangles should be colliding");
     }
 
     @Test
@@ -200,15 +200,15 @@ class GJKTest {
                 new Vector3f(2, 3, 0)
         );
 
-        assertFalse(GJK.isCollide(triangle1, triangle2),"Triangles should not be colliding");
+        assertFalse(gjk.isCollide(triangle1, triangle2), "Triangles should not be colliding");
     }
 
     @Test
-    public void  parallelEdgesTriangle() {
+    public void parallelEdgesTriangle() {
         Triangle triangle1 = new Triangle(
-                new Vector3f(-2,-1,0),
+                new Vector3f(-2, -1, 0),
                 new Vector3f(-3, 0, 0),
-                new Vector3f(-1, 0,0)
+                new Vector3f(-1, 0, 0)
         );
 
         Triangle triangle2 = new Triangle(
@@ -217,7 +217,7 @@ class GJKTest {
                 new Vector3f(1, 0, 0)
         );
 
-        assertFalse(GJK.isCollide(triangle1, triangle2),"Triangles not be colliding");
+        assertFalse(gjk.isCollide(triangle1, triangle2), "Triangles not be colliding");
     }
 
     @Test
@@ -230,7 +230,7 @@ class GJKTest {
         Vector3f max2 = new Vector3f(3, 3, 3);
         AABB aabb2 = new AABB(min2, max2);
 
-        boolean result = GJK.isCollide(aabb1, aabb2);
+        boolean result = gjk.isCollide(aabb1, aabb2);
 
         assertTrue(result, "AABBs should be colliding");
 
@@ -246,7 +246,7 @@ class GJKTest {
         Vector3f max2 = new Vector3f(5, 5, 5);
         AABB aabb2 = new AABB(min2, max2);
 
-        boolean result = GJK.isCollide(aabb1, aabb2);
+        boolean result = gjk.isCollide(aabb1, aabb2);
 
         assertFalse(result, "AABBs should not be colliding");
     }
@@ -256,7 +256,7 @@ class GJKTest {
         Sphere sphere1 = new Sphere(new Vector3f(0, 0, 0), 1.0f);
         Sphere sphere2 = new Sphere(new Vector3f(1, 1, 1), 1.0f);
 
-        boolean result = GJK.isCollide(sphere1, sphere2);
+        boolean result = gjk.isCollide(sphere1, sphere2);
 
         assertTrue(result, "Spheres should be colliding");
     }
@@ -266,7 +266,7 @@ class GJKTest {
         Sphere sphere1 = new Sphere(new Vector3f(0, 0, 0), 1.0f);
         Sphere sphere2 = new Sphere(new Vector3f(3, 3, 3), 1.0f);
 
-        boolean result = GJK.isCollide(sphere1, sphere2);
+        boolean result = gjk.isCollide(sphere1, sphere2);
 
         assertFalse(result, "Spheres should not be colliding");
     }
@@ -279,7 +279,7 @@ class GJKTest {
 
         Sphere sphere = new Sphere(new Vector3f(0, 1.5f, 0), 1.0f);
 
-        boolean result = GJK.isCollide(sphere, obb);
+        boolean result = gjk.isCollide(sphere, obb);
 
         assertTrue(result, "OBB Sphere should be colliding");
     }
@@ -292,7 +292,7 @@ class GJKTest {
 
 
         Sphere sphere = new Sphere(new Vector3f(2, 2, 2), 0.5f);
-        boolean result = GJK.isCollide(sphere, obb);
+        boolean result = gjk.isCollide(sphere, obb);
 
         assertFalse(result, "OBB Sphere should not be colliding");
     }
@@ -306,7 +306,7 @@ class GJKTest {
                 new Vector3f(1, -1, 0),
                 new Vector3f(0, 1, 0)
         );
-        boolean result = GJK.isCollide(sphere, triangle);
+        boolean result = gjk.isCollide(sphere, triangle);
         assertTrue(result, "Sphere should be colliding with the triangle");
     }
 
@@ -320,7 +320,7 @@ class GJKTest {
                 new Vector3f(1, 1, 0)
         );
 
-        boolean result = GJK.isCollide(sphere, triangle);
+        boolean result = gjk.isCollide(sphere, triangle);
 
         assertFalse(result, "Sphere should not be colliding with the triangle");
     }
@@ -333,7 +333,7 @@ class GJKTest {
 
         Sphere sphere = new Sphere(new Vector3f(0, 1.5f, 0), 1.0f);
 
-        boolean result = GJK.isCollide(sphere, aabb);
+        boolean result = gjk.isCollide(sphere, aabb);
 
         assertTrue(result, "AABB Sphere should be colliding");
     }
@@ -345,7 +345,7 @@ class GJKTest {
         AABB aabb = new AABB(min, max);
 
         Sphere sphere = new Sphere(new Vector3f(2, 2, 2), 0.5f);
-        boolean result = GJK.isCollide(sphere, aabb);
+        boolean result = gjk.isCollide(sphere, aabb);
 
         assertFalse(result, "AABB Sphere should not be colliding");
     }
@@ -355,7 +355,7 @@ class GJKTest {
         Capsule capsule3 = new Capsule(new Vector3f(0, 0, 0), new Vector3f(0, 3, 0), 1.0f);
         Capsule capsule4 = new Capsule(new Vector3f(0, 2, 0), new Vector3f(0, 5, 0), 1.0f);
 
-        boolean result = GJK.isCollide(capsule3, capsule4);
+        boolean result = gjk.isCollide(capsule3, capsule4);
         // Assert that the capsules are not colliding
         assertTrue(result, "Capsules should not be colliding");
     }
@@ -365,7 +365,7 @@ class GJKTest {
         Capsule capsule1 = new Capsule(new Vector3f(0, 0, 0), new Vector3f(0, 3, 0), 1.0f);
         Capsule capsule2 = new Capsule(new Vector3f(0, 5, 0), new Vector3f(0, 8, 0), 1.0f);
 
-        boolean result = GJK.isCollide(capsule1, capsule2);
+        boolean result = gjk.isCollide(capsule1, capsule2);
 
         assertFalse(result, "Capsules not be should be colliding");
     }
@@ -382,7 +382,7 @@ class GJKTest {
         Vector3f vertex3 = new Vector3f(1, 1, 0);
         Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
 
-        assertTrue(GJK.isCollide(capsule, triangle));
+        assertTrue(gjk.isCollide(capsule, triangle));
     }
 
     @Test
@@ -397,7 +397,7 @@ class GJKTest {
         Vector3f vertex3 = new Vector3f(-3, -1, 0);
         Triangle triangle = new Triangle(vertex1, vertex2, vertex3);
 
-        assertFalse(GJK.isCollide(capsule, triangle));
+        assertFalse(gjk.isCollide(capsule, triangle));
     }
 
     @Test
@@ -406,7 +406,7 @@ class GJKTest {
         Capsule capsule = new Capsule(new Vector3f(0, 0, 0), new Vector3f(0, 1, 0), 0.5f);
         OBB obb = new OBB(new Vector3f(0, 0.5f, 0), new Vector3f(0.5f, 0.5f, 0.5f));
 
-        assertTrue(GJK.isCollide(capsule, obb));
+        assertTrue(gjk.isCollide(capsule, obb));
     }
 
     @Test
@@ -415,7 +415,7 @@ class GJKTest {
         Capsule capsule = new Capsule(new Vector3f(3, 3, 0), new Vector3f(5, 5, 0), 0.5f);
         OBB obb = new OBB(new Vector3f(0, 0, 0), new Vector3f(0.5f, 0.5f, 0.5f));
 
-        assertFalse(GJK.isCollide(capsule, obb));
+        assertFalse(gjk.isCollide(capsule, obb));
     }
 
     @Test
@@ -423,7 +423,7 @@ class GJKTest {
         Capsule capsule = new Capsule(new Vector3f(0, 0, 0), new Vector3f(0, 2, 0), 1.0f);
         AABB aabb = new AABB(new Vector3f(-1, -1, -1), new Vector3f(1, 1, 1));
 
-        boolean result =GJK.isCollide(capsule, aabb);
+        boolean result = gjk.isCollide(capsule, aabb);
         assertTrue(result, "Capsule and AABB should be colliding");
     }
 
@@ -432,7 +432,7 @@ class GJKTest {
         Capsule capsule = new Capsule(new Vector3f(1, 1, 3), new Vector3f(1, 2, 3), 1.0f);
         AABB aabb = new AABB(new Vector3f(-1, -1, -1), new Vector3f(1, 1, 1));
 
-        boolean result = GJK.isCollide(capsule, aabb);
+        boolean result = gjk.isCollide(capsule, aabb);
         assertFalse(result, "Capsule and AABB should not be colliding");
     }
 
@@ -447,9 +447,9 @@ class GJKTest {
         float capsuleRadius = 1.0f;
         Capsule capsule = new Capsule(capsuleStart, capsuleEnd, capsuleRadius);
 
-        boolean collision = GJK.isCollide(sphere, capsule);
+        boolean collision = gjk.isCollide(sphere, capsule);
 
-        assertTrue(collision,"Sphere Capsule should be colliding");
+        assertTrue(collision, "Sphere Capsule should be colliding");
     }
 
     @Test
@@ -463,23 +463,23 @@ class GJKTest {
         float capsuleRadius = 1.0f;
         Capsule capsule = new Capsule(capsuleStart, capsuleEnd, capsuleRadius);
 
-        boolean collision = GJK.isCollide(sphere, capsule);
+        boolean collision = gjk.isCollide(sphere, capsule);
 
-        assertFalse(collision,"Sphere Capsule should not be colliding");
+        assertFalse(collision, "Sphere Capsule should not be colliding");
     }
 
     @Test
     public void testCollidingCylinders() {
         Cylinder cylinder1 = new Cylinder(new Vector3f(1.0f, 1.0f, 1.0f), 1.0f, 2.0f);
         Cylinder cylinder2 = new Cylinder(new Vector3f(2.0f, 2.0f, 2.0f), 1.0f, 2.0f);
-        assertTrue(GJK.isCollide(cylinder1, cylinder2));
+        assertTrue(gjk.isCollide(cylinder1, cylinder2));
     }
 
     @Test
     public void testNonCollidingCylinders() {
         Cylinder cylinder1 = new Cylinder(new Vector3f(1.0f, 1.0f, 1.0f), 1.0f, 2.0f);
         Cylinder cylinder2 = new Cylinder(new Vector3f(5.0f, 5.0f, 5.0f), 1.0f, 2.0f);
-        assertFalse(GJK.isCollide(cylinder1, cylinder2));
+        assertFalse(gjk.isCollide(cylinder1, cylinder2));
     }
 
     @Test
@@ -487,7 +487,7 @@ class GJKTest {
         Cylinder cylinder = new Cylinder(new Vector3f(0, 0, 0), 1.0f, 2.0f);
         OBB obb = new OBB(new Vector3f(1, 0, 0), new Vector3f(1, 1, 1));
 
-        boolean result = GJK.isCollide(cylinder, obb);
+        boolean result = gjk.isCollide(cylinder, obb);
         assertTrue(result, "Collision should be detected");
     }
 
@@ -496,7 +496,7 @@ class GJKTest {
         Cylinder cylinder = new Cylinder(new Vector3f(0, 0, 0), 1.0f, 2.0f);
         OBB obb = new OBB(new Vector3f(4, 4, 4), new Vector3f(1, 1, 1));
 
-        boolean result = GJK.isCollide(cylinder, obb);
+        boolean result = gjk.isCollide(cylinder, obb);
         assertFalse(result, "No collision should be detected");
     }
 
@@ -506,7 +506,7 @@ class GJKTest {
 
         Triangle triangle = new Triangle(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0), new Vector3f(0, 1, 0));
 
-        boolean collision = GJK.isCollide(cylinder, triangle);
+        boolean collision = gjk.isCollide(cylinder, triangle);
         assertTrue(collision, "Expected collision between cylinder and triangle");
     }
 
@@ -516,7 +516,7 @@ class GJKTest {
 
         Triangle triangle = new Triangle(new Vector3f(-3, 0, 0), new Vector3f(-2, 0, 0), new Vector3f(-2, -1, 0));
 
-        boolean collision = GJK.isCollide(cylinder, triangle);
+        boolean collision = gjk.isCollide(cylinder, triangle);
         assertFalse(collision, "Expected no collision between cylinder and triangle");
     }
 
@@ -525,7 +525,7 @@ class GJKTest {
         Cylinder cylinder = new Cylinder(new Vector3f(0, 1, 0), 1.0f, 4.0f);
         AABB aabb = new AABB(new Vector3f(-1, 0, -1), new Vector3f(1, 3, 1));
 
-        boolean result = GJK.isCollide(cylinder, aabb);
+        boolean result = gjk.isCollide(cylinder, aabb);
         assertTrue(result, "Cylinder and AABB should be colliding");
     }
 
@@ -534,7 +534,7 @@ class GJKTest {
         Cylinder cylinder = new Cylinder(new Vector3f(5, 0, 0), 1.0f, 2.0f);
         AABB aabb = new AABB(new Vector3f(-1, 0, -1), new Vector3f(1, 3, 1));
 
-        boolean result = GJK.isCollide(cylinder, aabb);
+        boolean result = gjk.isCollide(cylinder, aabb);
         assertFalse(result, "Cylinder and AABB should not be colliding");
     }
 
@@ -543,7 +543,7 @@ class GJKTest {
         Capsule capsule = new Capsule(new Vector3f(0, 1, 0), new Vector3f(0, 3, 0), 0.5f);
         Cylinder cylinder = new Cylinder(new Vector3f(0, 2, 0), 1.0f, 4.0f);
 
-        boolean result = GJK.isCollide(capsule, cylinder);
+        boolean result = gjk.isCollide(capsule, cylinder);
         assertTrue(result, "Capsule and Cylinder should be colliding");
     }
 
@@ -552,7 +552,7 @@ class GJKTest {
         Capsule capsule = new Capsule(new Vector3f(0, 10, 0), new Vector3f(0, 12, 0), 1f);
         Cylinder cylinder = new Cylinder(new Vector3f(0, 2, 0), 1.0f, 4.0f);
 
-        boolean result = GJK.isCollide(capsule, cylinder);
+        boolean result = gjk.isCollide(capsule, cylinder);
         assertFalse(result, "Capsule and Cylinder should not be colliding");
     }
 
@@ -567,9 +567,9 @@ class GJKTest {
         float cylinderHeight = 2.0f;
         Cylinder cylinder = new Cylinder(cylinderCenter, cylinderRadius, cylinderHeight);
 
-        boolean collision = GJK.isCollide(sphere, cylinder);
+        boolean collision = gjk.isCollide(sphere, cylinder);
 
-        assertTrue(collision,"Sphere Cylinder should be colliding");
+        assertTrue(collision, "Sphere Cylinder should be colliding");
     }
 
     @Test
@@ -583,9 +583,9 @@ class GJKTest {
         float cylinderHeight = 1.0f;
         Cylinder cylinder = new Cylinder(cylinderCenter, cylinderRadius, cylinderHeight);
 
-        boolean collision = GJK.isCollide(sphere, cylinder);
+        boolean collision = gjk.isCollide(sphere, cylinder);
 
-        assertFalse(collision,"Sphere Cylinder should not be colliding");
+        assertFalse(collision, "Sphere Cylinder should not be colliding");
     }
 
     @Test
@@ -593,29 +593,29 @@ class GJKTest {
         // Test cases where the lines intersect
         Line line1 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
         Line line2 = new Line(new Vector3f(0, 1, 0), new Vector3f(1, 0, 0));
-        assertTrue(GJK.isCollide(line1, line2));
+        assertTrue(gjk.isCollide(line1, line2));
 
         Line line3 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
         Line line4 = new Line(new Vector3f(0.5f, 0.5f, 0), new Vector3f(1, 0, 0));
-        assertTrue(GJK.isCollide(line3, line4));
+        assertTrue(gjk.isCollide(line3, line4));
 
         // Test cases where the lines do not intersect
         Line line5 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
         Line line6 = new Line(new Vector3f(2, 2, 0), new Vector3f(3, 3, 0));
-        assertFalse(GJK.isCollide(line5, line6));
+        assertFalse(gjk.isCollide(line5, line6));
 
         Line line7 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
         Line line8 = new Line(new Vector3f(0, 2, 0), new Vector3f(1, 3, 0));
-        assertFalse(GJK.isCollide(line7, line8));
+        assertFalse(gjk.isCollide(line7, line8));
 
         // Test cases where the lines are parallel but not collinear
         Line line9 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 0));
         Line line10 = new Line(new Vector3f(0, 0, 1), new Vector3f(1, 1, 1));
-        assertFalse(GJK.isCollide(line9, line10));
+        assertFalse(gjk.isCollide(line9, line10));
 
         Line line11 = new Line(new Vector3f(2, 2, 2), new Vector3f(4, 4, 4));
         Line line12 = new Line(new Vector3f(1, -1, 1), new Vector3f(1, 1, 1));
-        assertFalse(GJK.isCollide(line11, line12));
+        assertFalse(gjk.isCollide(line11, line12));
     }
 
     @Test
@@ -625,11 +625,11 @@ class GJKTest {
 
         // Test a line that intersects with the OBB
         Line intersectingLine = new Line(new Vector3f(0, 0, 0), new Vector3f(2, 2, 2));
-        assertTrue(GJK.isCollide(intersectingLine, obb));
+        assertTrue(gjk.isCollide(intersectingLine, obb));
 
         // Test a line that does not intersect with the OBB
         Line nonIntersectingLine = new Line(new Vector3f(3, 3, 0), new Vector3f(5, 5, 0));
-        assertFalse(GJK.isCollide(nonIntersectingLine, obb));
+        assertFalse(gjk.isCollide(nonIntersectingLine, obb));
 
         // Create an OBB
         OBB obb2 = new OBB(new Vector3f(0.0f, 0.0f, 0.0f), new Vector3f(1.0f, 1.0f, 1.0f));
@@ -640,8 +640,8 @@ class GJKTest {
         // Create a line that doesn't intersect with the OBB
         Line line2 = new Line(new Vector3f(-2.0f, 2.0f, 0.0f), new Vector3f(-1.0f, 2.0f, 0.0f));
 
-        assertTrue(GJK.isCollide(line1, obb2)); // Expect collision
-        assertFalse(GJK.isCollide(line2, obb2)); // Expect no collision
+        assertTrue(gjk.isCollide(line1, obb2)); // Expect collision
+        assertFalse(gjk.isCollide(line2, obb2)); // Expect no collision
     }
 
     @Test
@@ -655,15 +655,15 @@ class GJKTest {
         Line line = new Line(new Vector3f(-1f, 0, 0), new Vector3f(3f, 0, 0));
 
         // Test if the line and triangle intersect
-        assertTrue(GJK.isCollide(line, triangle));
+        assertTrue(gjk.isCollide(line, triangle));
 
         // Test non-intersecting case
         Line nonIntersectingLine = new Line(new Vector3f(3, 3, 3), new Vector3f(4, 4, 4));
-        assertFalse(GJK.isCollide(nonIntersectingLine, triangle));
+        assertFalse(gjk.isCollide(nonIntersectingLine, triangle));
 
         Line line2 = new Line(new Vector3f(0.5f, 0.5f, 0), new Vector3f(1.5f, 1.5f, 0));
 
-        assertTrue(GJK.isCollide(line2, triangle));
+        assertTrue(gjk.isCollide(line2, triangle));
 
         // Create a triangle entirely inside a line segment
         vertex1 = new Vector3f(0, 0, 0);
@@ -673,7 +673,7 @@ class GJKTest {
         Triangle triangle2 = new Triangle(vertex1, vertex2, vertex3);
         Line line3 = new Line(new Vector3f(1, 1, 0), new Vector3f(5, 5, 0));
 
-        assertTrue(GJK.isCollide(line3, triangle2));
+        assertTrue(gjk.isCollide(line3, triangle2));
     }
 
     @Test
@@ -683,23 +683,23 @@ class GJKTest {
 
         // Test cases where the line intersects the AABB
         Line line1 = new Line(new Vector3f(0, 0, -2), new Vector3f(0, 0, 2));
-        assertTrue(GJK.isCollide(line1, aabb));
+        assertTrue(gjk.isCollide(line1, aabb));
 
         Line line2 = new Line(new Vector3f(-2, -2, -2), new Vector3f(-1, -1, -1));
-        assertTrue(GJK.isCollide(line2, aabb));
+        assertTrue(gjk.isCollide(line2, aabb));
 
         Line line3 = new Line(new Vector3f(0, 0, 0), new Vector3f(0, 0, 1));
-        assertTrue(GJK.isCollide(line3, aabb));
+        assertTrue(gjk.isCollide(line3, aabb));
 
         // Test cases where the line does not intersect the AABB
         Line line4 = new Line(new Vector3f(2, 2, 2), new Vector3f(3, 3, 3));
-        assertFalse(GJK.isCollide(line4, aabb));
+        assertFalse(gjk.isCollide(line4, aabb));
 
         Line line5 = new Line(new Vector3f(2, 2, 2), new Vector3f(2, 2, 3));
-        assertFalse(GJK.isCollide(line5, aabb));
+        assertFalse(gjk.isCollide(line5, aabb));
 
         Line line6 = new Line(new Vector3f(2, 0, 0), new Vector3f(3, 0, 0));
-        assertFalse(GJK.isCollide(line6, aabb));
+        assertFalse(gjk.isCollide(line6, aabb));
     }
 
     @Test
@@ -709,22 +709,22 @@ class GJKTest {
 
         // Test cases where the line collides with the capsule
         Line line1 = new Line(new Vector3f(0, 0, -1), new Vector3f(0, 0, 1));
-        assertTrue(GJK.isCollide(line1, capsule));
+        assertTrue(gjk.isCollide(line1, capsule));
 
         Line line2 = new Line(new Vector3f(0, 0, 0), new Vector3f(0, 0, 1));
-        assertTrue(GJK.isCollide(line2, capsule));
+        assertTrue(gjk.isCollide(line2, capsule));
 
         Line line3 = new Line(new Vector3f(-2, 0, 0), new Vector3f(-0.5f, 0, 0));
-        assertTrue(GJK.isCollide(line3, capsule));
+        assertTrue(gjk.isCollide(line3, capsule));
 
         Line line4 = new Line(new Vector3f(0, 0, 2), new Vector3f(0, 0, 3));
-        assertFalse(GJK.isCollide(line4, capsule));
+        assertFalse(gjk.isCollide(line4, capsule));
 
         Line line5 = new Line(new Vector3f(2, 0, 0), new Vector3f(3, 0, 0));
-        assertFalse(GJK.isCollide(line5, capsule));
+        assertFalse(gjk.isCollide(line5, capsule));
 
         Line line6 = new Line(new Vector3f(0, 0, -2), new Vector3f(0, 0, -1));
-        assertFalse(GJK.isCollide(line6, capsule));
+        assertFalse(gjk.isCollide(line6, capsule));
     }
 
 
@@ -745,23 +745,23 @@ class GJKTest {
 
         // Test cases where the line collides with the cube
         Line line1 = new Line(new Vector3f(0, 0, -2), new Vector3f(0, 0, 2));
-        assertTrue(GJK.isCollide(line1, cube));
+        assertTrue(gjk.isCollide(line1, cube));
 
         Line line2 = new Line(new Vector3f(0, 0, 0), new Vector3f(0, 0, 1));
-        assertTrue(GJK.isCollide(line2, cube));
+        assertTrue(gjk.isCollide(line2, cube));
 
         Line line3 = new Line(new Vector3f(-2, -2, -2), new Vector3f(1, 1, 1));
-        assertTrue(GJK.isCollide(line3, cube));
+        assertTrue(gjk.isCollide(line3, cube));
 
         // Test cases where the line does not collide with the cube
         Line line4 = new Line(new Vector3f(2, 2, 2), new Vector3f(4, 4, 4));
-        assertFalse(GJK.isCollide(line4, cube));
+        assertFalse(gjk.isCollide(line4, cube));
 
         Line line5 = new Line(new Vector3f(2, 2, 2), new Vector3f(3, 3, 3));
-        assertFalse(GJK.isCollide(line5, cube));
+        assertFalse(gjk.isCollide(line5, cube));
 
         Line line6 = new Line(new Vector3f(2, 2, 2), new Vector3f(2, 2, 3));
-        assertFalse(GJK.isCollide(line6, cube));
+        assertFalse(gjk.isCollide(line6, cube));
     }
 
     @Test
@@ -771,23 +771,23 @@ class GJKTest {
 
         // Test a line that collides with the sphere.
         Line line1 = new Line(new Vector3f(2, 0, 0), new Vector3f(-2, 0, 0));
-        assertTrue(GJK.isCollide(line1, sphere));
+        assertTrue(gjk.isCollide(line1, sphere));
 
         // Test a line that does not collide with the sphere.
         Line line2 = new Line(new Vector3f(2, 2, 0), new Vector3f(3, 3, 0));
-        assertFalse(GJK.isCollide(line2, sphere));
+        assertFalse(gjk.isCollide(line2, sphere));
 
         // Test a line that starts inside the sphere.
         Line line3 = new Line(new Vector3f(0, 0, 0), new Vector3f(1, 1, 1));
-        assertTrue(GJK.isCollide(line3, sphere));
+        assertTrue(gjk.isCollide(line3, sphere));
 
         // Test a line that ends inside the sphere.
         Line line4 = new Line(new Vector3f(2, 2, 2), new Vector3f(0, 0, 0));
-        assertTrue(GJK.isCollide(line4, sphere));
+        assertTrue(gjk.isCollide(line4, sphere));
 
         // Test a line that is completely outside the sphere.
         Line line5 = new Line(new Vector3f(3, 3, 3), new Vector3f(4, 4, 4));
-        assertFalse(GJK.isCollide(line5, sphere));
+        assertFalse(gjk.isCollide(line5, sphere));
     }
 
     @Test
@@ -797,22 +797,22 @@ class GJKTest {
 
         // Test a line that collides with the cylinder.
         Line line1 = new Line(new Vector3f(0, 1, 0), new Vector3f(0, -1, 0));
-        assertTrue(GJK.isCollide(line1, cylinder));
+        assertTrue(gjk.isCollide(line1, cylinder));
 
         // Test a line that does not collide with the cylinder.
         Line line2 = new Line(new Vector3f(2, 2, 2), new Vector3f(3, 3, 3));
-        assertFalse(GJK.isCollide(line2, cylinder));
+        assertFalse(gjk.isCollide(line2, cylinder));
 
         // Test a line that starts inside the cylinder.
         Line line3 = new Line(new Vector3f(0, 0, 0), new Vector3f(0, 1, 0));
-        assertTrue(GJK.isCollide(line3, cylinder));
+        assertTrue(gjk.isCollide(line3, cylinder));
 
         // Test a line that ends inside the cylinder.
         Line line4 = new Line(new Vector3f(2, 2, 0), new Vector3f(0, 0, 0));
-        assertTrue(GJK.isCollide(line4, cylinder));
+        assertTrue(gjk.isCollide(line4, cylinder));
 
         // Test a line that is completely outside the cylinder.
         Line line5 = new Line(new Vector3f(2, 2, 2), new Vector3f(4, 4, 4));
-        assertFalse(GJK.isCollide(line5, cylinder));
+        assertFalse(gjk.isCollide(line5, cylinder));
     }
 }
