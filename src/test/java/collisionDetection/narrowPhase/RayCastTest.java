@@ -199,8 +199,7 @@ class RayCastTest {
                 new Vector3f(0, 1, 0)
         ));
 
-        // Create a ray originating from (0.5, 0.5, -1) in the negative Z direction.
-        Ray ray = new Ray(new Vector3f(-1, -1, -1), new Vector3f(0, 0, -1));
+        Ray ray = new Ray(new Vector3f(0, 8, 0), new Vector3f(0, 1, 0));
 
         // Check if the ray intersects the convex polyhedron
         boolean result = RayCast.isCollide(ray, convexPolyhedron);

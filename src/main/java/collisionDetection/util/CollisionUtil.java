@@ -4,6 +4,8 @@ import collisionDetection.narrowPhase.gjk.GJKSupport;
 import collisionDetection.primitive.*;
 import math.Vector3f;
 
+import java.util.List;
+
 public class CollisionUtil {
 
     public static Vector3f support(GJKSupport shape1, GJKSupport shape2, Vector3f direction) {
@@ -102,6 +104,28 @@ public class CollisionUtil {
         float c = 1.0f - (v.dot(cp) / v.dot(ca));
 
         return new Vector3f(a, b, c);
+    }
+
+    public static boolean isPointInsideFace(Vector3f v0, Vector3f v1, List<Vector3f> vertices) {
+        float dot00, dot01, dot02, dot11, dot12;
+        float invDenom;
+
+        Vector3f edge0 = v1.sub(v0);
+        Vector3f edge1 = vertices.get(0).sub(v0);
+        Vector3f edge2 = vertices.get(1).sub(v0);
+
+        dot00 = edge0.dot(edge0);
+        dot01 = edge0.dot(edge1);
+        dot02 = edge0.dot(edge2);
+        dot11 = edge1.dot(edge1);
+        dot12 = edge1.dot(edge2);
+
+        invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
+
+        float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+        float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+
+        return (u >= 0) && (v >= 0) && (u + v <= 1);
     }
 
 }

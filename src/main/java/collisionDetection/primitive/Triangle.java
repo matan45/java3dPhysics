@@ -66,7 +66,7 @@ public class Triangle implements Shape, SATSupport, GJKSupport {
         return vertex1.sub(vertex3);
     }
 
-    private Plane fromTriangle() {
+    public Plane fromTriangle() {
         Plane result = new Plane(new Vector3f(), 0);
         result.setNormal(vertex2.sub(vertex1).cross(vertex3.sub(vertex1)));
         result.setDistance(result.getNormal().dot(vertex1));

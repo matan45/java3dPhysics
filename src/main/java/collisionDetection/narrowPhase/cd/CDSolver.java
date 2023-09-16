@@ -3,6 +3,7 @@ package collisionDetection.narrowPhase.cd;
 import collisionDetection.narrowPhase.collisionResult.CollisionResult;
 import collisionDetection.narrowPhase.sat.SATSupport;
 import collisionDetection.primitive.*;
+import collisionDetection.util.CollisionUtil;
 import math.Vector3f;
 
 import java.util.ArrayList;
@@ -82,7 +83,7 @@ public class CDSolver {
             // Calculate the collision normal (pointing from polyhedron to sphere)
             Vector3f normal = sphere.getCenter().sub(convexPolyhedron.closestPoint(sphere.getCenter())).normalize();
 
-            // Calculate the collision depth as the difference between sphere radius and distance to closest point
+            // Calculate the collision depth as the difference between sphere radius and distance to the closest point
             float depth = sphere.getRadius() - sphere.getCenter().distance(convexPolyhedron.closestPoint(sphere.getCenter()));
 
             return new CollisionResult(true, normal, depth, List.of(convexPolyhedron.closestPoint(sphere.getCenter())));
@@ -102,7 +103,7 @@ public class CDSolver {
             float distanceToPlane = faceNormal.dot(sphere.getCenter().sub(v0));
             if (Math.abs(distanceToPlane) <= sphere.getRadius()) {
                 // Check if the intersection point is inside the face's boundaries
-                if (isPointInsideFace(v0, v1, convexPolyhedron.getVertices())) {
+                if (CollisionUtil.isPointInsideFace(v0, v1, convexPolyhedron.getVertices())) {
                     // Calculate the intersection point on the plane
                     Vector3f intersectionPoint = sphere.getCenter().sub(faceNormal.mul(distanceToPlane));
                     normal.set(faceNormal);
@@ -154,7 +155,7 @@ public class CDSolver {
 
 
                 // Check if the intersection point is inside the face's boundaries
-                if (isPointInsideFace(v0, v1, convexPolyhedron.getVertices())) {
+                if (CollisionUtil.isPointInsideFace(v0, v1, convexPolyhedron.getVertices())) {
                     // Calculate the intersection point on the plane
                     Vector3f intersectionPoint = cylinder.getCenter().sub(faceNormal.mul(distanceToPlane));
                     normal.set(faceNormal);
@@ -199,7 +200,7 @@ public class CDSolver {
             if (Math.abs(distanceToPlane) <= capsule.getRadius()) {
 
                 // Check if the intersection point is inside the face's boundaries
-                if (isPointInsideFace(v0, v1, convexPolyhedron.getVertices())) {
+                if (CollisionUtil.isPointInsideFace(v0, v1, convexPolyhedron.getVertices())) {
                     // Calculate the intersection point on the plane
                     Vector3f intersectionPoint = capsule.getStart().sub(faceNormal.mul(distanceToPlane));
 
@@ -251,29 +252,6 @@ public class CDSolver {
         }
 
         return result;
-    }
-
-    // Helper method to check if a point is inside a face (triangle)
-    private static boolean isPointInsideFace(Vector3f v0, Vector3f v1, List<Vector3f> vertices) {
-        float dot00, dot01, dot02, dot11, dot12;
-        float invDenom;
-
-        Vector3f edge0 = v1.sub(v0);
-        Vector3f edge1 = vertices.get(0).sub(v0);
-        Vector3f edge2 = vertices.get(1).sub(v0);
-
-        dot00 = edge0.dot(edge0);
-        dot01 = edge0.dot(edge1);
-        dot02 = edge0.dot(edge2);
-        dot11 = edge1.dot(edge1);
-        dot12 = edge1.dot(edge2);
-
-        invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
-
-        float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-        float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-
-        return (u >= 0) && (v >= 0) && (u + v <= 1);
     }
 
 

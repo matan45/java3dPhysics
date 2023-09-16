@@ -28,24 +28,19 @@ public class ConvexPolyhedron implements Shape, SATSupport, GJKSupport {
 
     @Override
     public boolean isPointInside(Vector3f point) {
-        for (int i = 0; i < vertices.size(); i++) {
-            Vector3f v0 = vertices.get(i);
-            Vector3f v1 = vertices.get((i + 1) % vertices.size());
-            Vector3f edge = v1.sub(v0);
-            Vector3f pointToVertex = point.sub(v0);
+        boolean isInside = true;
+        // Iterate through the vertices of the polyhedron.
+        for (Vector3f vertex : vertices) {
+            // Calculate the vector from the current vertex to the test point.
+            Vector3f vectorToVertex = vertex.sub(point);
 
-            // Calculate the normal of the plane defined by the edge and the point
-            Vector3f normal = edge.cross(pointToVertex);
-
-            // Use a known vector pointing outward from the polyhedron
-            Vector3f outwardVector = Vector3f.YAxis;
-
-            // Check if the point is on the "correct" side of the plane
-            if (normal.dot(outwardVector) < 0) {
-                return false;
+            // Check if the dot product between the vector and the vertex normal
+            // is positive for all vertices. If it is, the point is inside.
+            if (vectorToVertex.dot(vertex) < 0) {
+                isInside = false;
             }
         }
-        return true;
+        return isInside;
     }
 
 
