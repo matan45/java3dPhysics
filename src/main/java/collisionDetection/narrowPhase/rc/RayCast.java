@@ -10,7 +10,14 @@ import java.util.List;
 import static math.Const.EPSILON;
 
 public class RayCast {
-    public static boolean isCollide(Ray ray, Sphere sphere) {
+
+    private final RCSolver rcSolver;
+
+    public RayCast() {
+        this.rcSolver = new RCSolver();
+    }
+
+    public boolean isCollide(Ray ray, Sphere sphere) {
         Vector3f oc = ray.getOrigin().sub(sphere.getCenter());
         float a = ray.getDirection().dot(ray.getDirection());
         float b = 2.0f * oc.dot(ray.getDirection());
@@ -21,7 +28,7 @@ public class RayCast {
         return !(discriminant < 0); // No intersection
     }
 
-    public static boolean isCollide(Ray ray, AABB aabb) {
+    public boolean isCollide(Ray ray, AABB aabb) {
         // Find the two intersection points on the AABB using the ray's closest point method
         Vector3f p1 = ray.closestPoint(aabb.getMin());
         Vector3f p2 = ray.closestPoint(aabb.getMax());
@@ -35,7 +42,7 @@ public class RayCast {
         return betweenX && betweenY && betweenZ;
     }
 
-    public static boolean isCollide(Ray ray, Capsule capsule) {
+    public boolean isCollide(Ray ray, Capsule capsule) {
         Vector3f rayOrigin = ray.getOrigin();
         Vector3f rayDirection = ray.getDirection();
 
@@ -69,7 +76,7 @@ public class RayCast {
         return (t1 >= 0 && t1 <= 1) || (t2 >= 0 && t2 <= 1);
     }
 
-    public static boolean isCollide(Ray ray, Cylinder cylinder) {
+    public boolean isCollide(Ray ray, Cylinder cylinder) {
         Vector3f rayOrigin = ray.getOrigin();
         Vector3f rayDirection = ray.getDirection();
 
@@ -97,7 +104,7 @@ public class RayCast {
         return false; // No collision
     }
 
-    public static boolean isCollide(Ray ray, OBB obb) {
+    public boolean isCollide(Ray ray, OBB obb) {
         Vector3f rayOrigin = ray.getOrigin();
         Vector3f rayDirection = ray.getDirection();
 
@@ -147,7 +154,7 @@ public class RayCast {
         return !(min > max) && !(max < 0);// Collision detected
     }
 
-    public static boolean isCollide(Ray ray, Plane plane) {
+    public boolean isCollide(Ray ray, Plane plane) {
         Vector3f rayOrigin = ray.getOrigin();
         Vector3f rayDirection = ray.getDirection();
 
@@ -166,7 +173,7 @@ public class RayCast {
     }
 
 
-    public static boolean isCollide(Ray ray, Triangle triangle) {
+    public boolean isCollide(Ray ray, Triangle triangle) {
         Vector3f rayOrigin = ray.getOrigin();
         Vector3f rayDirection = ray.getDirection();
 
@@ -203,7 +210,7 @@ public class RayCast {
         return barycentricCords.x >= 0 && barycentricCords.y >= 0 && barycentricCords.z >= 0;
     }
 
-    public static boolean isCollide(Ray ray, ConvexPolyhedron convexPolyhedron) {
+    public boolean isCollide(Ray ray, ConvexPolyhedron convexPolyhedron) {
 
         if (convexPolyhedron.isPointInside(ray.getOrigin()))
             return true;

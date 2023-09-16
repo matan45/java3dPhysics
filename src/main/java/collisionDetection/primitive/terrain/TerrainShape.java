@@ -1,7 +1,6 @@
 package collisionDetection.primitive.terrain;
 
 import collisionDetection.CDEngine;
-import collisionDetection.narrowPhase.rc.RayCast;
 import collisionDetection.primitive.AABB;
 import collisionDetection.primitive.Line;
 import collisionDetection.primitive.Ray;
@@ -105,7 +104,7 @@ public class TerrainShape {
 
     public Vector3f rayTerrainIntersection(Ray ray) {
         // Check if the ray intersects with the terrain's bounding box (borders)
-        if (!RayCast.isCollide(ray, borders)) {
+        if (!CDEngine.getCdEngine().getRayCast().isCollide(ray, borders)) {
             return null; // Ray doesn't intersect with the terrain's bounding box
         }
         Vector2f position = getGridPosition(ray.getOrigin().x, ray.getOrigin().z);

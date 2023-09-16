@@ -10,7 +10,7 @@ import static math.Const.EPSILON;
 
 public class RCSolver {
 
-    public static RayCastResult solve(Ray ray, Sphere sphere) {
+    public RayCastResult solve(Ray ray, Sphere sphere) {
         // Calculate the vector from the ray's origin to the sphere's center
         Vector3f rayToSphere = sphere.getCenter().sub(ray.getOrigin());
 
@@ -35,7 +35,7 @@ public class RCSolver {
         return new RayCastResult(intersectionPoint, surfaceNormal, t, true);
     }
 
-    public static RayCastResult solve(Ray ray, AABB aabb) {
+    public RayCastResult solve(Ray ray, AABB aabb) {
         // Calculate the parameter values for each pair of min and max planes
         float tMinX = (aabb.getMin().x - ray.getOrigin().x) / ray.getDirection().x;
         float tMaxX = (aabb.getMax().x - ray.getOrigin().x) / ray.getDirection().x;
@@ -67,7 +67,7 @@ public class RCSolver {
 
     }
 
-    public static RayCastResult solve(Ray ray, Capsule capsule) {
+    public RayCastResult solve(Ray ray, Capsule capsule) {
         // Calculate the capsule axis vector and vectors to the start and end points
         Vector3f axis = capsule.getEnd().sub(capsule.getStart());
         Vector3f vecToRayOrigin = ray.getOrigin().sub(capsule.getStart());
@@ -103,7 +103,7 @@ public class RCSolver {
         return new RayCastResult(intersectionPoint, normal, t, true);
     }
 
-    public static RayCastResult solve(Ray ray, Cylinder cylinder) {
+    public RayCastResult solve(Ray ray, Cylinder cylinder) {
         // Calculate the direction vector from the ray's origin to the cylinder's center
         Vector3f rayToCenter = cylinder.getCenter().sub(ray.getOrigin());
 
@@ -124,7 +124,7 @@ public class RCSolver {
 
     }
 
-    public static RayCastResult solve(Ray ray, OBB obb) {
+    public RayCastResult solve(Ray ray, OBB obb) {
         List<Vector3f> obbAxis = obb.getAxis();
         // Transform the ray's origin and direction into the OBB's local space
         Vector3f localOrigin = ray.getOrigin().sub(obb.getCenter());
@@ -179,7 +179,7 @@ public class RCSolver {
     }
 
 
-    public static RayCastResult solve(Ray ray, Plane plane) {
+    public RayCastResult solve(Ray ray, Plane plane) {
         // Calculate the dot product of the ray direction and the plane's normal
         float dotDirectionNormal = ray.getDirection().dot(plane.getNormal());
 
@@ -195,7 +195,7 @@ public class RCSolver {
         return new RayCastResult(intersectionPoint, normal, t, true);
     }
 
-    public static RayCastResult solve(Ray ray, Triangle triangle) {
+    public RayCastResult solve(Ray ray, Triangle triangle) {
         // Compute the triangle's normal
         Vector3f normal = triangle.getEdge1().cross(triangle.getEdge2()).normalize();
 
@@ -213,7 +213,7 @@ public class RCSolver {
 
     }
 
-    public static RayCastResult solve(Ray ray, ConvexPolyhedron convexPolyhedron) {
+    public RayCastResult solve(Ray ray, ConvexPolyhedron convexPolyhedron) {
         Vector3f closestPoint = new Vector3f();
         float minDistance = Float.POSITIVE_INFINITY;
 
@@ -261,7 +261,7 @@ public class RCSolver {
     }
 
 
-    private static RayCastResult checkIntersectionWithCap(Ray ray, Vector3f capCenter) {
+    private RayCastResult checkIntersectionWithCap(Ray ray, Vector3f capCenter) {
         // Calculate the intersection point on the cap
         Vector3f vecToCapCenter = ray.getOrigin().sub(capCenter);
         float t = vecToCapCenter.dot(ray.getDirection());
@@ -279,6 +279,5 @@ public class RCSolver {
         return new RayCastResult(intersectionPoint, normal, t, true);
 
     }
-
 
 }

@@ -11,12 +11,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RayCastTest {
 
+    static RayCast rayCast = new RayCast();
+
     @Test
     public void testRayIntersectsSphere() {
         Ray ray = new Ray(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0)); // Example ray
         Sphere sphere = new Sphere(new Vector3f(2, 0, 0), 1.0f); // Example sphere
 
-        assertTrue(RayCast.isCollide(ray, sphere));
+        assertTrue(rayCast.isCollide(ray, sphere));
     }
 
     @Test
@@ -24,7 +26,7 @@ class RayCastTest {
         Ray ray = new Ray(new Vector3f(0, 0, 0), new Vector3f(0, 1, 0)); // Example ray
         Sphere sphere = new Sphere(new Vector3f(3, 0, 0), 1.0f); // Example sphere
 
-        assertFalse(RayCast.isCollide(ray, sphere));
+        assertFalse(rayCast.isCollide(ray, sphere));
     }
 
 
@@ -34,7 +36,7 @@ class RayCastTest {
         Ray ray = new Ray(new Vector3f(1, 1, 5), new Vector3f(0, 0, -1));
 
         // Test for collision
-        assertTrue(RayCast.isCollide(ray, aabb));
+        assertTrue(rayCast.isCollide(ray, aabb));
     }
 
     @Test
@@ -43,7 +45,7 @@ class RayCastTest {
         Ray ray = new Ray(new Vector3f(1, 1, 5), new Vector3f(0, -1, 0));
 
         // Test for no collision
-        assertFalse(RayCast.isCollide(ray, aabb));
+        assertFalse(rayCast.isCollide(ray, aabb));
     }
 
     @Test
@@ -52,7 +54,7 @@ class RayCastTest {
         Ray ray = new Ray(new Vector3f(0, 5, 0), new Vector3f(0, -1, 0));
 
         // Test for collision
-        assertTrue(RayCast.isCollide(ray, capsule));
+        assertTrue(rayCast.isCollide(ray, capsule));
     }
 
     @Test
@@ -61,7 +63,7 @@ class RayCastTest {
         Ray ray = new Ray(new Vector3f(2, 2, 2), new Vector3f(0, 0, -1));
 
         // Test for no collision
-        assertFalse(RayCast.isCollide(ray, capsule));
+        assertFalse(rayCast.isCollide(ray, capsule));
     }
 
 
@@ -76,7 +78,7 @@ class RayCastTest {
         float cylinderHeight = 2.0f;
         Cylinder cylinder = new Cylinder(cylinderCenter, cylinderRadius, cylinderHeight);
 
-        assertTrue(RayCast.isCollide(ray, cylinder));
+        assertTrue(rayCast.isCollide(ray, cylinder));
     }
 
     @Test
@@ -90,7 +92,7 @@ class RayCastTest {
         float cylinderHeight = 2.0f;
         Cylinder cylinder = new Cylinder(cylinderCenter, cylinderRadius, cylinderHeight);
 
-        boolean collision = RayCast.isCollide(ray, cylinder);
+        boolean collision = rayCast.isCollide(ray, cylinder);
         assertFalse(collision);
     }
 
@@ -105,7 +107,7 @@ class RayCastTest {
         float planeDistance = 1;
         Plane plane = new Plane(planeNormal, planeDistance);
 
-        boolean collision = RayCast.isCollide(ray, plane);
+        boolean collision = rayCast.isCollide(ray, plane);
         assertTrue(collision);
     }
 
@@ -119,7 +121,7 @@ class RayCastTest {
         float planeDistance = 2;
         Plane plane = new Plane(planeNormal, planeDistance);
 
-        boolean collision = RayCast.isCollide(ray, plane);
+        boolean collision = rayCast.isCollide(ray, plane);
         assertFalse(collision);
     }
 
@@ -129,7 +131,7 @@ class RayCastTest {
         Ray ray = new Ray(new Vector3f(0, -1, 0), new Vector3f(0, 1, 0));
 
         // Test for collision
-        assertTrue(RayCast.isCollide(ray, obb));
+        assertTrue(rayCast.isCollide(ray, obb));
     }
 
     @Test
@@ -138,7 +140,7 @@ class RayCastTest {
         Ray ray = new Ray(new Vector3f(0, 3, 0), new Vector3f(0, 1, 0));
 
         // Test for no collision
-        assertFalse(RayCast.isCollide(ray, obb));
+        assertFalse(rayCast.isCollide(ray, obb));
     }
 
     @Test
@@ -146,7 +148,7 @@ class RayCastTest {
         Triangle triangle = new Triangle(new Vector3f(0, 0, 1), new Vector3f(1, 1, 1), new Vector3f(1, 0, 1));
         Ray ray = new Ray(new Vector3f(0, 0, 0), new Vector3f(1, 1, 1));
 
-        assertTrue(RayCast.isCollide(ray, triangle));
+        assertTrue(rayCast.isCollide(ray, triangle));
     }
 
     @Test
@@ -154,7 +156,7 @@ class RayCastTest {
         Triangle triangle = new Triangle(new Vector3f(0, 0, 0), new Vector3f(1, 0, 0), new Vector3f(0, 1, 0));
         Ray ray = new Ray(new Vector3f(2, 2, 2), new Vector3f(0, 0, -1));
 
-        assertFalse(RayCast.isCollide(ray, triangle));
+        assertFalse(rayCast.isCollide(ray, triangle));
     }
 
     @Test
@@ -171,7 +173,7 @@ class RayCastTest {
         Ray ray = new Ray(new Vector3f(0, 5, 0), new Vector3f(0, -1, 0));
 
         // Check if the ray intersects the convex polyhedron
-        boolean result = RayCast.isCollide(ray, convexPolyhedron);
+        boolean result = rayCast.isCollide(ray, convexPolyhedron);
 
         // Assert that the ray intersects the polyhedron
         assertTrue(result);
@@ -180,12 +182,11 @@ class RayCastTest {
         Ray ray2 = new Ray(new Vector3f(-2, 0, 0), new Vector3f(1, 0, 0));
 
         // Check if the ray intersects the convex polyhedron
-        boolean result2 = RayCast.isCollide(ray2, convexPolyhedron);
+        boolean result2 = rayCast.isCollide(ray2, convexPolyhedron);
 
         // Assert that the ray intersects the polyhedron
         assertTrue(result2);
     }
-
 
 
     @Test
@@ -201,7 +202,7 @@ class RayCastTest {
         Ray ray = new Ray(new Vector3f(0, 8, 0), new Vector3f(0, 1, 0));
 
         // Check if the ray intersects the convex polyhedron
-        boolean result = RayCast.isCollide(ray, convexPolyhedron);
+        boolean result = rayCast.isCollide(ray, convexPolyhedron);
 
         // Assert that the ray does not intersect the polyhedron
         assertFalse(result);
