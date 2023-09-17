@@ -196,4 +196,14 @@ public class Vector3f {
                 ", z=" + z +
                 '}';
     }
+
+    public Vector3f lerp(Vector3f end, float t) {
+        // Interpolate each component (x, y, z) of the vector separately
+        float lerpedX = this.x + (end.x - this.x) * t;
+        float lerpedY = this.y + (end.y - this.y) * t;
+        float lerpedZ = this.z + (end.z - this.z) * t;
+
+        // Create a new Vector3f with the interpolated values
+        return new Vector3f(lerpedX, lerpedY, lerpedZ);
+    }
 }

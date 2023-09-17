@@ -12,32 +12,185 @@ import java.util.List;
 public class CDSolver {
 
     public CollisionResult solve(Plane plane, Cylinder cylinder) {
-        return null;
+        Vector3f cylinderCenter = cylinder.getCenter();
+
+        // Check if the cylinder's center is inside the plane
+        boolean isCylinderCenterInside = plane.isPointInside(cylinderCenter);
+
+        // Calculate the closest point on the plane to the cylinder's center
+        Vector3f closestPointOnPlane = plane.closestPoint(cylinderCenter);
+
+        // Calculate the vector from the cylinder's center to the closest point on the plane
+        Vector3f fromCylinderToPlane = closestPointOnPlane.sub(cylinderCenter);
+
+        // Calculate the distance between the cylinder's center and the closest point on the plane
+        float distanceToPlane = fromCylinderToPlane.length();
+
+        if (isCylinderCenterInside) {
+
+            return new CollisionResult(true, plane.getNormal(), distanceToPlane - cylinder.getRadius(), List.of(cylinderCenter));
+        }
+        // The cylinder's center is inside the cylinder, but not fully inside the plane
+        // Calculate the contact point on the cylinder's surface
+        Vector3f contactPoint = cylinder.closestPoint(closestPointOnPlane);
+
+        return new CollisionResult(true, plane.getNormal(), distanceToPlane - cylinder.getRadius(), List.of(contactPoint));
     }
+
 
     public CollisionResult solve(Plane plane, Sphere sphere) {
-        return null;
+        // Calculate the distance between the sphere's center and the plane
+        float distanceToPlane = plane.getNormal().dot(sphere.getCenter()) + plane.getDistance();
+
+        // Calculate collision depth
+        float depth = sphere.getRadius() - Math.abs(distanceToPlane);
+
+        // Calculate the collision normal (plane's normal)
+        Vector3f collisionNormal = plane.getNormal();
+
+        // Calculate the contact point (sphere's center projected onto the plane)
+        Vector3f contactPoint = sphere.getCenter().sub(plane.getNormal().mul(distanceToPlane));
+
+        // Create a CollisionResult object with collision information
+        List<Vector3f> contactPoints = new ArrayList<>();
+        contactPoints.add(contactPoint);
+        return new CollisionResult(true, collisionNormal, depth, contactPoints);
+
     }
+
 
     public CollisionResult solve(Plane plane, Capsule capsule) {
-        return null;
+        Vector3f axis = capsule.getEnd().sub(capsule.getStart());
+        Vector3f vecToPoint = capsule.getStart().sub(plane.closestPoint(capsule.getStart()));
+
+        float t = vecToPoint.dot(axis) / axis.dot(axis);
+        t = Math.max(0, Math.min(1, t)); // Clamp t to [0, 1]
+
+        Vector3f closestPointOnAxis = capsule.getStart().add(axis.mul(t));
+
+        Vector3f closestPointOnSurface = closestPointOnAxis
+                .add(vecToPoint.sub(closestPointOnAxis).normalize().mul(capsule.getRadius()));
+
+        // Calculate the distance between the closest point on the capsule's surface and the plane
+        float distanceToPlane = plane.getNormal().dot(closestPointOnSurface) + plane.getDistance();
+
+        // Calculate collision depth
+        float depth = capsule.getRadius() - Math.abs(distanceToPlane);
+
+        // Create a CollisionResult object with collision information
+        List<Vector3f> contactPoints = new ArrayList<>();
+        contactPoints.add(closestPointOnSurface);
+        return new CollisionResult(true, plane.getNormal(), depth, contactPoints);
+
     }
+
 
     public CollisionResult solve(Plane plane, AABB aabb) {
-        return null;
+
+        // Calculate the center of the AABB
+        Vector3f aabbCenter = aabb.getCenter();
+
+        // Calculate the signed distance from the AABB center to the plane
+        float signedDistance = plane.getNormal().dot(aabbCenter) - plane.getDistance();
+
+        // Calculate the extent of the AABB along the plane normal
+        float aabbExtent = (aabb.getMax().sub(aabb.getMin())).dot(plane.getNormal()) / 2.0f;
+
+        // Calculate the penetration depth
+        float depth = aabbExtent - Math.abs(signedDistance);
+
+        // Calculate the collision normal (opposite of the plane's normal)
+        Vector3f collisionNormal = plane.getNormal().negate();
+
+        // Calculate the contact point on the AABB
+        Vector3f contactPoint = aabbCenter.sub(collisionNormal.mul(aabbExtent));
+
+        return new CollisionResult(true, collisionNormal, depth, List.of(contactPoint));
     }
+
 
     public CollisionResult solve(Plane plane, OBB obb) {
-        return null;
+
+        // Calculate the signed distance from the OBB center to the plane
+        Vector3f obbCenter = obb.getCenter();
+        float signedDistance = plane.getNormal().dot(obbCenter) - plane.getDistance();
+
+        // Calculate the projection radius of the OBB onto the plane normal
+        float projectionRadius = 0.0f;
+        for (int i = 0; i < 3; i++) {
+            float axisProjection = Math.abs(obb.getAxis().get(i).dot(plane.getNormal()));
+            projectionRadius += obb.getHalfExtents().get(i) * axisProjection;
+        }
+
+        // Calculate the penetration depth
+        float depth = projectionRadius - Math.abs(signedDistance);
+
+        // Calculate the collision normal (opposite of the plane's normal)
+        Vector3f collisionNormal = plane.getNormal().negate();
+
+        // Calculate the contact point on the OBB
+        Vector3f contactPoint = obb.closestPoint(obbCenter.add(plane.getNormal().mul(signedDistance)));
+
+        return new CollisionResult(true, collisionNormal, depth, List.of(contactPoint));
     }
+
 
     public CollisionResult solve(Plane plane, Line line) {
-        return null;
+
+        // Calculate the signed distances from the line's start and end points to the plane
+        float startDistance = plane.getNormal().dot(line.getStart()) + plane.getDistance();
+        float endDistance = plane.getNormal().dot(line.getEnd()) + plane.getDistance();
+
+        // Calculate the intersection point with the plane
+        float t = startDistance / (startDistance - endDistance);
+        Vector3f intersectionPoint = line.getStart().lerp(line.getEnd(), t);
+
+        // Calculate the collision normal (opposite of the plane's normal)
+        Vector3f collisionNormal = plane.getNormal().negate();
+
+        // Calculate the penetration depth (distance from intersection to plane)
+        float depth = Math.abs(startDistance) / plane.getNormal().length();
+
+        return new CollisionResult(true, collisionNormal, depth, List.of(intersectionPoint));
     }
 
+
     public CollisionResult solve(Plane plane, Triangle triangle) {
-        return null;
+        // Check if any of the triangle's vertices are in front of the plane
+        boolean v1InFront = plane.isPointInFront(triangle.getVertex1());
+        boolean v2InFront = plane.isPointInFront(triangle.getVertex2());
+        boolean v3InFront = plane.isPointInFront(triangle.getVertex3());
+
+        // Calculate the intersection point of the triangle with the plane
+        Vector3f intersectionPoint = new Vector3f();
+
+        // Check if each triangle edge intersects with the plane
+        if (v1InFront != v2InFront) {
+            intersectionPoint = CollisionUtil.closestPointBetweenTwoLines(
+                    triangle.getVertex1(), triangle.getVertex2(),
+                    triangle.getVertex1(), triangle.getVertex3()
+            );
+        } else if (v2InFront != v3InFront) {
+            intersectionPoint = CollisionUtil.closestPointBetweenTwoLines(
+                    triangle.getVertex2(), triangle.getVertex3(),
+                    triangle.getVertex2(), triangle.getVertex1()
+            );
+        } else {
+            intersectionPoint = CollisionUtil.closestPointBetweenTwoLines(
+                    triangle.getVertex3(), triangle.getVertex1(),
+                    triangle.getVertex3(), triangle.getVertex2()
+            );
+        }
+
+        // Calculate the collision normal (opposite of the plane's normal)
+        Vector3f collisionNormal = plane.getNormal().negate();
+
+        // Calculate the penetration depth (distance from the intersection point to the plane)
+        float depth = Math.abs(plane.distanceToPoint(intersectionPoint));
+
+        return new CollisionResult(true, collisionNormal, depth, List.of(intersectionPoint));
     }
+
 
     public CollisionResult solve(Plane plane, ConvexPolyhedron convexPolyhedron) {
         // Initialize collision result

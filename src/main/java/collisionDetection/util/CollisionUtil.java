@@ -149,4 +149,45 @@ public class CollisionUtil {
         return (u >= 0) && (v >= 0) && (u + v <= 1);
     }
 
+    public static Vector3f closestPointBetweenTwoLines(Vector3f line1Start, Vector3f line1End, Vector3f line2Start, Vector3f line2End) {
+        // Calculate direction vectors of the two lines
+        Vector3f dir1 = line1End.sub(line1Start);
+        Vector3f dir2 = line2End.sub(line2Start);
+
+        // Vector between the starting points of the two lines
+        Vector3f start1ToStart2 = line2Start.sub(line1Start);
+
+        // Calculate the coefficients of the equations for the lines
+        float a = dir1.dot(dir1);
+        float b = dir1.dot(dir2);
+        float c = dir2.dot(dir2);
+        float d = dir1.dot(start1ToStart2);
+        float e = dir2.dot(start1ToStart2);
+
+        // Calculate the denominator for finding the closest point
+        float denominator = a * c - b * b;
+
+        // Initialize the parameters for the closest points on each line
+        float t1, t2;
+
+        // Check if the denominator is close to zero, meaning the lines are nearly parallel
+        if (denominator < 0.0001f) {
+            // If the lines are nearly parallel, use the starting points of both lines as the closest points
+            t1 = 0;
+            t2 = e / c;
+        } else {
+            // Calculate the parameters for the closest points on each line
+            t1 = (b * e - c * d) / denominator;
+            t2 = (a * e - b * d) / denominator;
+        }
+
+        // Calculate the closest points on each line
+        Vector3f closestPoint1 = line1Start.add(dir1.mul(t1));
+        Vector3f closestPoint2 = line2Start.add(dir2.mul(t2));
+
+        // Calculate and return the midpoint between the two closest points
+        return closestPoint1.add(closestPoint2).div(2.0f);
+    }
+
+
 }
