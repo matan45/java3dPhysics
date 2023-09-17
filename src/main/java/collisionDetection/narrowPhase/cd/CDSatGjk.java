@@ -1,5 +1,6 @@
 package collisionDetection.narrowPhase.cd;
 
+import collisionDetection.narrowPhase.collisionResult.CollisionResult;
 import collisionDetection.narrowPhase.sat.SATSupport;
 import collisionDetection.primitive.*;
 import collisionDetection.primitive.terrain.TerrainShape;
@@ -18,21 +19,21 @@ public class CDSatGjk {
         this.cdSolver = new CDSolver();
     }
 
-    public boolean isCollide(Plane plane, SATSupport convexPolyhedron) {
+    public CollisionResult isCollide(Plane plane, SATSupport convexPolyhedron) {
         // Check if any vertex of the polyhedron is in front of the plane
         for (Vector3f vertex : convexPolyhedron.getVertices()) {
             if (plane.isPointInFront(vertex)) {
-                return true;
+                return cdSolver.solve(plane, convexPolyhedron);
             }
         }
 
-        return false;
+        return new CollisionResult();
     }
 
-    public boolean isCollide(Sphere sphere, SATSupport convexPolyhedron) {
+    public CollisionResult isCollide(Sphere sphere, SATSupport convexPolyhedron) {
         // Check if the sphere is completely outside the polyhedron
         if (!convexPolyhedron.isPointInside(sphere.getCenter())) {
-            return false;
+            return new CollisionResult();
         }
 
         // Handle the case where the sphere intersects with the polyhedron boundary
@@ -47,18 +48,18 @@ public class CDSatGjk {
             if (Math.abs(distanceToPlane) <= sphere.getRadius()) {
                 // Check if the intersection point is inside the face's boundaries
                 if (CollisionUtil.isPointInsideFace(v0, v1, convexPolyhedron.getVertices())) {
-                    return true;
+                    return cdSolver.solve(sphere, convexPolyhedron);
                 }
             }
         }
 
-        return false;
+        return new CollisionResult();
     }
 
-    public boolean isCollide(Cylinder cylinder, SATSupport convexPolyhedron) {
+    public CollisionResult isCollide(Cylinder cylinder, SATSupport convexPolyhedron) {
         // Check if the cylinder is completely outside the polyhedron
         if (!convexPolyhedron.isPointInside(cylinder.getCenter())) {
-            return false;
+            return new CollisionResult();
         }
 
         // Handle the case where the cylinder intersects with the polyhedron boundary
@@ -73,20 +74,20 @@ public class CDSatGjk {
             if (Math.abs(distanceToPlane) <= cylinder.getRadius()) {
                 // Check if the intersection point is inside the face's boundaries
                 if (CollisionUtil.isPointInsideFace(v0, v1, convexPolyhedron.getVertices())) {
-                    return true;
+                    return cdSolver.solve(cylinder, convexPolyhedron);
                 }
             }
         }
 
-        return false;
+        return new CollisionResult();
     }
 
-    public boolean isCollide(Capsule capsule, SATSupport convexPolyhedron) {
+    public CollisionResult isCollide(Capsule capsule, SATSupport convexPolyhedron) {
 
         // Check if the capsule is completely outside the polyhedron
         if (!convexPolyhedron.isPointInside(capsule.getStart()) &&
                 !convexPolyhedron.isPointInside(capsule.getEnd())) {
-            return false;
+            return new CollisionResult();
         }
 
         // Handle the case where the capsule intersects with the polyhedron boundary
@@ -101,15 +102,15 @@ public class CDSatGjk {
             if (Math.abs(distanceToPlane) <= capsule.getRadius()) {
                 // Check if the intersection point is inside the face's boundaries
                 if (CollisionUtil.isPointInsideFace(v0, v1, convexPolyhedron.getVertices())) {
-                    return true;
+                    return cdSolver.solve(capsule, convexPolyhedron);
                 }
             }
         }
 
-        return false;
+        return new CollisionResult();
     }
 
-    public boolean isCollide(Plane plane, Cylinder cylinder) {
+    public CollisionResult isCollide(Plane plane, Cylinder cylinder) {
         // Calculate the projection of the cylinder's center onto the plane's normal
         float distanceToPlane = cylinder.getCenter().dot(plane.getNormal()) - plane.getDistance();
 
@@ -121,22 +122,22 @@ public class CDSatGjk {
 
         // If both the top and bottom caps are on the same side of the plane's normal, there's no collision
         if (topCapDistance > cylinder.getRadius() && bottomCapDistance > cylinder.getRadius()) {
-            return false;
+            return new CollisionResult();
         }
 
         // If the center of the cylinder is on the plane or the top/bottom caps intersect the plane, there's a collision
-        return Math.abs(distanceToPlane) <= cylinder.getRadius();
+        return (Math.abs(distanceToPlane) <= cylinder.getRadius()) ? cdSolver.solve(plane, cylinder) : new CollisionResult();
     }
 
-    public boolean isCollide(Plane plane, Sphere sphere) {
+    public CollisionResult isCollide(Plane plane, Sphere sphere) {
         // Calculate the signed distance from the center of the sphere to the plane
         float signedDistance = plane.getNormal().dot(sphere.getCenter()) - plane.getDistance();
 
         // If the signed distance is less than or equal to the sphere's radius, there is a collision
-        return Math.abs(signedDistance) <= sphere.getRadius();
+        return (Math.abs(signedDistance) <= sphere.getRadius()) ? cdSolver.solve(plane, sphere) : new CollisionResult();
     }
 
-    public boolean isCollide(Plane plane, Capsule capsule) {
+    public CollisionResult isCollide(Plane plane, Capsule capsule) {
         // Calculate the direction of the capsule's axis
         Vector3f capsuleAxis = capsule.getEnd().sub(capsule.getStart());
 
@@ -145,7 +146,7 @@ public class CDSatGjk {
 
         // If the capsule's axis is almost parallel to the plane, there's no collision
         if (Math.abs(projection) < EPSILON) {
-            return false;
+            return new CollisionResult();
         }
 
         // Calculate the distance from the start of the capsule to the plane
@@ -155,10 +156,11 @@ public class CDSatGjk {
         float distanceToEnd = (capsule.getEnd().dot(plane.getNormal()) - plane.getDistance()) / projection;
 
         // If both the start and end of the capsule are on the same side of the plane, there's no collision
-        return (!(distanceToStart < 0) || !(distanceToEnd < 0)) && (!(distanceToStart > 1) || !(distanceToEnd > 1));
+        return (!(distanceToStart < 0) || !(distanceToEnd < 0)) && (!(distanceToStart > 1) || !(distanceToEnd > 1))
+                ? cdSolver.solve(plane, capsule) : new CollisionResult();
     }
 
-    public boolean isCollide(Plane plane, AABB aabb) {
+    public CollisionResult isCollide(Plane plane, AABB aabb) {
         // Calculate the half-extents of the AABB
         Vector3f halfExtents = aabb.getMax().sub(aabb.getMin()).div(2.0f);
 
@@ -177,11 +179,12 @@ public class CDSatGjk {
         // The AABB is entirely behind the plane
         if (distance > projection) {
             // The AABB is entirely in front of the plane
-            return false;
-        } else return !(distance < -projection);
+            return new CollisionResult();
+        }
+        return !(distance < -projection) ? cdSolver.solve(plane, aabb) : new CollisionResult();
     }
 
-    public boolean isCollide(Plane plane, OBB obb) {
+    public CollisionResult isCollide(Plane plane, OBB obb) {
         // Calculate the signed distance from the OBB's center to the plane
         float signedDistance = plane.getNormal().dot(obb.getCenter()) - plane.getDistance();
 
@@ -194,18 +197,19 @@ public class CDSatGjk {
         // Check if the OBB is entirely in front of or behind the plane
         // OBB intersects the plane
         if (signedDistance > projectionRadius) {
-            return false; // OBB is entirely in front of the plane
-        } else return !(signedDistance < -projectionRadius); // OBB is entirely behind the plane
+            return new CollisionResult(); // OBB is entirely in front of the plane
+        }
+        return !(signedDistance < -projectionRadius) ? cdSolver.solve(plane, obb) : new CollisionResult(); // OBB is entirely behind the plane
     }
 
-    public boolean isCollide(Plane plane, Line line) {
+    public CollisionResult isCollide(Plane plane, Line line) {
         // Calculate the direction vector of the line
         Vector3f lineDirection = line.getEnd().sub(line.getStart());
 
         // Check if the line is parallel to the plane (dot product of their directions is close to 0)
         float dotProduct = lineDirection.dot(plane.getNormal());
         if (Math.abs(dotProduct) < EPSILON) {
-            return false; // Line is parallel to the plane and does not intersect
+            return new CollisionResult(); // Line is parallel to the plane and does not intersect
         }
 
         // Calculate the point of intersection between the line and the plane
@@ -218,10 +222,10 @@ public class CDSatGjk {
 
         // Check if the intersection point is within the line segment
         // Line intersects with the plane, but not within the line segment
-        return t >= 0 && t <= 1; // Line intersects with the plane within the line segment
+        return (t >= 0 && t <= 1) ? cdSolver.solve(plane, line) : new CollisionResult(); // Line intersects with the plane within the line segment
     }
 
-    public boolean isCollide(Plane plane, Triangle triangle) {
+    public CollisionResult isCollide(Plane plane, Triangle triangle) {
         List<Vector3f> vertices = triangle.getVertices();
         boolean allVerticesInFront = true;
         boolean allVerticesBehind = true;
@@ -234,18 +238,18 @@ public class CDSatGjk {
             }
         }
 
-        return !(allVerticesInFront || allVerticesBehind);
+        return !(allVerticesInFront || allVerticesBehind) ? cdSolver.solve(plane, triangle) : new CollisionResult();
     }
 
-    public boolean isCollide(Plane plane, ConvexPolyhedron convexPolyhedron) {
+    public CollisionResult isCollide(Plane plane, ConvexPolyhedron convexPolyhedron) {
         // Check if any vertex of the polyhedron is in front of the plane
         for (Vector3f vertex : convexPolyhedron.getVertices()) {
             if (plane.isPointInFront(vertex)) {
-                return true;
+                return cdSolver.solve(plane, convexPolyhedron);
             }
         }
 
-        return false;
+        return new CollisionResult();
     }
 
     public boolean isCollide(Line line, TerrainShape terrainShape) {

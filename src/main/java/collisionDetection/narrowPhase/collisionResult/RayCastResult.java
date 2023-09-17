@@ -2,8 +2,6 @@ package collisionDetection.narrowPhase.collisionResult;
 
 import math.Vector3f;
 
-import java.util.ArrayList;
-
 public class RayCastResult {
     private Vector3f point;
     private Vector3f normal;

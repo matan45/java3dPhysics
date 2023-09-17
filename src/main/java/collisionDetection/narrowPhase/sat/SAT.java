@@ -1,5 +1,6 @@
 package collisionDetection.narrowPhase.sat;
 
+import collisionDetection.narrowPhase.collisionResult.CollisionResult;
 import math.Vector3f;
 
 import java.util.HashSet;
@@ -14,18 +15,18 @@ public class SAT {
         this.satSolver = new SATSolver();
     }
 
-    public boolean isCollide(SATSupport shape1, SATSupport shape2) {
+    public CollisionResult isCollide(SATSupport shape1, SATSupport shape2) {
 
         Set<Vector3f> allAxis = combineAxis(shape1, shape2);
 
         // Check for separation along each axis
         for (Vector3f axis : allAxis) {
             if (isAxisSeparating(axis, shape1, shape2)) {
-                return false; // No collision along this axis
+                return new CollisionResult(); // No collision along this axis
             }
         }
 
-        return true; // No separation along any axis, collision detected
+        return satSolver.satCollisionResult(shape1, shape2, allAxis); // No separation along any axis, collision detected
     }
 
     private static boolean isAxisSeparating(Vector3f axis, SATSupport shape1, SATSupport shape2) {
