@@ -20,7 +20,7 @@ public class EPA {
 
         for (int iteration = 0; iteration < GJK_EPA_MAX_ITERATORS; iteration++) {
             // Find the face in the list with the smallest penetration depth
-            Face minPenetrationFace = findFaceWithMinimumPenetration(faces);
+            Face minPenetrationFace = findFaceWithMinimumDistanceToOrigin(faces);
 
             // Calculate the support point in the direction of the face's normal
             Vector3f supportPoint = CollisionUtil.support(shape1, shape2, minPenetrationFace.getNormal());
@@ -29,7 +29,7 @@ public class EPA {
             float distance = minPenetrationFace.distanceToPoint(supportPoint);
 
             // If the distance is within a small tolerance, a collision has been found
-            if (distance < EPSILON) {
+            if (distance <= EPSILON) {
                 // Extract collision information from the minimum penetration face
                 return minPenetrationFace.extractCollisionResult();
             }
@@ -55,7 +55,7 @@ public class EPA {
             Vector3f edgeEnd = minPenetrationFace.getVertices()[j];
 
             // Create a new face using the support point and the edge vertices
-            Face newFace = new Face(new Vector3f[]{edgeStart, edgeEnd, supportPoint});
+            Face newFace = new Face(new Vector3f[]{supportPoint, edgeStart, edgeEnd});
 
             // Add the new face to the list of faces
             faces.add(newFace);
@@ -63,7 +63,7 @@ public class EPA {
     }
 
 
-    private Face findFaceWithMinimumPenetration(List<Face> faces) {
+    private Face findFaceWithMinimumDistanceToOrigin(List<Face> faces) {
         if (faces.isEmpty()) {
             throw new IllegalArgumentException("List of faces is empty.");
         }

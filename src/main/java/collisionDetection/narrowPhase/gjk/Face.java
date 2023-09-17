@@ -17,6 +17,8 @@ public class Face {
 
     public Face() {
         this.vertices = new Vector3f[3];
+        this.normal = new Vector3f();
+        this.distanceToOrigin = -1;
     }
 
     private void computeNormalAndDistance() {
