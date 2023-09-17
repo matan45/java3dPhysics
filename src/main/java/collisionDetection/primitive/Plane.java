@@ -1,8 +1,6 @@
 package collisionDetection.primitive;
 
 import collisionDetection.narrowPhase.Shape;
-import collisionDetection.narrowPhase.gjk.GJK;
-import collisionDetection.narrowPhase.gjk.GJKSupport;
 import math.Vector3f;
 
 import java.util.Objects;
@@ -38,6 +36,17 @@ public class Plane implements Shape {
         this.distance = distance;
     }
 
+    // Calculate the distance from a point to the plane
+    public float distanceToPoint(Vector3f point) {
+        // Calculate the vector from the point on the plane to the given point
+        Vector3f pointToPlane = point.sub(point);
+
+        // Use the dot product to find the distance
+        float distance = pointToPlane.dot(normal) / normal.length();
+
+        return Math.abs(distance); // Ensure the distance is positive
+    }
+
     @Override
     public boolean isPointInside(Vector3f point) {
         // Calculate the signed distance from the point to the plane
@@ -54,6 +63,10 @@ public class Plane implements Shape {
         return point.sub(normal.mul(dis));
     }
 
+    @Override
+    public void translate(Vector3f position) {
+        distance += position.dot(normal);
+    }
 
     @Override
     public String toString() {

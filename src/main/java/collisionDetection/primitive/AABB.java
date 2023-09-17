@@ -7,6 +7,7 @@ import collisionDetection.narrowPhase.sat.Interval;
 import collisionDetection.narrowPhase.sat.SATSupport;
 import math.Vector3f;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -61,6 +62,18 @@ public class AABB implements Shape, SATSupport, GJKSupport {
     }
 
     @Override
+    public void translate(Vector3f position) {
+        min.set(min.add(position));
+        max.set(max.add(position));
+    }
+
+    @Override
+    public void scale(Vector3f scale) {
+        min.set(min.mul(scale));
+        max.set(max.mul(scale));
+    }
+
+    @Override
     public Interval getInterval(Vector3f axis) {
         float minProjection = axis.dot(getMin());
         float maxProjection = axis.dot(getMax());
@@ -77,6 +90,23 @@ public class AABB implements Shape, SATSupport, GJKSupport {
         return List.of(new Vector3f(1, 0, 0),
                 new Vector3f(0, 1, 0),
                 new Vector3f(0, 0, 1));
+    }
+
+    @Override
+    public List<Vector3f> getVertices() {
+        List<Vector3f> vertices = new ArrayList<>(8);
+
+        // Define the eight vertices of the AABB
+        vertices.add(new Vector3f(min.x, min.y, min.z));
+        vertices.add(new Vector3f(max.x, min.y, min.z));
+        vertices.add(new Vector3f(min.x, max.y, min.z));
+        vertices.add(new Vector3f(max.x, max.y, min.z));
+        vertices.add(new Vector3f(min.x, min.y, max.z));
+        vertices.add(new Vector3f(max.x, min.y, max.z));
+        vertices.add(new Vector3f(min.x, max.y, max.z));
+        vertices.add(new Vector3f(max.x, max.y, max.z));
+
+        return vertices;
     }
 
     @Override

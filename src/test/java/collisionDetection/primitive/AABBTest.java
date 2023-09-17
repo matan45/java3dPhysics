@@ -1,6 +1,5 @@
 package collisionDetection.primitive;
 
-import collisionDetection.narrowPhase.CollisionDetection;
 import math.Vector3f;
 import org.junit.jupiter.api.Test;
 

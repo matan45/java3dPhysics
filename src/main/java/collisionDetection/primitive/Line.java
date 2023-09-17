@@ -4,6 +4,7 @@ import collisionDetection.narrowPhase.Shape;
 import collisionDetection.narrowPhase.gjk.GJKSupport;
 import collisionDetection.narrowPhase.sat.Interval;
 import collisionDetection.narrowPhase.sat.SATSupport;
+import math.Quaternion;
 import math.Vector3f;
 
 import java.util.ArrayList;
@@ -37,17 +38,12 @@ public class Line implements Shape, GJKSupport, SATSupport {
 
     @Override
     public boolean isPointInside(Vector3f point) {
-        // To determine if a point is inside the line, you can check if the point is collinear
-        // with the start and end points. If it is, then it lies on the line.
-        Vector3f direction = end.sub(start);
-        Vector3f toPoint = point.sub(start);
-
-        float dotProduct = direction.dot(toPoint);
-
-        // If the dot product is between 0 and the squared length of the direction vector,
-        // then the point is inside the line segment.
-        return dotProduct >= 0 && dotProduct <= direction.lengthSquared();
+        // Check if the point is within the bounding box of the line segment
+        return !(point.x < Math.min(start.x, end.x)) && !(point.x > Math.max(start.x, end.x)) &&
+                !(point.y < Math.min(start.y, end.y)) && !(point.y > Math.max(start.y, end.y)) &&
+                !(point.z < Math.min(start.z, end.z)) && !(point.z > Math.max(start.z, end.z));
     }
+
 
     @Override
     public Vector3f closestPoint(Vector3f point) {
@@ -63,6 +59,18 @@ public class Line implements Shape, GJKSupport, SATSupport {
 
         // Calculate the closest point by adding the scaled direction to the start point.
         return start.add(direction.mul(t));
+    }
+
+    @Override
+    public void translate(Vector3f position) {
+        start.set(start.add(position));
+        end.set(end.add(position));
+    }
+
+    @Override
+    public void rotate(Quaternion rotate) {
+        start.set(start.rotate(rotate));
+        end.set(end.rotate(rotate));
     }
 
     @Override
@@ -132,5 +140,10 @@ public class Line implements Shape, GJKSupport, SATSupport {
         axes.add(perpendicularAxis3);
 
         return axes;
+    }
+
+    @Override
+    public List<Vector3f> getVertices() {
+        return List.of(start, end);
     }
 }

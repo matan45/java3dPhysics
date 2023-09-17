@@ -8,6 +8,13 @@ public class RayCastResult {
     private float t;
     private boolean hit;
 
+    public RayCastResult() {
+        this.hit = false;
+        this.point = new Vector3f();
+        this.normal = new Vector3f();
+        this.t = 0;
+    }
+
     public RayCastResult(Vector3f point, Vector3f normal, float t, boolean hit) {
         this.point = point;
         this.normal = normal;

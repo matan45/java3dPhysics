@@ -104,6 +104,10 @@ public class Vector3f {
         return new Vector3f(x * s, y * s, z * s);
     }
 
+    public Vector3f mul(Vector3f other) {
+        return new Vector3f(x * other.x, y * other.y, z * other.z);
+    }
+
     public Vector3f cross(Vector3f other) {
         return new Vector3f(y * other.z - z * other.y, other.x * z - other.z * x,
                 x * other.y - y * other.x);
@@ -138,6 +142,17 @@ public class Vector3f {
         float dy = y - point.y;
         float dz = z - point.z;
         return (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+
+    public Vector3f rotate(Quaternion rotation) {
+        // Convert the Vector3f to a Quaternion4f for the rotation
+        Quaternion vectorQuaternion = new Quaternion(x, y, z, 0);
+
+        // Perform the rotation by multiplying the rotation quaternion
+        Quaternion result = rotation.mul(vectorQuaternion).mul(rotation.conjugate());
+
+        // Update the Vector3f with the rotated values
+        return new Vector3f(result.x,result.y,result.z);
     }
 
     public void set(Vector3f point) {
@@ -180,5 +195,15 @@ public class Vector3f {
                 ", y=" + y +
                 ", z=" + z +
                 '}';
+    }
+
+    public Vector3f lerp(Vector3f end, float t) {
+        // Interpolate each component (x, y, z) of the vector separately
+        float lerpedX = this.x + (end.x - this.x) * t;
+        float lerpedY = this.y + (end.y - this.y) * t;
+        float lerpedZ = this.z + (end.z - this.z) * t;
+
+        // Create a new Vector3f with the interpolated values
+        return new Vector3f(lerpedX, lerpedY, lerpedZ);
     }
 }

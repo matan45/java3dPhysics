@@ -1,7 +1,6 @@
 package collisionDetection.primitive.terrain;
 
-import collisionDetection.narrowPhase.CollisionDetection;
-import collisionDetection.narrowPhase.rc.RayCast;
+import collisionDetection.CDEngine;
 import collisionDetection.primitive.AABB;
 import collisionDetection.primitive.Line;
 import collisionDetection.primitive.Ray;
@@ -105,7 +104,7 @@ public class TerrainShape {
 
     public Vector3f rayTerrainIntersection(Ray ray) {
         // Check if the ray intersects with the terrain's bounding box (borders)
-        if (!RayCast.isCollide(ray, borders)) {
+        if (!CDEngine.getCdEngine().getRayCast().isCollide(ray, borders).isHit()) {
             return null; // Ray doesn't intersect with the terrain's bounding box
         }
         Vector2f position = getGridPosition(ray.getOrigin().x, ray.getOrigin().z);
@@ -206,7 +205,7 @@ public class TerrainShape {
     }
 
     public boolean isCollide(Line line) {
-        if (!CollisionDetection.isCollide(line, borders))
+        if (!CDEngine.getCdEngine().getSat().isCollide(line, borders).isColliding())
             return false;
 
         // Get the start and end points of the line
@@ -218,7 +217,7 @@ public class TerrainShape {
             return true;
 
         for (TerrainTriangle triangle : triangles) {
-            if (CollisionDetection.isCollide(line, triangle.toTriangle()))
+            if (CDEngine.getCdEngine().getSat().isCollide(line, triangle.toTriangle()).isColliding())
                 return true;
         }
 

@@ -1,8 +1,8 @@
 package collisionDetection.narrowPhase.rc;
 
+import collisionDetection.narrowPhase.collisionResult.RayCastResult;
 import collisionDetection.primitive.*;
 import collisionDetection.util.CollisionUtil;
-import math.Maths;
 import math.Vector3f;
 
 import java.util.List;
@@ -10,7 +10,14 @@ import java.util.List;
 import static math.Const.EPSILON;
 
 public class RayCast {
-    public static boolean isCollide(Ray ray, Sphere sphere) {
+
+    private final RCSolver rcSolver;
+
+    public RayCast() {
+        this.rcSolver = new RCSolver();
+    }
+
+    public RayCastResult isCollide(Ray ray, Sphere sphere) {
         Vector3f oc = ray.getOrigin().sub(sphere.getCenter());
         float a = ray.getDirection().dot(ray.getDirection());
         float b = 2.0f * oc.dot(ray.getDirection());
@@ -18,10 +25,10 @@ public class RayCast {
         float discriminant = b * b - 4 * a * c;
 
         // Intersection
-        return !(discriminant < 0); // No intersection
+        return !(discriminant < 0) ? rcSolver.solve(ray, sphere) : new RayCastResult(); // No intersection
     }
 
-    public static boolean isCollide(Ray ray, AABB aabb) {
+    public RayCastResult isCollide(Ray ray, AABB aabb) {
         // Find the two intersection points on the AABB using the ray's closest point method
         Vector3f p1 = ray.closestPoint(aabb.getMin());
         Vector3f p2 = ray.closestPoint(aabb.getMax());
@@ -32,10 +39,10 @@ public class RayCast {
         boolean betweenZ = (p1.z >= aabb.getMin().z && p1.z <= aabb.getMax().z) || (p2.z >= aabb.getMin().z && p2.z <= aabb.getMax().z);
 
         // If there's an intersection along all axes, the AABB and ray collide
-        return betweenX && betweenY && betweenZ;
+        return (betweenX && betweenY && betweenZ) ? rcSolver.solve(ray, aabb) : new RayCastResult();
     }
 
-    public static boolean isCollide(Ray ray, Capsule capsule) {
+    public RayCastResult isCollide(Ray ray, Capsule capsule) {
         Vector3f rayOrigin = ray.getOrigin();
         Vector3f rayDirection = ray.getDirection();
 
@@ -59,17 +66,17 @@ public class RayCast {
         float discriminant = b * b - 4 * a * c;
 
         if (discriminant < 0)
-            return false; // No collision
+            return new RayCastResult(); // No collision
 
         // Calculate the two potential intersection points
         float sqrtDiscriminant = (float) Math.sqrt(discriminant);
         float t1 = (-b - sqrtDiscriminant) / (2 * a);
         float t2 = (-b + sqrtDiscriminant) / (2 * a);
 
-        return (t1 >= 0 && t1 <= 1) || (t2 >= 0 && t2 <= 1);
+        return ((t1 >= 0 && t1 <= 1) || (t2 >= 0 && t2 <= 1)) ? rcSolver.solve(ray, capsule) : new RayCastResult();
     }
 
-    public static boolean isCollide(Ray ray, Cylinder cylinder) {
+    public RayCastResult isCollide(Ray ray, Cylinder cylinder) {
         Vector3f rayOrigin = ray.getOrigin();
         Vector3f rayDirection = ray.getDirection();
 
@@ -91,13 +98,13 @@ public class RayCast {
             float t2 = (-b + sqrtDiscriminant) / (2 * a);
 
             // Check if either intersection point is within the bounds of the cylinder's height
-            return (t1 >= 0 && t1 <= cylinderHeight) || (t2 >= 0 && t2 <= cylinderHeight); // Collision detected
+            return ((t1 >= 0 && t1 <= cylinderHeight) || (t2 >= 0 && t2 <= cylinderHeight)) ? rcSolver.solve(ray, cylinder) : new RayCastResult(); // Collision detected
         }
 
-        return false; // No collision
+        return new RayCastResult(); // No collision
     }
 
-    public static boolean isCollide(Ray ray, OBB obb) {
+    public RayCastResult isCollide(Ray ray, OBB obb) {
         Vector3f rayOrigin = ray.getOrigin();
         Vector3f rayDirection = ray.getDirection();
 
@@ -144,10 +151,10 @@ public class RayCast {
                 Math.max(t[4], t[5])
         );
 
-        return !(min > max) && !(max < 0);// Collision detected
+        return (!(min > max) && !(max < 0)) ? rcSolver.solve(ray, obb) : new RayCastResult();// Collision detected
     }
 
-    public static boolean isCollide(Ray ray, Plane plane) {
+    public RayCastResult isCollide(Ray ray, Plane plane) {
         Vector3f rayOrigin = ray.getOrigin();
         Vector3f rayDirection = ray.getDirection();
 
@@ -158,15 +165,15 @@ public class RayCast {
         float pn = rayOrigin.dot(planeNormal);
 
         if (nd >= 0.0f)
-            return false;
+            return new RayCastResult();
 
         float t = (planeDistance - pn) / nd;
 
-        return t >= 0; // Collision detected
+        return (t >= 0) ? rcSolver.solve(ray, plane) : new RayCastResult(); // Collision detected
     }
 
 
-    public static boolean isCollide(Ray ray, Triangle triangle) {
+    public RayCastResult isCollide(Ray ray, Triangle triangle) {
         Vector3f rayOrigin = ray.getOrigin();
         Vector3f rayDirection = ray.getDirection();
 
@@ -182,7 +189,7 @@ public class RayCast {
 
         // Check if the ray is parallel or nearly parallel to the triangle
         if (Math.abs(nd) < EPSILON) {
-            return false; // No intersection
+            return new RayCastResult(); // No intersection
         }
 
         // Calculate the intersection point between the ray and the plane of the triangle
@@ -190,7 +197,7 @@ public class RayCast {
 
         // Check if the intersection point is outside the ray's range
         if (t < 0) {
-            return false; // Intersection behind the ray
+            return new RayCastResult(); // Intersection behind the ray
         }
 
         // Calculate the point of intersection
@@ -200,13 +207,13 @@ public class RayCast {
         Vector3f barycentricCords = CollisionUtil.barycentric(intersectionPoint, triangle);
 
         // Check if the intersection point is inside the triangle using barycentric coordinates
-        return barycentricCords.x >= 0 && barycentricCords.y >= 0 && barycentricCords.z >= 0;
+        return (barycentricCords.x >= 0 && barycentricCords.y >= 0 && barycentricCords.z >= 0) ? rcSolver.solve(ray, triangle) : new RayCastResult();
     }
 
-    public static boolean isCollide(Ray ray, ConvexPolyhedron convexPolyhedron) {
+    public RayCastResult isCollide(Ray ray, ConvexPolyhedron convexPolyhedron) {
 
         if (convexPolyhedron.isPointInside(ray.getOrigin()))
-            return true;
+            return rcSolver.solve(ray, convexPolyhedron);
 
         // Find the closest point on the convex polyhedron to the ray's origin
         Vector3f closestPoint = convexPolyhedron.closestPoint(ray.getOrigin());
@@ -217,7 +224,7 @@ public class RayCast {
         // If the closest point is outside the polyhedron, check if it's in the ray's direction
         // If it is, there is an intersection
         float dotProduct = rayToClosestPoint.dot(ray.getDirection());
-        return dotProduct >= 0;
+        return (dotProduct >= 0) ? rcSolver.solve(ray, convexPolyhedron) : new RayCastResult();
 
     }
 

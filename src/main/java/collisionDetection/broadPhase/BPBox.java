@@ -60,6 +60,16 @@ public class BPBox {
         }
     }
 
+    public void translate(Vector3f position) {
+        min.set(min.add(position));
+        max.set(max.add(position));
+    }
+
+    public void scale(Vector3f scale) {
+        min.set(min.mul(scale));
+        max.set(max.mul(scale));
+    }
+
     public Vector3f getCenter() {
         float centerX = (min.x + max.x) / 2.0f;
         float centerY = (min.y + max.y) / 2.0f;

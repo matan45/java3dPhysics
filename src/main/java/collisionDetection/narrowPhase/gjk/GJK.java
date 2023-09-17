@@ -1,5 +1,6 @@
 package collisionDetection.narrowPhase.gjk;
 
+import collisionDetection.narrowPhase.collisionResult.CollisionResult;
 import collisionDetection.util.CollisionUtil;
 import math.Vector3f;
 
@@ -7,7 +8,13 @@ import static math.Const.GJK_EPA_MAX_ITERATORS;
 
 public class GJK {
 
-    public static boolean isCollide(GJKSupport shape1, GJKSupport shape2) {
+    private final EPA epa;
+
+    public GJK() {
+        this.epa = new EPA();
+    }
+
+    public CollisionResult isCollide(GJKSupport shape1, GJKSupport shape2) {
         Simplex simplex = new Simplex();
 
         Vector3f support = CollisionUtil.support(shape1, shape2, new Vector3f(1, 0, 0));
@@ -19,21 +26,20 @@ public class GJK {
             support = CollisionUtil.support(shape1, shape2, direction);
 
             if (support.dot(direction) < 0) {
-                return false; // No collision
+                return new CollisionResult(); // No collision
             }
 
             simplex.pushFront(support);
 
             // If the simplex has reached rank 3, then check for collision
             if (nextSimplex(simplex, direction)) {
-                return true;
+                return epa.epaCollisionResult(shape1, shape2, simplex);
             }
 
         }
 
-        return false; // No collision
+        return new CollisionResult();// No collision
     }
-
 
 
     private static boolean nextSimplex(Simplex points, Vector3f direction) {

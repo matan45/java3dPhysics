@@ -3,6 +3,7 @@ package collisionDetection.primitive;
 
 import collisionDetection.narrowPhase.Shape;
 import collisionDetection.narrowPhase.gjk.GJKSupport;
+import math.Quaternion;
 import math.Vector3f;
 
 import java.util.Objects;
@@ -76,6 +77,24 @@ public class Capsule implements Shape, GJKSupport {
         Vector3f closestPointOnAxis = start.add(axis.mul(t));
 
         return closestPointOnAxis.add(vecToPoint.sub(closestPointOnAxis).normalize().mul(radius));
+    }
+
+    @Override
+    public void translate(Vector3f position) {
+        start.set(start.add(position));
+        end.set(end.add(position));
+    }
+
+    @Override
+    public void scale(Vector3f scale) {
+        // Scale the radius
+        radius *= Math.max(scale.x, Math.max(scale.y, scale.z));
+    }
+
+    @Override
+    public void rotate(Quaternion rotate) {
+        start.set(start.rotate(rotate));
+        end.set(end.rotate(rotate));
     }
 
     @Override

@@ -65,12 +65,17 @@ public class Vector2f {
         return dx * dx + dy * dy;
     }
 
+
     public Vector2f add(Vector2f other) {
         return new Vector2f(x + other.x, y + other.y);
     }
 
     public Vector2f mul(float s) {
         return new Vector2f(x * s, y * s);
+    }
+
+    public Vector2f mul(Vector2f other) {
+        return new Vector2f(x * other.x, y * other.y);
     }
 
     public static Vector2f project(Vector2f length, Vector2f direction) {

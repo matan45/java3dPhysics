@@ -4,6 +4,7 @@ import collisionDetection.narrowPhase.Shape;
 import collisionDetection.narrowPhase.gjk.GJKSupport;
 import collisionDetection.narrowPhase.sat.Interval;
 import collisionDetection.narrowPhase.sat.SATSupport;
+import math.Quaternion;
 import math.Vector3f;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class Triangle implements Shape, SATSupport, GJKSupport {
         this.vertex3 = vertex3;
     }
 
+    @Override
     public List<Vector3f> getVertices() {
         List<Vector3f> vertices = new ArrayList<>();
         vertices.add(vertex1);
@@ -65,7 +67,7 @@ public class Triangle implements Shape, SATSupport, GJKSupport {
         return vertex1.sub(vertex3);
     }
 
-    private Plane fromTriangle() {
+    public Plane fromTriangle() {
         Plane result = new Plane(new Vector3f(), 0);
         result.setNormal(vertex2.sub(vertex1).cross(vertex3.sub(vertex1)));
         result.setDistance(result.getNormal().dot(vertex1));
@@ -164,6 +166,29 @@ public class Triangle implements Shape, SATSupport, GJKSupport {
         }
         return vertex3;
     }
+
+    @Override
+    public void translate(Vector3f position) {
+        vertex1.add(position);
+        vertex2.add(position);
+        vertex3.add(position);
+    }
+
+    @Override
+    public void scale(Vector3f scale) {
+        vertex1.set(vertex1.mul(scale));
+        vertex2.set(vertex2.mul(scale));
+        vertex3.set(vertex3.mul(scale));
+    }
+
+    @Override
+    public void rotate(Quaternion rotate) {
+        vertex1.set(vertex1.rotate(rotate));
+        vertex2.set(vertex2.rotate(rotate));
+        vertex3.set(vertex3.rotate(rotate));
+
+    }
+
 
     @Override
     public String toString() {

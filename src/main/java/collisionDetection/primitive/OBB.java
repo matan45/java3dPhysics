@@ -4,6 +4,7 @@ import collisionDetection.narrowPhase.Shape;
 import collisionDetection.narrowPhase.gjk.GJKSupport;
 import collisionDetection.narrowPhase.sat.Interval;
 import collisionDetection.narrowPhase.sat.SATSupport;
+import math.Quaternion;
 import math.Vector3f;
 
 import java.util.ArrayList;
@@ -36,6 +37,36 @@ public class OBB implements Shape, SATSupport, GJKSupport {
         return List.of(axis);
     }
 
+    @Override
+    public List<Vector3f> getVertices() {
+        List<Vector3f> vertices = new ArrayList<>(8);
+        // Generate combinations of -1 and 1 for each axis
+        int[] signs = new int[]{-1, 1};
+
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                for (int k = 0; k < 2; k++) {
+                    // Calculate the vertex position using combinations of signs
+                    Vector3f vertex = new Vector3f(
+                            center.x + signs[i] * axis[0].x * halfExtents.x
+                                    + signs[j] * axis[1].x * halfExtents.y
+                                    + signs[k] * axis[2].x * halfExtents.z,
+                            center.y + signs[i] * axis[0].y * halfExtents.x
+                                    + signs[j] * axis[1].y * halfExtents.y
+                                    + signs[k] * axis[2].y * halfExtents.z,
+                            center.z + signs[i] * axis[0].z * halfExtents.x
+                                    + signs[j] * axis[1].z * halfExtents.y
+                                    + signs[k] * axis[2].z * halfExtents.z
+                    );
+
+                    vertices.add(vertex);
+                }
+            }
+        }
+
+        return vertices;
+    }
+
     public void setAxis(Vector3f[] axis) {
         this.axis = axis;
     }
@@ -46,18 +77,6 @@ public class OBB implements Shape, SATSupport, GJKSupport {
 
     public void setHalfExtents(Vector3f halfExtents) {
         this.halfExtents = halfExtents;
-    }
-
-    public Vector3f getEdge(int edgeIndex) {
-        // Calculate the endpoints of the edge
-        Vector3f startPoint = new Vector3f(center);
-        startPoint.add(axis[edgeIndex]);
-
-        Vector3f endPoint = new Vector3f(center);
-        endPoint.add(axis[edgeIndex].mul(halfExtents.get(edgeIndex)));
-
-        // Calculate the edge vector
-        return endPoint.sub(startPoint);
     }
 
     @Override
@@ -111,31 +130,41 @@ public class OBB implements Shape, SATSupport, GJKSupport {
 
     @Override
     public Vector3f support(Vector3f direction) {
-        // Initialize variables to store the maximum dot product and the corresponding vertex
-        float maxDotProduct = Float.NEGATIVE_INFINITY;
-        Vector3f supportVertex = null;
+        // Transform the direction from world space to OBB local space
+        Vector3f localDirection = new Vector3f(
+                direction.dot(axis[0]),
+                direction.dot(axis[1]),
+                direction.dot(axis[2])
+        );
 
-        // Iterate through all the vertices of the OBB
-        for (int i = 0; i < 8; i++) {
-            // Calculate the vertex position using a combination of half extents and axis
-            Vector3f vertex = new Vector3f(
-                    center.x + halfExtents.x * ((i & 1) == 0 ? 1 : -1),
-                    center.y + halfExtents.y * ((i & 2) == 0 ? 1 : -1),
-                    center.z + halfExtents.z * ((i & 4) == 0 ? 1 : -1)
-            );
+        // Calculate the support point in local coordinates
+        Vector3f localSupport = new Vector3f(
+                Math.signum(localDirection.x) * halfExtents.x,
+                Math.signum(localDirection.y) * halfExtents.y,
+                Math.signum(localDirection.z) * halfExtents.z
+        );
 
-            // Calculate the dot product of the vertex and the given direction
-            float dotProduct = vertex.dot(direction);
+        // Calculate the world space support point
+        return new Vector3f(
+                axis[0].x * localSupport.x,
+                axis[1].y * localSupport.y,
+                axis[2].z * localSupport.z
+        ).add(center);
+    }
 
-            // Check if this vertex has a greater dot product than the current maximum
-            if (dotProduct > maxDotProduct) {
-                maxDotProduct = dotProduct;
-                supportVertex = vertex;
-            }
+    public void translate(Vector3f translation) {
+        center.set(center.add(translation));
+    }
+
+    public void scale(Vector3f scale) {
+        halfExtents.set(halfExtents.mul(scale));
+    }
+
+    public void rotate(Quaternion rotation) {
+        // Rotate each axis by the given quaternion
+        for (int i = 0; i < axis.length; i++) {
+            axis[i] = axis[i].rotate(rotation);
         }
-
-        // Return the support vertex
-        return supportVertex;
     }
 
     @Override
