@@ -30,11 +30,6 @@ public class SATSolver {
         for (Vector3f axis : allAxis) {
             float overlap = calculateOverlapOnAxis(shape1, shape2, axis);
 
-            if (overlap < 0) {
-                // The objects are not colliding on this axis; early exit.
-                return new Vector3f();
-            }
-
             if (overlap < smallestOverlap) {
                 smallestOverlap = overlap;
                 smallestOverlapAxis = axis;
@@ -47,32 +42,37 @@ public class SATSolver {
 
     private float calculatePenetrationDepth(SATSupport shape1, SATSupport shape2, Vector3f normal) {
         // Calculate the projection of shapes onto the collision normal
-        float projection1 = calculateProjection(shape1, normal);
-        float projection2 = calculateProjection(shape2, normal);
+        Interval projection1 = shape1.getInterval(normal);
+        Interval projection2 = shape2.getInterval(normal);
 
-        // Calculate the penetration depth as the overlap of projections
-        return projection1 + projection2;
+        return finedMinProjection(projection1, projection2);
     }
 
-    private float calculateProjection(SATSupport shape, Vector3f axis) {
-        List<Vector3f> vertices = shape.getVertices();
+    private float finedMinProjection(Interval projection1, Interval projection2) {
+        // Get the min and max values for both projections
+        float min1 = projection1.getMin();
+        float max1 = projection1.getMax();
+        float min2 = projection2.getMin();
+        float max2 = projection2.getMax();
 
-        float minProjection = Float.MAX_VALUE;
-        float maxProjection = -Float.MAX_VALUE;
+        // Initialize an array to store all possible projection combinations
+        float[] combinations = new float[4];
 
-        for (Vector3f vertex : vertices) {
-            // Project each vertex onto the axis and update min and max projections
-            float projection = vertex.dot(axis);
-            if (projection < minProjection) {
-                minProjection = projection;
-            }
-            if (projection > maxProjection) {
-                maxProjection = projection;
+        // Calculate the four possible combinations
+        combinations[0] = max1 - min2; // projection1 max to projection2 min
+        combinations[1] = max1 - max2; // projection1 max to projection2 max
+        combinations[2] = min1 - min2; // projection1 min to projection2 min
+        combinations[3] = min1 - max2; // projection1 min to projection2 max
+
+        // Find the minimum value among the combinations
+        float minOverlap = combinations[0];
+        for (int i = 1; i < 4; i++) {
+            if (combinations[i] < minOverlap) {
+                minOverlap = combinations[i];
             }
         }
 
-        // Calculate and return the projection length
-        return maxProjection - minProjection;
+        return Math.abs(minOverlap);
     }
 
     private List<Vector3f> calculateContactPoints(SATSupport shape1, SATSupport shape2, Vector3f normal, float depth) {
