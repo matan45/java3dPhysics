@@ -1,4 +1,4 @@
-package physics;
+package physics.particle;
 
 import math.Vector3f;
 
