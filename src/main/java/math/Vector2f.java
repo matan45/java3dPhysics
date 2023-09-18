@@ -84,6 +84,11 @@ public class Vector2f {
         return direction.mul(dot / magSq);
     }
 
+    public void clear() {
+        this.x = 0;
+        this.y = 0;
+    }
+
     public Vector2f normalize() {
         float l = length();
         if (l != 0)
