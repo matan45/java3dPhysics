@@ -76,10 +76,10 @@ public class CDEngine {
     public CollisionResult solve(BPPairs bpPairs) {
         Shape shape1 = bpPairs.getBpBox1().getShape();
         Shape shape2 = bpPairs.getBpBox2().getShape();
-        if (shape1 instanceof SATSupport && shape2 instanceof SATSupport)
-            return sat.isCollide((SATSupport) shape1, (SATSupport) shape2);
-        else if (shape1 instanceof GJKSupport && shape2 instanceof GJKSupport)
+        if (shape1 instanceof GJKSupport && shape2 instanceof GJKSupport)
             return gjk.isCollide((GJKSupport) shape1, (GJKSupport) shape2);
+        else if (shape1 instanceof SATSupport && shape2 instanceof SATSupport)
+            return sat.isCollide((SATSupport) shape1, (SATSupport) shape2);
 
         throw new IllegalStateException("Unexpected values: " + shape2 + " : " + shape1);
     }

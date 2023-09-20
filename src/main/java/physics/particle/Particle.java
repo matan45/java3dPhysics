@@ -34,7 +34,6 @@ public class Particle {
         inverseMass = (1.0f) / mass;
     }
 
-
     public void setInverseMass(float inverseMass) {
         this.inverseMass = inverseMass;
     }

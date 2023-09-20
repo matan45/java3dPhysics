@@ -1,9 +1,11 @@
 package collisionDetection.narrowPhase.sat;
 
 import collisionDetection.narrowPhase.collisionResult.CollisionResult;
+import collisionDetection.primitive.Line;
 import math.Vector3f;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -16,7 +18,7 @@ public class SATSolver {
         float depth = calculatePenetrationDepth(shape1, shape2, normal);
 
         // Calculate and add contact points
-        List<Vector3f> contacts = calculateContactPoints(shape1, shape2, normal, depth);
+        List<Vector3f> contacts = calculateContactPoints(shape1, shape2, normal);
 
         // Create and return a CollisionResult
         return new CollisionResult(true, normal, depth, contacts);
@@ -37,7 +39,7 @@ public class SATSolver {
         }
 
 
-        return smallestOverlapAxis.normalize();
+        return smallestOverlapAxis;
     }
 
     private float calculatePenetrationDepth(SATSupport shape1, SATSupport shape2, Vector3f normal) {
@@ -55,57 +57,84 @@ public class SATSolver {
         return Math.abs(A - D);
     }
 
-    private List<Vector3f> calculateContactPoints(SATSupport shape1, SATSupport shape2, Vector3f normal, float depth) {
-        List<Vector3f> contacts = new ArrayList<>();
+    private List<Vector3f> calculateContactPoints(SATSupport shape1, SATSupport shape2, Vector3f normal) {
+        Set<Vector3f> contactPoints = new HashSet<>();
 
-        // Calculate the contact points using the collision normal and depth
-        Vector3f contactPoint1 = new Vector3f(normal).mul(depth / 2);
-        Vector3f contactPoint2 = new Vector3f(normal).mul(-depth / 2);
+        // Find the edges that contribute to the collision for each shape
+        List<Line> edges1 = findCollisionEdges(shape1, normal);
+        List<Line> edges2 = findCollisionEdges(shape2, normal);
 
-        // Translate the contact points to the center of the shapes
-        Vector3f center1 = calculateCenter(shape1);
-        Vector3f center2 = calculateCenter(shape2);
-
-        contacts.add(contactPoint1.add(center1));
-        contacts.add(contactPoint2.add(center2));
-
-        return contacts;
-    }
-
-    private Vector3f calculateCenter(SATSupport shape) {
-        List<Vector3f> vertices = shape.getVertices();
-        Vector3f center = new Vector3f();
-        for (Vector3f vertex : vertices) {
-            center.add(vertex);
+        // Calculate contact points by finding intersections between edges
+        for (Line edge1 : edges1) {
+            for (Line edge2 : edges2) {
+                Vector3f contactPoint = calculateEdgeIntersection(edge1, edge2);
+                if (contactPoint != null) {
+                    contactPoints.add(contactPoint);
+                }
+            }
         }
-        center.div(vertices.size());
-        return center;
+
+        return contactPoints.stream().toList();
     }
 
-    public float calculateOverlapOnAxis(SATSupport shape1, SATSupport shape2, Vector3f axis) {
+    private Vector3f calculateEdgeIntersection(Line edge1, Line edge2) {
+        Vector3f edge1Start = edge1.getStart();
+        Vector3f edge1End = edge1.getEnd();
+        Vector3f edge2Start = edge2.getStart();
+        Vector3f edge2End = edge2.getEnd();
+
+        Vector3f direction1 = edge1End.sub(edge1Start);
+        Vector3f direction2 = edge2End.sub(edge2Start);
+
+        Vector3f start1toStart2 = edge2Start.sub(edge1Start);
+
+        Vector3f cross1 = direction1.cross(direction2);
+        float sqrLengthCross1 = cross1.lengthSquared();
+
+        if (sqrLengthCross1 == 0) {
+            // The edges are parallel or colinear, no intersection.
+            return null;
+        }
+
+        float t = start1toStart2.cross(direction2).lengthSquared() / sqrLengthCross1;
+        float u = start1toStart2.cross(direction1).lengthSquared() / sqrLengthCross1;
+
+        if (t >= 0.0f && t <= 1.0f && u >= 0.0f && u <= 1.0f) {
+            // The edges intersect at a point within both line segments.
+            return edge1Start.add(direction1.mul(t));
+        }
+
+        // The edges do not intersect within their line segments.
+        return null;
+    }
+
+    private List<Line> findCollisionEdges(SATSupport shape, Vector3f normal) {
+        List<Line> edges = new ArrayList<>();
+
+        List<Vector3f> vertices = shape.getVertices();
+        int numVertices = vertices.size();
+
+        for (int i = 0; i < numVertices; i++) {
+            Vector3f currentVertex = vertices.get(i);
+            Vector3f nextVertex = vertices.get((i + 1) % numVertices);
+
+            Vector3f edge = nextVertex.sub(currentVertex);
+
+            // Check if the edge is parallel to the collision normal
+            if (!edge.equals(normal) && !edge.equals(normal.negate())) {
+                edges.add(new Line(currentVertex, nextVertex));
+            }
+        }
+
+        return edges;
+    }
+
+    private float calculateOverlapOnAxis(SATSupport shape1, SATSupport shape2, Vector3f axis) {
         Interval interval1 = shape1.getInterval(axis);
         Interval interval2 = shape2.getInterval(axis);
 
         // Calculate the overlap between the projections.
         return Math.min(interval1.getMax(), interval2.getMax()) - Math.max(interval1.getMin(), interval2.getMin());
-    }
-
-    private void calculateProjection(SATSupport shape, Vector3f axis, Vector3f max, Vector3f min) {
-        List<Vector3f> vertices = shape.getVertices();
-
-        float minProjection = Float.MAX_VALUE;
-        float maxProjection = -Float.MAX_VALUE;
-
-        for (Vector3f vertex : vertices) {
-            // Project each vertex onto the axis and update min and max projections
-            float projection = vertex.dot(axis);
-            if (projection < minProjection) {
-                min.set(vertex);
-            }
-            if (projection > maxProjection) {
-                max.set(vertex);
-            }
-        }
     }
 
 }
