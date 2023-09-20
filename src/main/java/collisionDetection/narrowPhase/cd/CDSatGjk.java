@@ -12,7 +12,7 @@ import java.util.List;
 import static math.Const.EPSILON;
 
 public class CDSatGjk {
-
+// not relly needed
     private final CDSolver cdSolver;
 
     public CDSatGjk() {
@@ -252,7 +252,7 @@ public class CDSatGjk {
         return new CollisionResult();
     }
 
-    public boolean isCollide(Line line, TerrainShape terrainShape) {
+    public static boolean isCollide(Line line, TerrainShape terrainShape) {
         return terrainShape.isCollide(line);
     }
 

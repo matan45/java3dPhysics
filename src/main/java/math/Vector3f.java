@@ -152,7 +152,7 @@ public class Vector3f {
         Quaternion result = rotation.mul(vectorQuaternion).mul(rotation.conjugate());
 
         // Update the Vector3f with the rotated values
-        return new Vector3f(result.x,result.y,result.z);
+        return new Vector3f(result.x, result.y, result.z);
     }
 
     public void set(Vector3f point) {
@@ -205,5 +205,11 @@ public class Vector3f {
 
         // Create a new Vector3f with the interpolated values
         return new Vector3f(lerpedX, lerpedY, lerpedZ);
+    }
+
+    public void clear() {
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
     }
 }
