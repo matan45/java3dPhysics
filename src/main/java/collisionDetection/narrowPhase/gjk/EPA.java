@@ -20,33 +20,114 @@ public class EPA {
 
         for (int iteration = 0; iteration < GJK_EPA_MAX_ITERATORS; iteration++) {
             // Find the face in the list with the smallest penetration depth
-            Face minPenetrationFace = findFaceWithMinimumDistanceToOrigin(faces);
+            Face closestFace = findClosestFaceToOrigin(faces);
 
             // Calculate the support point in the direction of the face's normal
-            Vector3f supportPoint = CollisionUtil.support(shape1, shape2, minPenetrationFace.getNormal());
+            Vector3f supportPoint = CollisionUtil.support(shape1, shape2, closestFace.getNormal());
 
             // Calculate the distance from the support point to the face
-            float distance = minPenetrationFace.distanceToPoint(supportPoint);
+            float distance = closestFace.distanceToPoint(supportPoint);
 
             // If the distance is within a small tolerance, a collision has been found
             if (distance <= EPSILON) {
                 // Extract collision information from the minimum penetration face
-                return minPenetrationFace.extractCollisionResult();
+                return createResult(shape1, shape2, closestFace);
             }
 
             // Create new faces by connecting the support point to the edges of the minimum penetration face
-            createNewFaces(faces, supportPoint, minPenetrationFace);
+            createNewFaces(faces, supportPoint, closestFace);
 
             // Remove the minimum penetration face from the list
-            faces.remove(minPenetrationFace);
+            faces.remove(closestFace);
         }
 
-        return faces.stream()
+        Face closestFace =faces.stream()
                 .min(Comparator.comparing(Face::getDistanceToOrigin))
-                .orElse(faces.get(0)).extractCollisionResult();// No collision
+                .orElse(faces.get(0));// No collision
+        return createResult(shape1, shape2, closestFace);
+
     }
 
-    private static void createNewFaces(List<Face> faces, Vector3f supportPoint, Face minPenetrationFace) {
+
+    private CollisionResult createResult(GJKSupport shape1, GJKSupport shape2, Face closestFace) {
+        Vector3f normal = closestFace.getNormal();
+        float depth = calculatePenetrationDepth(closestFace);
+        List<Vector3f> contactPoints = calculateContactPoints(shape1, shape2, closestFace);
+        return new CollisionResult(true, normal, depth, contactPoints);
+    }
+
+    private float calculatePenetrationDepth(Face closestFace) {
+        // You can calculate the penetration depth by using the dot product of
+        // the origin (0,0,0) to any point on the plane (e.g., a vertex)
+        // and the face's normal vector, then taking the absolute value.
+        // The absolute value ensures that the penetration depth is always positive.
+        Vector3f pointOnPlane = closestFace.getVertices()[0]; // Choose one of the vertices as a reference
+        Vector3f originToPlane = pointOnPlane.negate(); // Assuming origin is at (0,0,0)
+        return Math.abs(originToPlane.dot(closestFace.getNormal()));
+    }
+
+    private List<Vector3f> calculateContactPoints(GJKSupport shape1, GJKSupport shape2, Face face) {
+        List<Vector3f> contactPoints = new ArrayList<>();
+
+
+        // Calculate the barycentric coordinates of the origin on the face.
+        float[] barycentricCoords = calculateBarycentricCoordinates(face);
+
+        // Use the barycentric coordinates to find the contact point on the face.
+        Vector3f contactPoint = interpolateVertices(face.getVertices(), barycentricCoords);
+
+        // Add the contact point to the list.
+        contactPoints.add(shape1.closestPoint(contactPoint));
+        contactPoints.add(shape2.closestPoint(contactPoint));
+
+
+        return contactPoints;
+    }
+
+    private float[] calculateBarycentricCoordinates(Face face) {
+        // Calculate the barycentric coordinates of the origin on the face.
+        // This involves projecting the origin onto the plane of the face and expressing
+        // the point in terms of the face's vertices.
+
+        Vector3f pointOnPlane = projectPointOntoPlane(face.getNormal(), face.getVertices()[0]);
+
+        // Calculate the barycentric coordinates using the point on the plane and the face's vertices.
+        float[] barycentricCoords = new float[3];
+
+        for (int i = 0; i < 3; i++) {
+            Vector3f edge = face.getVertices()[(i + 1) % 3].sub(face.getVertices()[i]);
+            Vector3f pointToVertex = pointOnPlane.sub(face.getVertices()[i]);
+
+            if (edge.lengthSquared() <= EPSILON) {
+                barycentricCoords[i] = 0;
+            } else {
+                // Calculate the barycentric coordinate for each vertex.
+                barycentricCoords[i] = pointToVertex.dot(edge) / edge.lengthSquared();
+            }
+        }
+
+        return barycentricCoords;
+    }
+
+    private Vector3f interpolateVertices(Vector3f[] vertices, float[] weights) {
+        // Interpolate the vertices of a triangle using barycentric coordinates.
+        Vector3f result = new Vector3f(0, 0, 0);
+
+        for (int i = 0; i < 3; i++) {
+            result = result.add(vertices[i].mul(weights[i]));
+        }
+
+        return result;
+    }
+
+    private Vector3f projectPointOntoPlane(Vector3f planeNormal, Vector3f planePoint) {
+        // Project a point onto a plane defined by its normal and a point on the plane.
+        Vector3f pointToPlane = Vector3f.Zero.sub(planePoint);
+        float distance = pointToPlane.dot(planeNormal);
+        return Vector3f.Zero.sub(planeNormal.mul(distance));
+    }
+
+    private void createNewFaces(List<Face> faces, Vector3f supportPoint, Face minPenetrationFace) {
         // Iterate over the edges of the minimum penetration face
         int numEdges = minPenetrationFace.getVertices().length;
         for (int i = 0; i < numEdges; i++) {
@@ -63,10 +144,7 @@ public class EPA {
     }
 
 
-    private Face findFaceWithMinimumDistanceToOrigin(List<Face> faces) {
-        if (faces.isEmpty()) {
-            throw new IllegalArgumentException("List of faces is empty.");
-        }
+    private Face findClosestFaceToOrigin(List<Face> faces) {
 
         Face minPenetrationFace = faces.get(0); // Initialize with the first face
         float minPenetrationDepth = minPenetrationFace.getDistanceToOrigin();

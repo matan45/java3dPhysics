@@ -39,28 +39,17 @@ public class OBB implements Shape, SATSupport, GJKSupport {
 
     @Override
     public List<Vector3f> getVertices() {
-        List<Vector3f> vertices = new ArrayList<>(8);
-        // Generate combinations of -1 and 1 for each axis
-        int[] signs = new int[]{-1, 1};
+        List<Vector3f> vertices = new ArrayList<>();
 
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 2; j++) {
-                for (int k = 0; k < 2; k++) {
-                    // Calculate the vertex position using combinations of signs
-                    Vector3f vertex = new Vector3f(
-                            center.x + signs[i] * axis[0].x * halfExtents.x
-                                    + signs[j] * axis[1].x * halfExtents.y
-                                    + signs[k] * axis[2].x * halfExtents.z,
-                            center.y + signs[i] * axis[0].y * halfExtents.x
-                                    + signs[j] * axis[1].y * halfExtents.y
-                                    + signs[k] * axis[2].y * halfExtents.z,
-                            center.z + signs[i] * axis[0].z * halfExtents.x
-                                    + signs[j] * axis[1].z * halfExtents.y
-                                    + signs[k] * axis[2].z * halfExtents.z
-                    );
+        // Calculate the eight vertices of the OBB.
+        Vector3f[] localHalfExtents = new Vector3f[]{
+                halfExtents.mul(-1f),
+                halfExtents.mul(1f)
+        };
 
-                    vertices.add(vertex);
-                }
+        for (Vector3f axis : axis) {
+            for (Vector3f halfExtent : localHalfExtents) {
+                vertices.add(center.add(axis.mul(halfExtent)));
             }
         }
 

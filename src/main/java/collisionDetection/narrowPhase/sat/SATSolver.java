@@ -58,23 +58,51 @@ public class SATSolver {
     }
 
     private List<Vector3f> calculateContactPoints(SATSupport shape1, SATSupport shape2, Vector3f normal) {
-        Set<Vector3f> contactPoints = new HashSet<>();
+        List<Vector3f> contactPoints = new ArrayList<>();
 
-        // Find the edges that contribute to the collision for each shape
-        List<Line> edges1 = findCollisionEdges(shape1, normal);
-        List<Line> edges2 = findCollisionEdges(shape2, normal);
+        // Assuming both shapes have vertices defining their geometry
+        List<Vector3f> vertices1 = shape1.getVertices();
+        List<Vector3f> vertices2 = shape2.getVertices();
 
-        // Calculate contact points by finding intersections between edges
-        for (Line edge1 : edges1) {
-            for (Line edge2 : edges2) {
-                Vector3f contactPoint = calculateEdgeIntersection(edge1, edge2);
-                if (contactPoint != null) {
-                    contactPoints.add(contactPoint);
-                }
+        // Calculate the Minkowski Difference
+        List<Vector3f> minkowskiDifference = new ArrayList<>();
+        for (Vector3f vertex1 : vertices1) {
+            for (Vector3f vertex2 : vertices2) {
+                minkowskiDifference.add(vertex1.sub(vertex2));
             }
         }
 
-        return contactPoints.stream().toList();
+        // Use the EPA algorithm to find the contact point(s)
+        // EPA is an iterative algorithm that refines the contact point(s)
+        // For simplicity, this is a simplified version and may not handle all edge cases
+        // In practice, you should use a well-tested EPA implementation
+        Vector3f contactPoint = new Vector3f();
+        float minDepth = Float.MAX_VALUE;
+
+        for (Vector3f supportDirection : minkowskiDifference) {
+            Vector3f supportA = shape1.closestPoint(supportDirection);
+            Vector3f supportB = shape2.closestPoint(supportDirection.negate()); // Negate for the opposite direction
+
+            Vector3f support = supportA.sub(supportB);
+            float depth = support.dot(normal);
+
+            if (depth < minDepth) {
+                minDepth = depth;
+                contactPoint = support;
+            }
+        }
+
+        // The contact point is the point on the Minkowski Difference closest to the origin
+        if (contactPoint != null) {
+            // Calculate the actual contact point on the shapes
+            Vector3f actualContactPoint1 = shape1.closestPoint(contactPoint);
+            Vector3f actualContactPoint2 = shape2.closestPoint(contactPoint); // Negate for the opposite direction
+
+            contactPoints.add(actualContactPoint1);
+            contactPoints.add(actualContactPoint2);
+        }
+
+        return contactPoints;
     }
 
     private Vector3f calculateEdgeIntersection(Line edge1, Line edge2) {
