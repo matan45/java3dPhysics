@@ -13,7 +13,7 @@ public class ParticleGravity implements ParticleForceGenerator {
     @Override
     public void updateForce(Particle particle, float duration) {
         // Check that we do not have infinite mass
-        if (!particle.hasFiniteMass()) return;
+        if (!particle.isFiniteMass()) return;
 
         // Apply the mass-scaled force to the particle
         particle.addForce(gravity.mul(particle.getMass()));

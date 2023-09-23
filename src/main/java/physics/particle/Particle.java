@@ -2,6 +2,8 @@ package physics.particle;
 
 import math.Vector3f;
 
+import java.util.Objects;
+
 public class Particle {
     private float inverseMass;
     private float damping;
@@ -82,7 +84,7 @@ public class Particle {
         forceAccumulate = forceAccumulate.add(force);
     }
 
-    public boolean hasFiniteMass() {
+    public boolean isFiniteMass() {
         return inverseMass >= 0.0f;
     }
 
@@ -109,5 +111,18 @@ public class Particle {
 
         // Clear the forces.
         clearAccumulator();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Particle particle = (Particle) o;
+        return Float.compare(inverseMass, particle.inverseMass) == 0 && Float.compare(damping, particle.damping) == 0 && Objects.equals(position, particle.position) && Objects.equals(velocity, particle.velocity) && Objects.equals(forceAccumulate, particle.forceAccumulate) && Objects.equals(acceleration, particle.acceleration);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(inverseMass, damping, position, velocity, forceAccumulate, acceleration);
     }
 }

@@ -19,7 +19,7 @@ public class ParticleFakeSpring implements ParticleForceGenerator {
     @Override
     public void updateForce(Particle particle, float duration) {
         // Check that we do not have infinite mass
-        if (!particle.hasFiniteMass()) return;
+        if (!particle.isFiniteMass()) return;
 
         // Calculate the relative position of the particle to the anchor
         Vector3f position = particle.getPosition();
