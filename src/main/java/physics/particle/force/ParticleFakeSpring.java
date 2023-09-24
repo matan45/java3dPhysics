@@ -1,6 +1,8 @@
-package physics.particle;
+package physics.particle.force;
 
 import math.Vector3f;
+import physics.particle.Particle;
+import physics.particle.ParticleForceGenerator;
 
 public class ParticleFakeSpring implements ParticleForceGenerator {
 
