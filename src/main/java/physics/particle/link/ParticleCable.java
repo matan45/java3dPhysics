@@ -3,6 +3,9 @@ package physics.particle.link;
 import math.Vector3f;
 import physics.particle.contact.ParticleContact;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ParticleCable extends ParticleLink {
 
     /**
@@ -38,14 +41,16 @@ public class ParticleCable extends ParticleLink {
     }
 
     @Override
-    public boolean addContact(ParticleContact contact, int limit) {
+    public List<ParticleContact> getContacts(int limit) {
         // Find the length of the cable
         float length = currentLength();
 
         // Check if we're over-extended
         if (length < maxLength) {
-            return false;
+            return new ArrayList<>();
         }
+
+        ParticleContact contact = new ParticleContact();
 
         contact.setParticle(getParticle());
 
@@ -56,6 +61,6 @@ public class ParticleCable extends ParticleLink {
         contact.setPenetration(length - maxLength);
         contact.setRestitution(restitution);
 
-        return true;
+        return List.of(contact);
     }
 }

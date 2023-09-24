@@ -4,6 +4,9 @@ import math.Vector3f;
 import physics.particle.Particle;
 import physics.particle.contact.ParticleContact;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ParticleRodConstraint extends ParticleConstraint {
     private float length;
 
@@ -20,14 +23,15 @@ public class ParticleRodConstraint extends ParticleConstraint {
     }
 
     @Override
-    public boolean addContact(ParticleContact contact, int limit) {
+    public List<ParticleContact> getContacts(int limit) {
         // Find the length of the rod
         float currentLen = currentLength();
 
         // Check if we're over-extended
         if (currentLen == length) {
-            return false;
+            return new ArrayList<>();
         }
+        ParticleContact contact = new ParticleContact();
         contact.setParticle(new Particle[]{getParticle()});
 
         // Calculate the normal
@@ -45,6 +49,6 @@ public class ParticleRodConstraint extends ParticleConstraint {
         // Always use zero restitution (no bounciness)
         contact.setRestitution(0);
 
-        return true;
+        return List.of(contact);
     }
 }

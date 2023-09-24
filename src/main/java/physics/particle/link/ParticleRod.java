@@ -3,6 +3,9 @@ package physics.particle.link;
 import math.Vector3f;
 import physics.particle.contact.ParticleContact;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ParticleRod extends ParticleLink {
 
     private float length;
@@ -21,14 +24,16 @@ public class ParticleRod extends ParticleLink {
     }
 
     @Override
-    public boolean addContact(ParticleContact contact, int limit) {
+    public List<ParticleContact> getContacts(int limit) {
         // Find the length of the rod
         float currentLen = currentLength();
 
         // Check if we're over-extended
         if (currentLen == length) {
-            return false;
+            return new ArrayList<>();
         }
+
+        ParticleContact contact = new ParticleContact();
 
         contact.setParticle(getParticle());
 
@@ -47,6 +52,6 @@ public class ParticleRod extends ParticleLink {
         // Always use zero restitution (no bounciness)
         contact.setRestitution(0);
 
-        return true;
+        return List.of(contact);
     }
 }

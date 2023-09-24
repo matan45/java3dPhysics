@@ -1,5 +1,7 @@
 package physics.particle.contact;
 
+import java.util.List;
+
 public interface ParticleContactGenerator {
-    boolean addContact(ParticleContact contact, int limit);
+    List<ParticleContact> getContacts(int limit);
 }

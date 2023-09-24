@@ -4,6 +4,9 @@ import math.Vector3f;
 import physics.particle.Particle;
 import physics.particle.contact.ParticleContact;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ParticleCableConstraint extends ParticleConstraint {
 
     private float maxLength;
@@ -34,14 +37,16 @@ public class ParticleCableConstraint extends ParticleConstraint {
     }
 
     @Override
-    public boolean addContact(ParticleContact contact, int limit) {
+    public List<ParticleContact> getContacts(int limit) {
         // Find the length of the cable
         float length = currentLength();
 
         // Check if we're over-extended
         if (length < maxLength) {
-            return false;
+            return new ArrayList<>();
         }
+
+        ParticleContact contact = new ParticleContact();
 
         contact.setParticle(new Particle[]{getParticle()});
 
@@ -51,6 +56,6 @@ public class ParticleCableConstraint extends ParticleConstraint {
         contact.setPenetration(length - maxLength);
         contact.setRestitution(getRestitution());
 
-        return true;
+        return List.of(contact);
     }
 }
