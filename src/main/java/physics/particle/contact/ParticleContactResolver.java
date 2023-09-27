@@ -48,7 +48,7 @@ public class ParticleContactResolver {
             // Resolve this contact
             contactArray[maxIndex].resolve(duration);
 
-            // Update the interpenetrations for all particles
+            // Update the interpretations for all particles
             Vector3f[] move = contactArray[maxIndex].getParticleMovement();
             for (i = 0; i < numContacts; i++) {
                 if (contactArray[i].getParticle()[0].equals(contactArray[maxIndex].getParticle()[0])) {
