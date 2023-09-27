@@ -1,6 +1,7 @@
-package physics.particle;
+package physics.particle.force;
 
 import math.Vector3f;
+import physics.particle.Particle;
 
 public class ParticleAnchoredBungee extends ParticleAnchoredSpring {
 
