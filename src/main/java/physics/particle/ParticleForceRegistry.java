@@ -27,7 +27,7 @@ public class ParticleForceRegistry {
 
     public void updateForces(float duration) {
         for (ParticleForceRegistration particleForceRegistration : particleForceRegistrations) {
-            particleForceRegistration.fg().updateForce(particleForceRegistration.particle(), duration);
+            particleForceRegistration.particleForceGenerator().updateForce(particleForceRegistration.particle(), duration);
         }
     }
 }

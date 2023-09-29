@@ -30,26 +30,16 @@ public class ParticleWorld {
         particles.forEach(p -> p.integrate(duration));
     }
 
-    private int generateContacts() {
-        int limit = maxContacts;
-        for (ParticleContactGenerator contact : particleContacts) {
-            int used = contact.getContacts(limit).size();
-            limit -= used;
-            if (limit <= 0) break;
-        }
-        return maxContacts - limit;
-    }
 
     public void runPhysics(float duration) {
         particleForceRegistry.updateForces(duration);
         integrate(duration);
-        int usedContacts = generateContacts();
         ParticleContact[] contactArray = particleContacts.stream()
-                .map(p -> p.getContacts(usedContacts))
+                .map(p -> p.getContacts(maxContacts))
                 .flatMap(List::stream)
                 .toList()
                 .toArray(new ParticleContact[0]);
-
+        int usedContacts = maxContacts - contactArray.length;
         if (usedContacts > 0) {
             if (calculateIterations) particleContactResolver.setIterations(usedContacts * 2);
             particleContactResolver.resolveContacts(contactArray, duration);
