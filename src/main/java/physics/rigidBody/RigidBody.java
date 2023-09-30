@@ -1,5 +1,7 @@
 package physics.rigidBody;
 
+import collisionDetection.narrowPhase.Shape;
+import math.Matrix3f;
 import math.Matrix4f;
 import math.Quaternion;
 import math.Vector3f;
@@ -27,7 +29,7 @@ public class RigidBody {
      * The inertia tensor, unlike the other variables that
      * define a rigid body, is given in body space.
      */
-    private Matrix4f inverseInertiaTensor;
+    private Matrix3f inverseInertiaTensor;
 
     /**
      * Holds the amount of damping applied to linear
@@ -72,7 +74,7 @@ public class RigidBody {
      * space. The inverse inertia tensor member is specified in
      * the body's local space.
      */
-    private Matrix4f inverseInertiaTensorWorld;
+    private Matrix3f inverseInertiaTensorWorld;
 
     /**
      * Holds the amount of motion of the body. This is a recency
@@ -126,19 +128,29 @@ public class RigidBody {
      */
     private Vector3f lastFrameAcceleration;
 
+    private Shape colliderShape;
+
     public RigidBody() {
         this.acceleration = new Vector3f();
         this.forceAccum = new Vector3f();
         this.lastFrameAcceleration = new Vector3f();
         this.torqueAccum = new Vector3f();
-        this.inverseInertiaTensor = new Matrix4f();
+        this.inverseInertiaTensor = new Matrix3f();
         this.position = new Vector3f();
         this.orientation = new Quaternion();
         this.velocity = new Vector3f();
         this.rotation = new Vector3f();
-        this.inverseInertiaTensorWorld = new Matrix4f();
+        this.inverseInertiaTensorWorld = new Matrix3f();
         this.transformMatrix = new Matrix4f();
         this.acceleration = new Vector3f();
+    }
+
+    public Shape getColliderShape() {
+        return colliderShape;
+    }
+
+    public void setColliderShape(Shape colliderShape) {
+        this.colliderShape = colliderShape;
     }
 
     public float getInverseMass() {
@@ -149,11 +161,11 @@ public class RigidBody {
         this.inverseMass = inverseMass;
     }
 
-    public Matrix4f getInverseInertiaTensor() {
+    public Matrix3f getInverseInertiaTensor() {
         return inverseInertiaTensor;
     }
 
-    public void setInverseInertiaTensor(Matrix4f inverseInertiaTensor) {
+    public void setInverseInertiaTensor(Matrix3f inverseInertiaTensor) {
         this.inverseInertiaTensor = inverseInertiaTensor;
     }
 
@@ -205,11 +217,11 @@ public class RigidBody {
         this.rotation = rotation;
     }
 
-    public Matrix4f getInverseInertiaTensorWorld() {
+    public Matrix3f getInverseInertiaTensorWorld() {
         return inverseInertiaTensorWorld;
     }
 
-    public void setInverseInertiaTensorWorld(Matrix4f inverseInertiaTensorWorld) {
+    public void setInverseInertiaTensorWorld(Matrix3f inverseInertiaTensorWorld) {
         this.inverseInertiaTensorWorld = inverseInertiaTensorWorld;
     }
 
@@ -311,8 +323,104 @@ public class RigidBody {
         isAwake = true;
     }
 
-    public void clearAccumulators() {
+    private void clearAccumulators() {
         forceAccum.clear();
         torqueAccum.clear();
+    }
+
+    public void integrate(float duration) {
+        if (!isAwake) return;
+
+        // Calculate linear acceleration from force inputs.
+        lastFrameAcceleration = acceleration.add(acceleration.mul(forceAccum.mul(inverseMass)));
+
+        // Calculate angular acceleration from torque inputs.
+        Vector3f angularAcceleration = inverseInertiaTensorWorld.transform(torqueAccum);
+
+        // Adjust velocities
+        // Update linear velocity from both acceleration and impulse.
+        velocity = lastFrameAcceleration.add(lastFrameAcceleration.mul(duration));
+
+        // Update angular velocity from both acceleration and impulse.
+        rotation = rotation.add(angularAcceleration.mul(duration));
+
+        // Impose drag.
+        velocity = velocity.mul((float) Math.pow(linearDamping, duration));
+        rotation = rotation.mul((float) Math.pow(angularDamping, duration));
+
+        // Adjust positions
+        // Update linear position.
+        position = position.add(velocity.mul(duration));
+
+        // Update angular position.
+        orientation = orientation.add(rotation.mul(duration));
+
+        // Normalise the orientation, and update the matrices with the new
+        // position and orientation
+        calculateDerivedData();
+
+        // Clear accumulators.
+        clearAccumulators();
+    }
+
+    private void calculateTransformMatrix(Matrix4f transformMatrix,
+                                          Vector3f position,
+                                          Quaternion orientation) {
+        // Extract the rotation matrix from the quaternion.
+        float xx = orientation.x * orientation.x;
+        float xy = orientation.x * orientation.y;
+        float xz = orientation.x * orientation.z;
+        float yy = orientation.y * orientation.y;
+        float yz = orientation.y * orientation.z;
+        float zz = orientation.z * orientation.z;
+        float wx = orientation.w * orientation.x;
+        float wy = orientation.w * orientation.y;
+        float wz = orientation.w * orientation.z;
+
+        transformMatrix.setM00(1.0f - 2.0f * (yy + zz));
+        transformMatrix.setM01(2.0f * (xy - wz));
+        transformMatrix.setM02(2.0f * (xz + wy));
+        transformMatrix.setM03(0.0f);
+        transformMatrix.setM10(2.0f * (xy + wz));
+        transformMatrix.setM11(1.0f - 2.0f * (xx + zz));
+        transformMatrix.setM12(2.0f * (yz - wx));
+        transformMatrix.setM13(0.0f);
+        transformMatrix.setM20(2.0f * (xz - wy));
+        transformMatrix.setM21(2.0f * (yz + wx));
+        transformMatrix.setM22(1.0f - 2.0f * (xx + yy));
+        transformMatrix.setM23(0.0f);
+        transformMatrix.setM30(position.x);
+        transformMatrix.setM31(position.y);
+        transformMatrix.setM32(position.z);
+        transformMatrix.setM33(1.0f);
+
+    }
+
+    private void transformInertiaTensor(Matrix3f inverseInertiaTensorWorld,
+                                           Quaternion orientation,
+                                          Matrix3f inverseInertiaTensor,
+                                           Matrix4f transformMatrix) {
+        // Calculate the world space transformation matrix for the orientation
+        /*Matrix4f worldOrientationMatrix = new Matrix4f();
+        calculateTransformMatrix(worldOrientationMatrix, new Vector3f(0, 0, 0), orientation);
+
+        // Transform the local inertia tensor to world space using the orientation matrix
+        Matrix3f tmp = new Matrix3f();
+        tmp.set(transformMatrix);
+        tmp.transpose();
+        inverseInertiaTensorWorld = tmp.mul(inverseInertiaTensor).mul(tmp.transpose());*/
+    }
+
+    private void calculateDerivedData() {
+        orientation = orientation.normalize();
+
+        // Calculate the transform matrix for the body.
+        calculateTransformMatrix(transformMatrix, position, orientation);
+
+        // Calculate the inertiaTensor in world space.
+        transformInertiaTensor(inverseInertiaTensorWorld,
+                orientation,
+                inverseInertiaTensor,
+                transformMatrix);
     }
 }

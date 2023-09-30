@@ -231,7 +231,7 @@ public class ParticleExplosion implements ParticleForceGenerator {
             float implosionFactor = 1.0f - (distance - implosionMinRadius) / (implosionMaxRadius - implosionMinRadius);
             implosionFactor *= (1.0f - timePassed / implosionDuration);
             Vector3f implosionForceVec = detonationToParticle.normalize().mul(implosionForce * implosionFactor);
-            particle.addForce(implosionForceVec);
+            particle.addForce(implosionForceVec.mul(duration));
         }
 
         // Check if the particle is within the shockwave range.
@@ -239,7 +239,7 @@ public class ParticleExplosion implements ParticleForceGenerator {
             // Calculate and apply the shockwave force.
             float shockwaveFactor = (shockwaveThickness - distance) / shockwaveThickness;
             Vector3f shockwaveForce = detonationToParticle.normalize().mul(shockwaveSpeed * shockwaveFactor);
-            particle.addForce(shockwaveForce);
+            particle.addForce(shockwaveForce.mul(duration));
         }
 
         // Check if the particle is within the concussion duration.
@@ -247,7 +247,7 @@ public class ParticleExplosion implements ParticleForceGenerator {
             // Calculate and apply the concussion force based on distance and time.
             float concussionFactor = 1.0f - (timePassed / concussionDuration);
             Vector3f concussionForce = detonationToParticle.normalize().mul(peakConcussionForce * concussionFactor);
-            particle.addForce(concussionForce);
+            particle.addForce(concussionForce.mul(duration));
         }
 
         // Check if the particle is within the convection chimney.
@@ -262,7 +262,7 @@ public class ParticleExplosion implements ParticleForceGenerator {
             float convectionFactor = 1.0f - (particle.getPosition().getY() - detonation.getY()) / chimneyHeight;
             convectionFactor *= (1.0f - timePassed / convectionDuration);
             Vector3f convectionForce = new Vector3f(0.0f, peakConvectionForce * convectionFactor, 0.0f);
-            particle.addForce(convectionForce);
+            particle.addForce(convectionForce.mul(duration));
         }
 
     }

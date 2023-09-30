@@ -72,6 +72,20 @@ public class Quaternion {
         return new Quaternion(this.x + other.x, this.y + other.y, this.z + other.z, this.w + other.w);
     }
 
+    public Quaternion add(Vector3f other) {
+        // Create a quaternion representing the rotation based on the vector.
+        Quaternion rotation = new Quaternion();
+        float halfAngle = other.length() * 0.5f;
+        if (halfAngle != 0.0f) {
+            float sinHalfAngle = (float) Math.sin(halfAngle) / other.length();
+            rotation.setX(other.getX() * sinHalfAngle);
+            rotation.setY(other.getY() * sinHalfAngle);
+            rotation.setZ(other.getZ() * sinHalfAngle);
+            rotation.setW((float) Math.cos(halfAngle));
+        }
+        return rotation.normalize();
+    }
+
     public Quaternion sub(Quaternion other) {
         return new Quaternion(this.x - other.x, this.y - other.y, this.z - other.z, this.w - other.w);
     }
