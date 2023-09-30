@@ -17,9 +17,6 @@ public class ParticleExplosion implements ParticleForceGenerator {
      */
     private Vector3f detonation;
 
-    // ... Other Explosion code as before ...
-
-
     /**
      * The radius up to which objects implode in the first stage
      * of the explosion.
@@ -222,36 +219,50 @@ public class ParticleExplosion implements ParticleForceGenerator {
     @Override
     public void updateForce(Particle particle, float duration) {
 
-        // Calculate the distance from the detonation point.
-        float distance = particle.getPosition().distance(detonation);
+        // Calculate the vector from the detonation point to the particle's position.
+        Vector3f detonationToParticle = particle.getPosition().sub(detonation);
 
-        // Apply the implosion force, if within range.
-        if (distance < implosionMaxRadius && distance > implosionMinRadius) {
-            particle.addForce(new Vector3f(0, -implosionForce, 0));
+        // Calculate the distance from the particle to the detonation point.
+        float distance = detonationToParticle.length();
+
+        // Check if the particle is within the implosion range.
+        if (distance >= implosionMinRadius && distance <= implosionMaxRadius) {
+            // Calculate and apply the implosion force.
+            float implosionFactor = 1.0f - (distance - implosionMinRadius) / (implosionMaxRadius - implosionMinRadius);
+            implosionFactor *= (1.0f - timePassed / implosionDuration);
+            Vector3f implosionForceVec = detonationToParticle.normalize().mul(implosionForce * implosionFactor);
+            particle.addForce(implosionForceVec);
         }
 
-        // Apply the shockwave force, if within range.
-        if (distance < shockwaveThickness) {
-            // Calculate the force based on the distance from the wavefront.
-            float force = peakConcussionForce * (shockwaveThickness - distance) / shockwaveThickness;
-
-            // Calculate the direction of the force.
-            Vector3f forceDirection = particle.getPosition().sub(detonation).normalize();
-
-            // Apply the force.
-            particle.addForce(forceDirection.mul(force));
+        // Check if the particle is within the shockwave range.
+        if (distance <= shockwaveThickness) {
+            // Calculate and apply the shockwave force.
+            float shockwaveFactor = (shockwaveThickness - distance) / shockwaveThickness;
+            Vector3f shockwaveForce = detonationToParticle.normalize().mul(shockwaveSpeed * shockwaveFactor);
+            particle.addForce(shockwaveForce);
         }
 
-        // Apply the convection chimney force, if within range.
-        if (distance < chimneyRadius && distance > 0) {
-            // Calculate the force based on the distance from the centre of the chimney.
-            float force = peakConvectionForce * (chimneyRadius - distance) / chimneyRadius;
+        // Check if the particle is within the concussion duration.
+        if (timePassed <= concussionDuration) {
+            // Calculate and apply the concussion force based on distance and time.
+            float concussionFactor = 1.0f - (timePassed / concussionDuration);
+            Vector3f concussionForce = detonationToParticle.normalize().mul(peakConcussionForce * concussionFactor);
+            particle.addForce(concussionForce);
+        }
 
-            // Calculate the direction of the force.
-            Vector3f forceDirection = particle.getPosition().sub(detonation).normalize();
+        // Check if the particle is within the convection chimney.
+        if (particle.getPosition().getX() >= detonation.getX() - chimneyRadius &&
+                particle.getPosition().getX() <= detonation.getX() + chimneyRadius &&
+                particle.getPosition().getY() >= detonation.getY() &&
+                particle.getPosition().getY() <= detonation.getY() + chimneyHeight &&
+                particle.getPosition().getZ() >= detonation.getZ() - chimneyRadius &&
+                particle.getPosition().getZ() <= detonation.getZ() + chimneyRadius) {
 
-            // Apply the force.
-            particle.addForce(forceDirection.mul(force));
+            // Calculate and apply the convection force.
+            float convectionFactor = 1.0f - (particle.getPosition().getY() - detonation.getY()) / chimneyHeight;
+            convectionFactor *= (1.0f - timePassed / convectionDuration);
+            Vector3f convectionForce = new Vector3f(0.0f, peakConvectionForce * convectionFactor, 0.0f);
+            particle.addForce(convectionForce);
         }
 
     }

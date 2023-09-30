@@ -149,6 +149,15 @@ public class Matrix4f {
         return this;
     }
 
+    public Vector3f transform(Vector3f vector) {
+        float x = m00 * vector.x + m01 * vector.y + m02 * vector.z;
+        float y = m10 * vector.x + m11 * vector.y + m12 * vector.z;
+        float z = m20 * vector.x + m21 * vector.y + m22 * vector.z;
+
+        return new Vector3f(x, y, z);
+    }
+
+
     public Matrix4f transpose() {
 
         float temp;
@@ -398,7 +407,7 @@ public class Matrix4f {
 
     public Matrix4f rotateGeneric(Quaternion quaternion) {
         // Normalize the quaternion if it's not already normalized
-        Quaternion quaternionNorm =quaternion.normalize();
+        Quaternion quaternionNorm = quaternion.normalize();
 
         float qx = quaternionNorm.x;
         float qy = quaternionNorm.y;

@@ -5,7 +5,7 @@ import collisionDetection.primitive.Ray;
 import math.Vector3f;
 
 import java.util.Objects;
-
+//TODO also add CCD
 public class BPBox {
     private Vector3f min; // Min corner of the AABB
     private Vector3f max; // Max corner of the AABB

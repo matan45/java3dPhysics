@@ -280,4 +280,39 @@ public class RigidBody {
     public boolean isFiniteMass() {
         return inverseMass >= 0.0f;
     }
+
+    public void addForce(Vector3f force) {
+        forceAccum = forceAccum.add(force);
+        isAwake = true;
+    }
+
+    public Vector3f getPointInWorldSpace(Vector3f point) {
+        return transformMatrix.transform(point);
+    }
+
+    public void addTorque(Vector3f torque) {
+        torqueAccum = torqueAccum.add(torque);
+        isAwake = true;
+    }
+
+    public void addForceAtBodyPoint(Vector3f force, Vector3f point) {
+        // Convert to coordinates relative to center of mass.
+        Vector3f pt = getPointInWorldSpace(point);
+        addForceAtPoint(force, pt);
+    }
+
+    public void addForceAtPoint(Vector3f force, Vector3f point) {
+        // Convert to coordinates relative to center of mass.
+        Vector3f pt = point.sub(position);
+
+        forceAccum = forceAccum.add(force);
+        torqueAccum = torqueAccum.add(pt.cross(force));
+
+        isAwake = true;
+    }
+
+    public void clearAccumulators() {
+        forceAccum.clear();
+        torqueAccum.clear();
+    }
 }
