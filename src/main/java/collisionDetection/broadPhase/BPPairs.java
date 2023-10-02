@@ -1,7 +1,7 @@
 package collisionDetection.broadPhase;
 
 import java.util.Objects;
-
+//TODO swap this with pair class
 public class BPPairs {
     private BPBox bpBox1;
     private BPBox bpBox2;
