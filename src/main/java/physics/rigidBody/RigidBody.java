@@ -363,9 +363,7 @@ public class RigidBody {
         clearAccumulators();
     }
 
-    private void calculateTransformMatrix(Matrix4f transformMatrix,
-                                          Vector3f position,
-                                          Quaternion orientation) {
+    private void calculateTransformMatrix() {
         // Extract the rotation matrix from the quaternion.
         float xx = orientation.x * orientation.x;
         float xy = orientation.x * orientation.y;
@@ -396,31 +394,41 @@ public class RigidBody {
 
     }
 
-    private void transformInertiaTensor(Matrix3f inverseInertiaTensorWorld,
-                                           Quaternion orientation,
-                                          Matrix3f inverseInertiaTensor,
-                                           Matrix4f transformMatrix) {
-        // Calculate the world space transformation matrix for the orientation
-        /*Matrix4f worldOrientationMatrix = new Matrix4f();
-        calculateTransformMatrix(worldOrientationMatrix, new Vector3f(0, 0, 0), orientation);
+    private void transformInertiaTensor() {
 
-        // Transform the local inertia tensor to world space using the orientation matrix
-        Matrix3f tmp = new Matrix3f();
-        tmp.set(transformMatrix);
-        tmp.transpose();
-        inverseInertiaTensorWorld = tmp.mul(inverseInertiaTensor).mul(tmp.transpose());*/
+        transformMatrix.setM00(1 - 2 * orientation.z * orientation.z -
+                2 * orientation.w * orientation.w);
+        transformMatrix.setM01(2 * orientation.y * orientation.z -
+                2 * orientation.x * orientation.w);
+        transformMatrix.setM02(2 * orientation.y * orientation.w +
+                2 * orientation.x * orientation.z);
+        transformMatrix.setM03(position.x);
+
+        transformMatrix.setM10(2 * orientation.y * orientation.z +
+                2 * orientation.x * orientation.w);
+        transformMatrix.setM11(1 - 2 * orientation.y * orientation.y -
+                2 * orientation.w * orientation.w);
+        transformMatrix.setM12(2 * orientation.z * orientation.w -
+                2 * orientation.x * orientation.y);
+        transformMatrix.setM13(position.y);
+
+        transformMatrix.setM20(2 * orientation.y * orientation.w -
+                2 * orientation.x * orientation.z);
+        transformMatrix.setM21(2 * orientation.z * orientation.w +
+                2 * orientation.x * orientation.y);
+        transformMatrix.setM22(1 - 2 * orientation.y * orientation.y -
+                2 * orientation.z * orientation.z);
+        transformMatrix.setM23(position.z);
+
     }
 
     private void calculateDerivedData() {
         orientation = orientation.normalize();
 
         // Calculate the transform matrix for the body.
-        calculateTransformMatrix(transformMatrix, position, orientation);
+        calculateTransformMatrix();
 
         // Calculate the inertiaTensor in world space.
-        transformInertiaTensor(inverseInertiaTensorWorld,
-                orientation,
-                inverseInertiaTensor,
-                transformMatrix);
+        transformInertiaTensor();
     }
 }
