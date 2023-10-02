@@ -431,4 +431,14 @@ public class RigidBody {
         // Calculate the inertiaTensor in world space.
         transformInertiaTensor();
     }
+
+    public Vector3f getPointInLocalSpace(Vector3f point)
+    {
+        return transformMatrix.transformInverse(point);
+    }
+
+    public Vector3f getDirectionInWorldSpace(Vector3f direction){
+        return transformMatrix.transformDirection(direction);
+    }
+
 }
