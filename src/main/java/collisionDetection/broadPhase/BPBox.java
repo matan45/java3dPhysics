@@ -28,6 +28,10 @@ public class BPBox {
         this.max = max;
     }
 
+    public boolean hasCollider() {
+        return body.hasCollider();
+    }
+
     public Shape getShape() {
         return body.getColliderShape();
     }
