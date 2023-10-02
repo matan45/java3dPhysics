@@ -3,18 +3,21 @@ package collisionDetection.broadPhase;
 import collisionDetection.narrowPhase.Shape;
 import collisionDetection.primitive.Ray;
 import math.Vector3f;
+import physics.rigidBody.RigidBody;
 
 import java.util.Objects;
 //TODO also add CCD for update
+//TODO need to update position from RigidBody
+// TODO also to check if the RigidBody have collider
 public class BPBox {
     private Vector3f min; // Min corner of the AABB
     private Vector3f max; // Max corner of the AABB
-    private Shape shape;
+    private RigidBody body;
 
-    public BPBox(Vector3f min, Vector3f max, Shape shape) {
+    public BPBox(Vector3f min, Vector3f max, RigidBody body) {
         this.min = min;
         this.max = max;
-        this.shape = shape;
+        this.body = body;
     }
 
     public Vector3f getMax() {
@@ -26,11 +29,15 @@ public class BPBox {
     }
 
     public Shape getShape() {
-        return shape;
+        return body.getColliderShape();
     }
 
-    public void setShape(Shape shape) {
-        this.shape = shape;
+    public RigidBody getBody() {
+        return body;
+    }
+
+    public void setBody(RigidBody body) {
+        this.body = body;
     }
 
     public Vector3f getMin() {
@@ -103,7 +110,7 @@ public class BPBox {
         return "BPBox{" +
                 "min=" + min +
                 ", max=" + max +
-                ", shape=" + shape +
+                ", body=" + body +
                 '}';
     }
 
@@ -112,11 +119,11 @@ public class BPBox {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BPBox bpBox = (BPBox) o;
-        return Objects.equals(min, bpBox.min) && Objects.equals(max, bpBox.max) && Objects.equals(shape, bpBox.shape);
+        return Objects.equals(min, bpBox.min) && Objects.equals(max, bpBox.max) && Objects.equals(body, bpBox.body);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(min, max, shape);
+        return Objects.hash(min, max, body);
     }
 }

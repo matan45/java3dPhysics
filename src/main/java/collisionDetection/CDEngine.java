@@ -65,6 +65,10 @@ public class CDEngine {
         broadPhase.updateAll(boxes);
     }
 
+    public Set<BPPairs> query(){
+        return broadPhase.query();
+    }
+
     public Set<BPBox> query(BPBox bpBox) {
         return broadPhase.query(bpBox);
     }
