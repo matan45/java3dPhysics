@@ -6,6 +6,8 @@ import math.Matrix4f;
 import math.Quaternion;
 import math.Vector3f;
 
+import static math.Const.SLEEP_EPSILON;
+
 public class RigidBody {
     /**
      * Holds the inverse of the mass of the rigid body. It
@@ -247,6 +249,8 @@ public class RigidBody {
 
     public void setCanSleep(boolean canSleep) {
         this.canSleep = canSleep;
+        
+        if (!canSleep && !isAwake) setAwake(true);
     }
 
     public Matrix4f getTransformMatrix() {
@@ -291,6 +295,10 @@ public class RigidBody {
 
     public boolean isFiniteMass() {
         return inverseMass >= 0.0f;
+    }
+
+    public boolean hasCollider() {
+        return colliderShape != null;
     }
 
     public void addForce(Vector3f force) {
@@ -361,6 +369,19 @@ public class RigidBody {
 
         // Clear accumulators.
         clearAccumulators();
+
+        // Update the kinetic energy store, and possibly put the body to
+        // sleep.
+        if (canSleep) {
+            float currentMotion = velocity.dot(velocity) +
+                    rotation.dot(rotation);
+
+            float bias = (float) Math.pow(0.5, duration);
+            motion = bias * motion + (1 - bias) * currentMotion;
+
+            if (motion < SLEEP_EPSILON) setAwake(false);
+            else if (motion > 10 * SLEEP_EPSILON) motion = 10 * SLEEP_EPSILON;
+        }
     }
 
     private void calculateTransformMatrix() {
@@ -432,12 +453,11 @@ public class RigidBody {
         transformInertiaTensor();
     }
 
-    public Vector3f getPointInLocalSpace(Vector3f point)
-    {
+    public Vector3f getPointInLocalSpace(Vector3f point) {
         return transformMatrix.transformInverse(point);
     }
 
-    public Vector3f getDirectionInWorldSpace(Vector3f direction){
+    public Vector3f getDirectionInWorldSpace(Vector3f direction) {
         return transformMatrix.transformDirection(direction);
     }
 
