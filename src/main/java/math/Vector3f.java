@@ -207,9 +207,10 @@ public class Vector3f {
         return new Vector3f(lerpedX, lerpedY, lerpedZ);
     }
 
-    public void clear() {
+    public Vector3f clear() {
         this.x = 0;
         this.y = 0;
         this.z = 0;
+        return this;
     }
 }

@@ -1,4 +1,4 @@
 package physics.particle;
 
-public record ParticleForceRegistration(Particle particle, ParticleForceGenerator fg) {
+public record ParticleForceRegistration(Particle particle, ParticleForceGenerator particleForceGenerator) {
 }

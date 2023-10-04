@@ -149,6 +149,15 @@ public class Matrix4f {
         return this;
     }
 
+    public Vector3f transform(Vector3f vector) {
+        float x = m00 * vector.x + m01 * vector.y + m02 * vector.z;
+        float y = m10 * vector.x + m11 * vector.y + m12 * vector.z;
+        float z = m20 * vector.x + m21 * vector.y + m22 * vector.z;
+
+        return new Vector3f(x, y, z);
+    }
+
+
     public Matrix4f transpose() {
 
         float temp;
@@ -398,7 +407,7 @@ public class Matrix4f {
 
     public Matrix4f rotateGeneric(Quaternion quaternion) {
         // Normalize the quaternion if it's not already normalized
-        Quaternion quaternionNorm =quaternion.normalize();
+        Quaternion quaternionNorm = quaternion.normalize();
 
         float qx = quaternionNorm.x;
         float qy = quaternionNorm.y;
@@ -654,5 +663,41 @@ public class Matrix4f {
     @Override
     public int hashCode() {
         return Objects.hash(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+    }
+
+    public Vector3f transformInverse(Vector3f vector) {
+        Vector3f tmp = new Vector3f(vector);
+        tmp.x -= m03;
+        tmp.y -= m13;
+        tmp.z -= m23;
+        return new Vector3f(
+                tmp.x * m00 +
+                        tmp.y * m10 +
+                        tmp.z * m20,
+
+                tmp.x * m01 +
+                        tmp.y * m11 +
+                        tmp.z * m21,
+
+                tmp.x * m02 +
+                        tmp.y * m12 +
+                        tmp.z * m22
+        );
+    }
+
+    public Vector3f transformDirection(Vector3f vector) {
+        return new Vector3f(
+                vector.x * m00 +
+                        vector.y * m01 +
+                        vector.z * m02,
+
+                vector.x * m10 +
+                        vector.y * m11 +
+                        vector.z * m12,
+
+                vector.x * m20 +
+                        vector.y * m21 +
+                        vector.z * m22
+        );
     }
 }

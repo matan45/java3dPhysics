@@ -165,7 +165,7 @@ public class ParticleContact {
         // Find the amount of penetration resolution per unit of inverse mass
         Vector3f movePerIMass = contactNormal.mul((penetration / totalInverseMass));
 
-        // Calculate the the movement amounts
+        // Calculate the movement amounts
         particleMovement[0] = movePerIMass.mul(particle[0].getInverseMass());
         if (particle[1] != null) {
             particleMovement[1] = movePerIMass.mul(-particle[1].getInverseMass());

@@ -93,69 +93,16 @@ public class SATSolver {
         }
 
         // The contact point is the point on the Minkowski Difference closest to the origin
-        if (contactPoint != null) {
-            // Calculate the actual contact point on the shapes
-            Vector3f actualContactPoint1 = shape1.closestPoint(contactPoint);
-            Vector3f actualContactPoint2 = shape2.closestPoint(contactPoint); // Negate for the opposite direction
+        // Calculate the actual contact point on the shapes
+        Vector3f actualContactPoint1 = shape1.closestPoint(contactPoint);
+        Vector3f actualContactPoint2 = shape2.closestPoint(contactPoint); // Negate for the opposite direction
 
-            contactPoints.add(actualContactPoint1);
-            contactPoints.add(actualContactPoint2);
-        }
+        contactPoints.add(actualContactPoint1);
+        contactPoints.add(actualContactPoint2);
 
         return contactPoints;
     }
 
-    private Vector3f calculateEdgeIntersection(Line edge1, Line edge2) {
-        Vector3f edge1Start = edge1.getStart();
-        Vector3f edge1End = edge1.getEnd();
-        Vector3f edge2Start = edge2.getStart();
-        Vector3f edge2End = edge2.getEnd();
-
-        Vector3f direction1 = edge1End.sub(edge1Start);
-        Vector3f direction2 = edge2End.sub(edge2Start);
-
-        Vector3f start1toStart2 = edge2Start.sub(edge1Start);
-
-        Vector3f cross1 = direction1.cross(direction2);
-        float sqrLengthCross1 = cross1.lengthSquared();
-
-        if (sqrLengthCross1 == 0) {
-            // The edges are parallel or colinear, no intersection.
-            return null;
-        }
-
-        float t = start1toStart2.cross(direction2).lengthSquared() / sqrLengthCross1;
-        float u = start1toStart2.cross(direction1).lengthSquared() / sqrLengthCross1;
-
-        if (t >= 0.0f && t <= 1.0f && u >= 0.0f && u <= 1.0f) {
-            // The edges intersect at a point within both line segments.
-            return edge1Start.add(direction1.mul(t));
-        }
-
-        // The edges do not intersect within their line segments.
-        return null;
-    }
-
-    private List<Line> findCollisionEdges(SATSupport shape, Vector3f normal) {
-        List<Line> edges = new ArrayList<>();
-
-        List<Vector3f> vertices = shape.getVertices();
-        int numVertices = vertices.size();
-
-        for (int i = 0; i < numVertices; i++) {
-            Vector3f currentVertex = vertices.get(i);
-            Vector3f nextVertex = vertices.get((i + 1) % numVertices);
-
-            Vector3f edge = nextVertex.sub(currentVertex);
-
-            // Check if the edge is parallel to the collision normal
-            if (!edge.equals(normal) && !edge.equals(normal.negate())) {
-                edges.add(new Line(currentVertex, nextVertex));
-            }
-        }
-
-        return edges;
-    }
 
     private float calculateOverlapOnAxis(SATSupport shape1, SATSupport shape2, Vector3f axis) {
         Interval interval1 = shape1.getInterval(axis);

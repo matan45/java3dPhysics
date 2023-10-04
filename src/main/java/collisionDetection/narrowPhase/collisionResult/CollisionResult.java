@@ -4,7 +4,7 @@ import math.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
-
+//TODO instead of contactPoints do bodyA and bodyB contactPoints
 public class CollisionResult {
     private boolean colliding;
     private Vector3f normal;
