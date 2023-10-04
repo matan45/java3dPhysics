@@ -30,10 +30,12 @@ public class PhysicsEngine {
     public void solve() {
         Set<BPPairs> bpPairs = cdEngine.query();
         for (BPPairs pairs : bpPairs) {
-            RigidBody bodyA = pairs.getBpBox1().getBody();
-            RigidBody bodyB = pairs.getBpBox2().getBody();
             CollisionResult result = cdEngine.solve(pairs);
-            solveCollisionDispatcher.solve(bodyA, bodyB, result);
+            if (result.isColliding()) {
+                RigidBody bodyA = pairs.getBpBox1().getBody();
+                RigidBody bodyB = pairs.getBpBox2().getBody();
+                solveCollisionDispatcher.solve(bodyA, bodyB, result);
+            }
         }
     }
 }
