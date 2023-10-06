@@ -25,6 +25,11 @@ public class Vector2f {
         this.y = other.y;
     }
 
+    public void setXY(float x,float y) {
+        this.x = x;
+        this.y = y;
+    }
+
     public float getX() {
         return x;
     }

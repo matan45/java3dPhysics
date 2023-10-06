@@ -63,6 +63,12 @@ public class Vector3f {
         this.x = x;
     }
 
+    public void setXYZ(float x,float y,float z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
     public float getY() {
         return y;
     }
