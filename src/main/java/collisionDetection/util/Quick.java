@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-public class QuickHull3D {
+//not working need to do from the libs
+public class Quick {
     public static Set<Vector3f> findConvexHull(List<Vector3f> points) {
-        if (points.size() < 3)
+        if (points.size() < 4)
             return new HashSet<>(points);
 
         List<Vector3f> convexHull = new ArrayList<>();
@@ -81,7 +81,7 @@ public class QuickHull3D {
         Vector3f normal = calculateNormal(a, b, c);
 
         // Calculate the vector from point 'a' to 'p'
-        Vector3f ap = new Vector3f(p.x - a.x, p.y - a.y, p.z - a.z);
+        Vector3f ap = p.sub(a);
 
         // Calculate the dot product of the normal vector and the vector 'ap'
         double dotProduct = normal.dot(ap);
@@ -91,8 +91,8 @@ public class QuickHull3D {
     }
 
     private static Vector3f calculateNormal(Vector3f a, Vector3f b, Vector3f c) {
-        Vector3f vectorAB = new Vector3f(b.x - a.x, b.y - a.y, b.z - a.z);
-        Vector3f vectorAC = new Vector3f(c.x - a.x, c.y - a.y, c.z - a.z);
+        Vector3f vectorAB = b.sub(a);
+        Vector3f vectorAC = c.sub(a);
 
         // Calculate the cross product of vectors AB and AC to get the normal vector
         Vector3f normal = vectorAB.cross(vectorAC);
@@ -119,7 +119,7 @@ public class QuickHull3D {
 
     private static double distanceToPlane(Vector3f p, Vector3f a, Vector3f b, Vector3f c) {
         Vector3f normal = calculateNormal(a, b, c);
-        Vector3f ap = new Vector3f(p.x - a.x, p.y - a.y, p.z - a.z);
+        Vector3f ap = p.sub(a);
         return Math.abs(normal.dot(ap));
     }
 
