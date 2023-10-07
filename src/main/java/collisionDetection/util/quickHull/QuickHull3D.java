@@ -108,8 +108,8 @@ public class QuickHull3D {
         horizon.clear();
         unclaimed.clear();
 
-        removePointFromFace(eyeVtx, eyeVtx.face);
-        calculateHorizon(eyeVtx.pnt, null, eyeVtx.face, horizon);
+        removePointFromFace(eyeVtx, eyeVtx.getFace());
+        calculateHorizon(eyeVtx.getPnt(), null, eyeVtx.getFace(), horizon);
         newFaces.clear();
         addNewFaces(newFaces, eyeVtx, horizon);
 
@@ -341,7 +341,7 @@ public class QuickHull3D {
         double maxSqr = 0;
         Vector3f u01=vtx[1].getPnt().sub(vtx[0].getPnt()).normalize();
         for (int i = 0; i < numPoints; i++) {
-            diff02.sub(pointBuffer[i].pnt, vtx[0].pnt);
+            diff02.sub(pointBuffer[i].pnt, vtx[0].getPnt());
             xprod.cross(u01, diff02);
             double lenSqr = xprod.normSquared();
             if (lenSqr > maxSqr && pointBuffer[i] != vtx[0] && // paranoid
