@@ -16,10 +16,4 @@ public class Vertex {
     public Vertex() {
         pnt = new Vector3f();
     }
-
-    public Vertex(float x, float y, float z, int idx) {
-        pnt = new Vector3f(x, y, z);
-        index = idx;
-    }
-
 }

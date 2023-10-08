@@ -4,10 +4,6 @@ import collisionDetection.util.quickHull.QuickHull3D;
 import math.Vector3f;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-
-
 class QuickHull3DTest {
 
     @Test
@@ -77,8 +73,6 @@ class QuickHull3DTest {
                 0.2459906458351674f, 0.3647787136629026f, -0.1641662355178652f,
                 0.2100642609503719f, -0.4499717643018549f, 0.3245569875692548f
         };
-        //List<Vector3f> varray = toVector(floatArray);
-        //Set<Vector3f> expected = new HashSet<>(toVector(result));
 
         QuickHull3D hull = new QuickHull3D();
         Vector3f[] test=toVector(floatArray);
@@ -90,9 +84,6 @@ class QuickHull3DTest {
         for (Vector3f pnt : vertices) {
             System.out.println(pnt.x + " " + pnt.y + " " + pnt.z);
         }
-
-       /* Set<Vector3f> convexHull = QuickHull3D.findConvexHull(varray);
-        assertEquals(expected.size(), convexHull.size());*/
     }
 
     Vector3f[] toVector(float[] floatArray) {

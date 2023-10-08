@@ -28,11 +28,4 @@ public class FaceList {
     public Face first() {
         return head;
     }
-
-    /**
-     * Returns true if this list is empty.
-     */
-    public boolean isEmpty() {
-        return head == null;
-    }
 }
