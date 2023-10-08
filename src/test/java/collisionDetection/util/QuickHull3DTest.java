@@ -1,16 +1,12 @@
 package collisionDetection.util;
 
-import com.github.quickhull3d.Point3d;
-import com.github.quickhull3d.QuickHull3D;
+import collisionDetection.util.quickHull.QuickHull3D;
 import math.Vector3f;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class QuickHull3DTest {
 
@@ -85,12 +81,13 @@ class QuickHull3DTest {
         //Set<Vector3f> expected = new HashSet<>(toVector(result));
 
         QuickHull3D hull = new QuickHull3D();
-        hull.build(toVector(floatArray));
+        Vector3f[] test=toVector(floatArray);
+        hull.build(test);
 
         System.out.println("Vertices:");
-        Point3d[] vertices = hull.getVertices();
+        Vector3f[] vertices = hull.getVertices();
         System.out.println(vertices.length);
-        for (Point3d pnt : vertices) {
+        for (Vector3f pnt : vertices) {
             System.out.println(pnt.x + " " + pnt.y + " " + pnt.z);
         }
 
@@ -98,16 +95,16 @@ class QuickHull3DTest {
         assertEquals(expected.size(), convexHull.size());*/
     }
 
-    Point3d[] toVector(float[] floatArray) {
+    Vector3f[] toVector(float[] floatArray) {
         int numVectors = floatArray.length / 3;
-        Point3d[] vectorArray = new Point3d[numVectors];
+        Vector3f[] vectorArray = new Vector3f[numVectors];
 
         for (int i = 0; i < numVectors; i++) {
             int startIndex = i * 3;
             float x = floatArray[startIndex];
             float y = floatArray[startIndex + 1];
             float z = floatArray[startIndex + 2];
-            vectorArray[i] = new Point3d(x, y, z);
+            vectorArray[i] = new Vector3f(x, y, z);
         }
 
         return vectorArray;

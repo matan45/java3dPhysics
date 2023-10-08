@@ -1,9 +1,9 @@
 package collisionDetection.util.quickHull;
 
-public class QuickHullFaceList {
-    private QuickHullFace head;
+public class FaceList {
+    private Face head;
 
-    private QuickHullFace tail;
+    private Face tail;
 
     /**
      * Clears this list.
@@ -15,7 +15,7 @@ public class QuickHullFaceList {
     /**
      * Adds a vertex to the end of this list.
      */
-    public void add(QuickHullFace vtx) {
+    public void add(Face vtx) {
         if (head == null) {
             head = vtx;
         } else {
@@ -25,7 +25,7 @@ public class QuickHullFaceList {
         tail = vtx;
     }
 
-    public QuickHullFace first() {
+    public Face first() {
         return head;
     }
 
