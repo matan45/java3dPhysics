@@ -5,16 +5,10 @@ public class FaceList {
 
     private Face tail;
 
-    /**
-     * Clears this list.
-     */
     public void clear() {
         head = tail = null;
     }
 
-    /**
-     * Adds a vertex to the end of this list.
-     */
     public void add(Face vtx) {
         if (head == null) {
             head = vtx;

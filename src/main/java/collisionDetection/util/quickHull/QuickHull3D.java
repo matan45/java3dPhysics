@@ -2,7 +2,6 @@ package collisionDetection.util.quickHull;
 
 import math.Vector3f;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -14,21 +13,19 @@ public class QuickHull3D {
     private static final int NONCONVEX = 2;
 
     private static final double DOUBLE_PREC = 2.2204460492503131e-16;
-    protected double charLength;
-    protected Vertex[] pointBuffer;
-    protected int[] vertexPointIndices;
+    private Vertex[] pointBuffer;
+    private int[] vertexPointIndices;
     private final Face[] discardedFaces;
     private final Vertex[] maxVtxs;
     private final Vertex[] minVtxs;
-    protected List<Face> faces;
-    protected List<HalfEdge> horizon;
+    private final List<Face> faces;
+    private final List<HalfEdge> horizon;
     private final FaceList newFaces;
     private final VertexList unclaimed;
     private final VertexList claimed;
-    protected int numVertices;
-    protected int numFaces;
-    protected int numPoints;
-    protected double tolerance;
+    private int numVertices;
+    private int numPoints;
+    private double tolerance;
 
     public QuickHull3D() {
         this.pointBuffer = new Vertex[0];
@@ -84,39 +81,38 @@ public class QuickHull3D {
     }
 
 
-    public void build(Vector3f[] points, int nump) throws IllegalArgumentException {
-        if (nump < 4) {
+    private void build(Vector3f[] points, int number) throws IllegalArgumentException {
+        if (number < 4) {
             throw new IllegalArgumentException("Less than four input points specified");
         }
-        if (points.length < nump) {
+        if (points.length < number) {
             throw new IllegalArgumentException("Point array too small for specified number of points");
         }
-        initBuffers(nump);
-        setPoints(points, nump);
+        initBuffers(number);
+        setPoints(points);
         buildHull();
     }
 
-    protected void initBuffers(int nump) {
-        if (pointBuffer.length < nump) {
-            Vertex[] newBuffer = new Vertex[nump];
-            vertexPointIndices = new int[nump];
+    protected void initBuffers(int number) {
+        if (pointBuffer.length < number) {
+            Vertex[] newBuffer = new Vertex[number];
+            vertexPointIndices = new int[number];
 
             System.arraycopy(pointBuffer, 0, newBuffer, 0, pointBuffer.length);
-            for (int i = pointBuffer.length; i < nump; i++) {
+            for (int i = pointBuffer.length; i < number; i++) {
                 newBuffer[i] = new Vertex();
             }
             pointBuffer = newBuffer;
         }
         faces.clear();
         claimed.clear();
-        numFaces = 0;
-        numPoints = nump;
+        numPoints = number;
     }
 
-    protected void setPoints(Vector3f[] pnts, int nump) {
-        for (int i = 0; i < nump; i++) {
+    protected void setPoints(Vector3f[] points) {
+        for (int i = 0; i < points.length; i++) {
             Vertex vtx = pointBuffer[i];
-            vtx.pnt.set(pnts[i]);
+            vtx.pnt.set(points[i]);
             vtx.index = i;
         }
     }
@@ -156,9 +152,6 @@ public class QuickHull3D {
             }
         }
 
-        charLength = Math.max(max.x - min.x, max.y - min.y);
-        charLength = Math.max(max.z - min.z, charLength);
-
         tolerance =
                 3 * DOUBLE_PREC * (Math.max(Math.abs(max.x), Math.abs(min.x)) + Math.max(Math.abs(max.y), Math.abs(min.y)) + Math.max(Math.abs(max.z), Math.abs(min.z)));
 
@@ -184,12 +177,11 @@ public class QuickHull3D {
         vtx[0] = maxVtxs[imax];
         vtx[1] = minVtxs[imax];
 
-        Vector3f u01 = new Vector3f();
         Vector3f diff02 = new Vector3f();
-        Vector3f nrml = new Vector3f();
+        Vector3f normal = new Vector3f();
         Vector3f xprod = new Vector3f();
         double maxSqr = 0;
-        u01 = vtx[1].pnt.sub(vtx[0].pnt).normalize();
+        Vector3f u01 = vtx[1].pnt.sub(vtx[0].pnt).normalize();
         for (int i = 0; i < numPoints; i++) {
             diff02.set(pointBuffer[i].pnt.sub(vtx[0].pnt));
             xprod.set(u01.cross(diff02));
@@ -198,17 +190,17 @@ public class QuickHull3D {
                     pointBuffer[i] != vtx[1]) {
                 maxSqr = lenSqr;
                 vtx[2] = pointBuffer[i];
-                nrml.set(xprod);
+                normal.set(xprod);
             }
         }
         if (Math.sqrt(maxSqr) <= 100 * tolerance) {
             throw new IllegalArgumentException("Input points appear to be colinear");
         }
-        nrml.set(nrml.normalize());
+        normal.set(normal.normalize());
         double maxDist = 0;
-        double d0 = vtx[2].pnt.dot(nrml);
+        double d0 = vtx[2].pnt.dot(normal);
         for (int i = 0; i < numPoints; i++) {
-            double dist = Math.abs(pointBuffer[i].pnt.dot(nrml) - d0);
+            double dist = Math.abs(pointBuffer[i].pnt.dot(normal) - d0);
             if (dist > maxDist && pointBuffer[i] != vtx[0] && // paranoid
                     pointBuffer[i] != vtx[1] && pointBuffer[i] != vtx[2]) {
                 maxDist = dist;
@@ -221,11 +213,11 @@ public class QuickHull3D {
 
         Face[] tris = new Face[4];
 
-        if (vtx[3].pnt.dot(nrml) - d0 < 0) {
-            tris[0] = Face.createTriangle(vtx[0], vtx[1], vtx[2]);
-            tris[1] = Face.createTriangle(vtx[3], vtx[1], vtx[0]);
-            tris[2] = Face.createTriangle(vtx[3], vtx[2], vtx[1]);
-            tris[3] = Face.createTriangle(vtx[3], vtx[0], vtx[2]);
+        if (vtx[3].pnt.dot(normal) - d0 < 0) {
+            tris[0] = QHUtil.createTriangle(vtx[0], vtx[1], vtx[2]);
+            tris[1] = QHUtil.createTriangle(vtx[3], vtx[1], vtx[0]);
+            tris[2] = QHUtil.createTriangle(vtx[3], vtx[2], vtx[1]);
+            tris[3] = QHUtil.createTriangle(vtx[3], vtx[0], vtx[2]);
 
             for (int i = 0; i < 3; i++) {
                 int k = (i + 1) % 3;
@@ -233,10 +225,10 @@ public class QuickHull3D {
                 tris[i + 1].getEdge(2).setOpposite(tris[0].getEdge(k));
             }
         } else {
-            tris[0] = Face.createTriangle(vtx[0], vtx[2], vtx[1]);
-            tris[1] = Face.createTriangle(vtx[3], vtx[0], vtx[1]);
-            tris[2] = Face.createTriangle(vtx[3], vtx[1], vtx[2]);
-            tris[3] = Face.createTriangle(vtx[3], vtx[2], vtx[0]);
+            tris[0] = QHUtil.createTriangle(vtx[0], vtx[2], vtx[1]);
+            tris[1] = QHUtil.createTriangle(vtx[3], vtx[0], vtx[1]);
+            tris[2] = QHUtil.createTriangle(vtx[3], vtx[1], vtx[2]);
+            tris[3] = QHUtil.createTriangle(vtx[3], vtx[2], vtx[0]);
 
             for (int i = 0; i < 3; i++) {
                 int k = (i + 1) % 3;
@@ -277,16 +269,6 @@ public class QuickHull3D {
         return vtxs;
     }
 
-
-    public int getVertices(double[] coords) {
-        for (int i = 0; i < numVertices; i++) {
-            Vector3f pnt = pointBuffer[vertexPointIndices[i]].pnt;
-            coords[i * 3] = pnt.x;
-            coords[i * 3 + 1] = pnt.y;
-            coords[i * 3 + 2] = pnt.z;
-        }
-        return numVertices;
-    }
 
     private void resolveUnclaimedPoints(FaceList newFaces) {
         Vertex vtxNext = unclaimed.first();
@@ -404,7 +386,7 @@ public class QuickHull3D {
     }
 
     private HalfEdge addAdjoiningFace(Vertex eyeVtx, HalfEdge he) {
-        Face face = Face.createTriangle(eyeVtx, he.tail(), he.head());
+        Face face = QHUtil.createTriangle(eyeVtx, he.tail(), he.head());
         faces.add(face);
         face.getEdge(-1).setOpposite(he.getOpposite());
         return face.getEdge(0);
@@ -484,11 +466,11 @@ public class QuickHull3D {
         reindexFacesAndVertices();
     }
 
-    private void markFaceVertices(Face face, int mark) {
+    private void markFaceVertices(Face face) {
         HalfEdge he0 = face.getFirstEdge();
         HalfEdge he = he0;
         do {
-            he.head().index = mark;
+            he.head().index = 0;
             he = he.next;
         } while (he != he0);
     }
@@ -498,14 +480,12 @@ public class QuickHull3D {
             pointBuffer[i].index = -1;
         }
 
-        numFaces = 0;
         for (Iterator<Face> it = faces.iterator(); it.hasNext(); ) {
             Face face = it.next();
             if (face.mark != Face.VISIBLE) {
                 it.remove();
             } else {
-                markFaceVertices(face, 0);
-                numFaces++;
+                markFaceVertices(face);
             }
         }
         // reindex vertices

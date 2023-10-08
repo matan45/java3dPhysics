@@ -33,52 +33,6 @@ public class Face {
         mark = VISIBLE;
     }
 
-    public static Face create(Vertex[] vtxArray, int[] indices) {
-        Face face = new Face();
-        HalfEdge hePrev = null;
-        for (int index : indices) {
-            HalfEdge he = new HalfEdge(vtxArray[index], face);
-            if (hePrev != null) {
-                he.setPrev(hePrev);
-                hePrev.setNext(he);
-            } else {
-                face.he0 = he;
-            }
-            hePrev = he;
-        }
-        face.he0.setPrev(hePrev);
-        assert hePrev != null;
-        hePrev.setNext(face.he0);
-
-        // compute the normal and offset
-        face.computeNormalAndCentroid();
-        return face;
-    }
-
-    public static Face createTriangle(Vertex v0, Vertex v1, Vertex v2) {
-        return createTriangle(v0, v1, v2, 0);
-    }
-
-
-    public static Face createTriangle(Vertex v0, Vertex v1, Vertex v2, double minArea) {
-        Face face = new Face();
-        HalfEdge he0 = new HalfEdge(v0, face);
-        HalfEdge he1 = new HalfEdge(v1, face);
-        HalfEdge he2 = new HalfEdge(v2, face);
-
-        he0.prev = he2;
-        he0.next = he1;
-        he1.prev = he0;
-        he1.next = he2;
-        he2.prev = he1;
-        he2.next = he0;
-
-        face.he0 = he0;
-
-        // compute the normal and offset
-        face.computeNormalAndCentroid(minArea);
-        return face;
-    }
 
     public void computeCentroid(Vector3f centroid) {
         centroid.setXYZ(0,0,0);
@@ -130,9 +84,6 @@ public class Face {
         computeNormal(normal);
 
         if (area < minArea) {
-            // make the normal more robust by removing
-            // components parallel to the longest edge
-
             HalfEdge hedgeMax = null;
             double lenSqrMax = 0;
             HalfEdge hedge = he0;
@@ -263,7 +214,7 @@ public class Face {
         return numVerts;
     }
 
-    private void computeNormalAndCentroid() {
+    public void computeNormalAndCentroid() {
         computeNormal(normal);
         computeCentroid(centroid);
         planeOffset = normal.dot(centroid);
@@ -278,7 +229,7 @@ public class Face {
         }
     }
 
-    private void computeNormalAndCentroid(double minArea) {
+    public void computeNormalAndCentroid(double minArea) {
         computeNormal(normal, minArea);
         computeCentroid(centroid);
         planeOffset = normal.dot(centroid);
@@ -287,11 +238,7 @@ public class Face {
     private Face connectHalfEdges(HalfEdge hedgePrev, HalfEdge hedge) {
         Face discardedFace = null;
 
-        if (hedgePrev.oppositeFace() == hedge.oppositeFace()) { // then there is
-            // a redundant
-            // edge that we
-            // can get rid
-            // off
+        if (hedgePrev.oppositeFace() == hedge.oppositeFace()) {
 
             Face oppFace = hedge.oppositeFace();
             HalfEdge hedgeOpp;
@@ -299,8 +246,7 @@ public class Face {
             if (hedgePrev == he0) {
                 he0 = hedge;
             }
-            if (oppFace.numVertices() == 3) { // then we can get rid of the
-                // opposite face altogether
+            if (oppFace.numVertices() == 3) {
                 hedgeOpp = hedge.getOpposite().prev.getOpposite();
 
                 oppFace.mark = DELETED;

@@ -75,7 +75,7 @@ class QuickHull3DTest {
         };
 
         QuickHull3D hull = new QuickHull3D();
-        Vector3f[] test=toVector(floatArray);
+        Vector3f[] test = toVector(floatArray);
         hull.build(test);
 
         System.out.println("Vertices:");
